@@ -1,0 +1,30 @@
+{
+    "version": "2.0.0",
+    "tasks": [   
+        {
+            "label": "build",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-g", 
+                "-o",
+                "main.exe",
+                "-std=c++17",
+                "*.cpp",
+                "-I/Users/yre03/Dev/Repositories/vcpkg/installed/x64-osx/include",
+                "/Users/yre03/Dev/Repositories/vcpkg/installed/x64-osx/lib/libglfw3.a",
+                "/Users/yre03/Dev/Repositories/vcpkg/installed/x64-osx/lib/libGLEW.a",
+                "/usr/local/Cellar/assimp/4.1.0/lib/libassimp.4.1.0.dylib",
+                "/usr/local/Cellar/assimp/4.1.0/lib/libIrrXML.a",
+                "/System/Library/Frameworks/OpenGL.framework/Versions/Current/OpenGL",
+                "/System/Library/Frameworks/Cocoa.framework/Versions/Current/Cocoa",
+                "/System/Library/Frameworks/IOKit.framework/Versions/Current/IOKit",
+                "/System/Library/Frameworks/CoreVideo.framework/Versions/Current/CoreVideo"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
