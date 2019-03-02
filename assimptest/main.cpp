@@ -19,9 +19,9 @@ using namespace glm;
 
 #include "amodel.hpp"
 
-int main(void)
+int main(int argc, char *argv[])
 {
-	if( !glfwInit() )
+	if(!glfwInit())
 	{
 		fprintf( stderr, "Failed to initialize GLFW\n" );
 		getchar();
@@ -96,9 +96,9 @@ int main(void)
 
 	GLint mvpMatrixUniform = glGetUniformLocation(shaderProgramme, "mvpMatrix");
 
-	AModel amodel("stuff2.FBX");
+	AModel amodel(argc > 1 ? std::string(argv[1]) : "monkey_cube1.fbx");
 
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 60.0f);  
+	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);  
 	glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
 	glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f); 

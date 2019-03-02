@@ -20,6 +20,7 @@ void AModel::loadModel(std::string path)
 
     if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) 
     {
+        printf("Something went wrong. Unable to load file: %s\n", path.c_str());
         return;
     }
     std::string directory = path.substr(0, path.find_last_of('/'));
