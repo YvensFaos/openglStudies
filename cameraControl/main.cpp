@@ -131,27 +131,81 @@ GLuint generateShader(std::string shaderText, GLuint shaderType) {
 
 glm::mat4 skyView = glm::mat4(1.0);
 float deltaTime = 0.0;
-float moveForce = 10.0f;
+float moveForce = 5.0f;
 ACamera acamera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
-    if (key == GLFW_KEY_LEFT && (action == GLFW_PRESS || action == GLFW_REPEAT))
+    if ((key == GLFW_KEY_LEFT || key == GLFW_KEY_A) && (action == GLFW_PRESS || action == GLFW_REPEAT))
     {
 		acamera.MoveSideway(-moveForce * deltaTime);
     }
-	if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT))
+	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_D) && (action == GLFW_PRESS || action == GLFW_REPEAT))
     {
 		acamera.MoveSideway( moveForce * deltaTime);
     }
-	if (key == GLFW_KEY_UP && (action == GLFW_PRESS || action == GLFW_REPEAT))
-    {
-		acamera.MoveForward(-moveForce * deltaTime);
-    }
-	if (key == GLFW_KEY_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT))
+	if ((key == GLFW_KEY_UP || key == GLFW_KEY_W) && (action == GLFW_PRESS || action == GLFW_REPEAT))
     {
 		acamera.MoveForward( moveForce * deltaTime);
     }
+	if ((key == GLFW_KEY_DOWN || key == GLFW_KEY_S) && (action == GLFW_PRESS || action == GLFW_REPEAT))
+    {
+		acamera.MoveForward(-moveForce * deltaTime);
+    }
+	if (key == GLFW_KEY_Z && (action == GLFW_PRESS || action == GLFW_REPEAT))
+    {
+		acamera.Zoom(5.0f);
+    }
+	if (key == GLFW_KEY_X && (action == GLFW_PRESS || action == GLFW_REPEAT))
+    {
+		acamera.Zoom(-5.0f);
+    }
+	if (key == GLFW_KEY_Q && (action == GLFW_PRESS || action == GLFW_REPEAT))
+    {
+		acamera.RotateWithMouse(10, 0);
+    }
+	if (key == GLFW_KEY_E && (action == GLFW_PRESS || action == GLFW_REPEAT))
+    {
+		acamera.RotateWithMouse(-10, 0);
+    }
+}
+
+int width = 800;
+int height = 600;
+float lastX = width / 2.0f;
+float lastY = height / 2.0f;
+float mouseSensitivity = 5.0;
+bool firstMouse = true;
+bool mouseIsClickingLeft = false;
+
+void mouseCallback(GLFWwindow* window, double xpos, double ypos)
+{
+	if (firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos;
+
+	lastX = xpos;
+	lastY = ypos;
+	
+	if(mouseIsClickingLeft)
+	{
+		acamera.RotateWithMouse(xoffset / mouseSensitivity, yoffset / mouseSensitivity);
+	}
+}
+
+void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+{
+	mouseIsClickingLeft = false;
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+	{
+		mouseIsClickingLeft = true;
+	}
 }
 
 int main(void)
@@ -169,8 +223,6 @@ int main(void)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	int width = 800;
-	int height = 600;
 	window = glfwCreateWindow(width, height, "Cubemap Reflection", NULL, NULL);
 	if( window == NULL ){
 		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
@@ -180,6 +232,8 @@ int main(void)
 	}
 	glfwMakeContextCurrent(window);
 	glfwSetKeyCallback(window, keyCallback);
+	glfwSetCursorPosCallback(window, mouseCallback);
+	glfwSetMouseButtonCallback(window, mouseButtonCallback);
 
 	if (glewInit() != GLEW_OK) {
 		fprintf(stderr, "Failed to initialize GLEW\n");
@@ -267,8 +321,7 @@ int main(void)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
 
-	float fov = 45.0f;
-	glm::mat4 projection = glm::perspective(glm::radians(fov), (float) width / (float) height, 0.1f, 100.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, 0.1f, 100.0f);
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
 	glm::mat4 view = acamera.getView();
@@ -282,6 +335,7 @@ int main(void)
 
 	glm::vec3 baseColor = glm::vec3(0.75f, 0.75f, 0.75f);
 	do{
+		projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, 0.1f, 100.0f);
 		modelMatrix = glm::rotate(modelMatrix, glm::radians(10.0f) * deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));		
 		skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(skyView));
 		viewProjectionMatrix = projection * acamera.getView();
