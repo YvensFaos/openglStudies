@@ -131,26 +131,34 @@ GLuint generateShader(std::string shaderText, GLuint shaderType) {
 
 glm::mat4 skyView = glm::mat4(1.0);
 float deltaTime = 0.0;
-float moveForce = 5.0f;
+float moveForce = 20.0f;
 ACamera acamera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	float shiftModPower = 1.0f;
+	if (mods == GLFW_MOD_SHIFT)
+	{
+		shiftModPower = 2.5f;
+	} else if (mods == GLFW_MOD_CONTROL)
+	{
+		shiftModPower = 0.5f;
+	}
     if ((key == GLFW_KEY_LEFT || key == GLFW_KEY_A) && (action == GLFW_PRESS || action == GLFW_REPEAT))
     {
-		acamera.MoveSideway(-moveForce * deltaTime);
+		acamera.MoveSideway(shiftModPower * -moveForce * deltaTime);
     }
 	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_D) && (action == GLFW_PRESS || action == GLFW_REPEAT))
     {
-		acamera.MoveSideway( moveForce * deltaTime);
+		acamera.MoveSideway(shiftModPower * moveForce * deltaTime);
     }
 	if ((key == GLFW_KEY_UP || key == GLFW_KEY_W) && (action == GLFW_PRESS || action == GLFW_REPEAT))
     {
-		acamera.MoveForward( moveForce * deltaTime);
+		acamera.MoveForward(shiftModPower * moveForce * deltaTime);
     }
 	if ((key == GLFW_KEY_DOWN || key == GLFW_KEY_S) && (action == GLFW_PRESS || action == GLFW_REPEAT))
     {
-		acamera.MoveForward(-moveForce * deltaTime);
+		acamera.MoveForward(shiftModPower *-moveForce * deltaTime);
     }
 	if (key == GLFW_KEY_Z && (action == GLFW_PRESS || action == GLFW_REPEAT))
     {
@@ -321,7 +329,7 @@ int main(void)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
 
-	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, 0.1f, 100.0f);
+	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, 0.1f, 1000.0f);
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
 	glm::mat4 view = acamera.getView();
@@ -335,7 +343,7 @@ int main(void)
 
 	glm::vec3 baseColor = glm::vec3(0.75f, 0.75f, 0.75f);
 	do{
-		projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, 0.1f, 100.0f);
+		projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, 0.1f, 1000.0f);
 		modelMatrix = glm::rotate(modelMatrix, glm::radians(10.0f) * deltaTime, glm::vec3(0.0f, 1.0f, 0.0f));		
 		skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(skyView));
 		viewProjectionMatrix = projection * acamera.getView();
@@ -356,6 +364,8 @@ int main(void)
 		});
 		glBindVertexArray(0);
 
+		
+
 		glDepthFunc(GL_LEQUAL); 
 		glUseProgram(skyboxProgramme);
 		glUniformMatrix4fv (skyVpMatrixUniform, 1, GL_FALSE, glm::value_ptr(skyViewProjectionMatrix));
@@ -367,7 +377,7 @@ int main(void)
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 		glBindVertexArray(0);
-		glDepthFunc(GL_LESS); 
+		glDepthFunc(GL_LESS);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
