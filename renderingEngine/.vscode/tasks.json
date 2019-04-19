@@ -11,6 +11,7 @@
                 "main.exe",
                 "-std=c++17",
                 "*.cpp",
+                "*/*.cpp",
                 "../LuaHandler/*.cpp",
                 "-I/Users/yre03/Dev/Repositories/vcpkg/installed/x64-osx/include",
                 "-I/usr/local/Cellar/lua/5.3.5_1/include/lua",
