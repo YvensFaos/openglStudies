@@ -390,20 +390,7 @@ int main(void)
 
 		glUseProgram(shadowProgramme);
 		glUniformMatrix4fv (shadowLightMatrixUniform, 1, GL_FALSE, glm::value_ptr(lightMatrix));
-
-		for(auto model : models) 
-		{
-			pointer = model->getMeshes();
-
-			auto begin = pointer->begin();
-			auto end = pointer->end();
-			auto modelMatrix = model->getModelMatrix();
-			std::for_each(begin, end, [shadowModelMatrixUniform, modelMatrix, shadowProgramme](AMesh mesh)
-			{
-				glUniformMatrix4fv (shadowModelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-				mesh.Draw(shadowProgramme);
-			});
-		}
+		AModel::renderModelsInList(&models, shadowModelMatrixUniform, shadowProgramme);
 		glBindVertexArray(0);
 
 		glUniformMatrix4fv (shadowModelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane->getModelMatrix()));
@@ -418,7 +405,6 @@ int main(void)
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		debugQuad.render(depthMap);
 #pragma endregion
 
@@ -441,20 +427,7 @@ int main(void)
 
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glUniform1i(shadowMapUniform, 0);
-		
-		for(auto model : models) 
-		{
-			pointer = model->getMeshes();
-
-			auto begin = pointer->begin();
-			auto end = pointer->end();
-			auto modelMatrix = model->getModelMatrix();
-			std::for_each(begin, end, [modelMatrixUniform, modelMatrix, shaderProgramme](AMesh mesh)
-			{
-				glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-				mesh.Draw(shaderProgramme);
-			});
-		}
+		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
 
 		glBindVertexArray(0);
 		glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane->getModelMatrix()));
@@ -481,20 +454,7 @@ int main(void)
 
 		glBindTexture(GL_TEXTURE_2D, depthMap);
 		glUniform1i(shadowMapUniform, 0);
-		
-		for(auto model : models) 
-		{
-			pointer = model->getMeshes();
-
-			auto begin = pointer->begin();
-			auto end = pointer->end();
-			auto modelMatrix = model->getModelMatrix();
-			std::for_each(begin, end, [modelMatrixUniform, modelMatrix, shaderProgramme](AMesh mesh)
-			{
-				glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-				mesh.Draw(shaderProgramme);
-			});
-		}
+		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
 
 		glBindVertexArray(0);
 		glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane->getModelMatrix()));
@@ -518,7 +478,6 @@ int main(void)
 		currentTime = finishFrameTime;
 		accumulator += deltaTime;
 		sprintf(title, "FPS: %4.2f", 1.0f / (float) deltaTime);
-		printf("FPS: %4.2f\n", 1.0f / (float) deltaTime);
 		glfwSetWindowTitle(window, title);
 	}
 	while(glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window) == 0);

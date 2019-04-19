@@ -3,6 +3,9 @@
 
 #include <stb_image.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/rotate_vector.hpp>
 
 AModel::AModel(std::string path) : modelMatrix(glm::mat4(1.0))
 { 
@@ -206,4 +209,23 @@ void AModel::scale(glm::vec3 scaleTo)
 glm::mat4 AModel::getModelMatrix(void) const 
 {
     return this->modelMatrix;
+}
+
+void AModel::renderModelsInList(std::vector<AModel*>* list, GLuint modelMatrixUniform, GLuint programme)
+{
+    std::vector<AModel*>::iterator amodelIterator;
+    const std::vector<AMesh>* pointer;
+    for(amodelIterator = list->begin() ; amodelIterator != list->end() ; ++amodelIterator)
+    {
+        pointer = (*amodelIterator)->getMeshes();
+
+        auto begin = pointer->begin();
+        auto end = pointer->end();
+        auto modelMatrix = (*amodelIterator)->getModelMatrix();
+        std::for_each(begin, end, [modelMatrixUniform, modelMatrix, programme](AMesh mesh)
+        {
+            glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+            mesh.Draw(programme);
+        });
+    }
 }

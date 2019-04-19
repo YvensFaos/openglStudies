@@ -35,4 +35,7 @@ class AModel
         glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4* from);
         std::vector<ATexture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName);
         unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma = false);
+
+    public:
+        static void renderModelsInList(std::vector<AModel*>* list, GLuint modelMatrixUniform, GLuint programme);
 };
