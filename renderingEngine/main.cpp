@@ -293,7 +293,14 @@ int main(void)
         "desertsky_rt.tga",
         "desertsky_lf.tga"
     };
-	ASkybox askybox(faces);
+	ASkybox askybox(std::vector<std::string>{
+        "desertsky_ft.tga",
+        "desertsky_bc.tga",
+        "desertsky_up.tga",
+        "desertsky_dn.tga",
+        "desertsky_rt.tga",
+        "desertsky_lf.tga"
+    });
 
 	GLuint skyVpMatrixUniform = glGetUniformLocation(skyboxProgramme, "vpMatrix");
 	GLuint skyboxUniform = glGetUniformLocation(skyboxProgramme, "skybox");
