@@ -262,3 +262,7 @@ std::string LuaHandler::popString() {
 int LuaHandler::getStackTop(void) {
     return lua_gettop(lua);
 }
+
+int LuaHandler::getLength(void) {
+    return lua_rawlen(lua, -1);
+}

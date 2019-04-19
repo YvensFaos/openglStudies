@@ -47,4 +47,5 @@ class LuaHandler {
         void popTable(void);
 
         int getStackTop(void);
+        int getLength(void);
 };
