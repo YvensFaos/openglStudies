@@ -25,6 +25,7 @@ GLFWwindow* window;
 #include "acamera.hpp"
 #include "alight.hpp"
 #include "ashader.hpp"
+#include "aframebuffer.hpp"
 
 #include <luahandler.hpp>
 #include <stb_image.h>
@@ -308,30 +309,12 @@ int main(void)
 
 	ARenderQuad debugQuad(luaHandler.getGlobalString("debugQuadVertexShader"), luaHandler.getGlobalString("debugQuadFragShader"));
 
-	unsigned int depthMapFBO;
-	glGenFramebuffers(1, &depthMapFBO);
-	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-
-	unsigned int depthMap;
-	glGenTextures(1, &depthMap);
-	glBindTexture(GL_TEXTURE_2D, depthMap);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-
-	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	GLfloat shadowWidth = 1024;
+	GLfloat shadowHeight = 1024;
+	ADepthbuffer adepthBuffer(shadowWidth, shadowHeight);
 
 	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
 	AModel* plane = ALuaHelper::loadModelFromTable("plane", &luaHandler);
-
 	ALight* alight = ALuaHelper::loadLightFromTable("light", &luaHandler);
 
 	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, 0.1f, 1000.0f);
@@ -346,7 +329,6 @@ int main(void)
 	deltaTime = 0.0f;
 	char title[128];
 
-	const std::vector<AMesh>* pointer;
 	glm::vec3 lightPosition = alight->getPosition();
 	glm::vec3 lightDirection = alight->getDirection();
 	glm::vec3 lightUp = alight->getUp();
@@ -384,8 +366,8 @@ int main(void)
 		viewProjectionMatrix = projection * acamera.getView();
 
 #pragma region SHADOW BUFFER
-		glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glViewport(0, 0, shadowWidth, shadowHeight);
+		glBindFramebuffer(GL_FRAMEBUFFER, adepthBuffer.getFBO());
 		glClear(GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(shadowProgramme);
@@ -405,7 +387,7 @@ int main(void)
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		debugQuad.render(depthMap);
+		debugQuad.render(adepthBuffer.getFramebufferTexture());
 #pragma endregion
 
 #pragma region LIGHT CAMERA
@@ -425,7 +407,7 @@ int main(void)
 		glUniform1f(lightIntensityUniform, lightIntensity);
 		glUniform1i(lightDirectionalUniform, lightDirectional);
 
-		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glBindTexture(GL_TEXTURE_2D, adepthBuffer.getFramebufferTexture());
 		glUniform1i(shadowMapUniform, 0);
 		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
 
@@ -452,7 +434,7 @@ int main(void)
 		glUniform1f(lightIntensityUniform, lightIntensity);
 		glUniform1i(lightDirectionalUniform, lightDirectional);
 
-		glBindTexture(GL_TEXTURE_2D, depthMap);
+		glBindTexture(GL_TEXTURE_2D, adepthBuffer.getFramebufferTexture());
 		glUniform1i(shadowMapUniform, 0);
 		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
 
