@@ -30,14 +30,9 @@ GLFWwindow* window;
 #include <stb_image.h>
 
 #include "askybox.hpp"
+#include "Utils/amacrohelper.hpp"
 #include "Utils/arenderquad.hpp"
-
-#define printMatrix(matrix) {int _i = -1; \
-							printf("%2.2f %2.2f %2.2f %2.2f\n", matrix[++_i][0], matrix[_i][1], matrix[_i][2], matrix[_i][3]); \
-							printf("%2.2f %2.2f %2.2f %2.2f\n", matrix[++_i][0], matrix[_i][1], matrix[_i][2], matrix[_i][3]); \
-							printf("%2.2f %2.2f %2.2f %2.2f\n", matrix[++_i][0], matrix[_i][1], matrix[_i][2], matrix[_i][3]); \
-							printf("%2.2f %2.2f %2.2f %2.2f\n", matrix[++_i][0], matrix[_i][1], matrix[_i][2], matrix[_i][3]); \
-							printf("----- ----- ----- -----\n");}
+#include "Utils/aluahelper.hpp"
 
 void updateLightWithLua(LuaHandler* luaHandler, ALight* alight, float deltaTime, float accumulator) 
 {
@@ -161,18 +156,18 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
     }
 	if (key == GLFW_KEY_6 && (action == GLFW_PRESS || action == GLFW_REPEAT))
     {
-		projectionDimension -= 1.25;
+			projectionDimension -= 1.25;
     }
 	if (key == GLFW_KEY_P && (action == GLFW_PRESS || action == GLFW_REPEAT))
     {
-		printf("Printing Info: \n");
-		printf("---------------\n");
-		printf("Acc: %9f\n", accumulator);
-		printf("---------------\n");
-		printf("Near: %9f\n", near_plane);
-		printf("Far:  %9f\n",  far_plane);
-		printf("Proj: %9f\n",  projectionDimension);
-		printf("---------------\n");
+			printf("Printing Info: \n");
+			printf("---------------\n");
+			printf("Acc: %9f\n", accumulator);
+			printf("---------------\n");
+			printf("Near: %9f\n", near_plane);
+			printf("Far:  %9f\n",  far_plane);
+			printf("Proj: %9f\n",  projectionDimension);
+			printf("---------------\n");
     }
 	if (key == GLFW_KEY_SPACE && (action == GLFW_PRESS || action == GLFW_REPEAT))
     {
@@ -285,14 +280,6 @@ int main(void)
 	GLuint skyboxProgramme  = AShader::generateProgram(svs, sfs);
 	GLuint shadowProgramme = AShader::generateProgram(hvs, hfs);
 
-	std::vector<std::string> faces{
-        "desertsky_ft.tga",
-        "desertsky_bc.tga",
-        "desertsky_up.tga",
-        "desertsky_dn.tga",
-        "desertsky_rt.tga",
-        "desertsky_lf.tga"
-    };
 	ASkybox askybox(std::vector<std::string>{
         "desertsky_ft.tga",
         "desertsky_bc.tga",
@@ -342,106 +329,10 @@ int main(void)
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	int modelsCount = luaHandler.getGlobalInteger("modelsCount");
-	luaHandler.loadTable("models");
-	std::vector<AModel> models;
-	glm::vec3 translateTo;
-	glm::vec3 scaleTo;
-	glm::vec3 rotateTo;
-	for(int i = 1; i <= modelsCount; i++)
-	{
-		luaHandler.getTableFromTable(i);
-		AModel model = AModel(luaHandler.getStringFromTable("file"));
+	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
+	AModel* plane = ALuaHelper::loadModelFromTable("plane", &luaHandler);
 
-		luaHandler.getTableFromTable("pos");
-		translateTo.x = luaHandler.getNumberFromTable(1);
-		translateTo.y = luaHandler.getNumberFromTable(2);
-		translateTo.z = luaHandler.getNumberFromTable(3);
-		model.translate(translateTo);
-		luaHandler.popTable();
-
-		luaHandler.getTableFromTable("rot");
-		rotateTo.x = luaHandler.getNumberFromTable(1);
-		rotateTo.y = luaHandler.getNumberFromTable(2);
-		rotateTo.z = luaHandler.getNumberFromTable(3);
-		model.rotate(rotateTo);
-		luaHandler.popTable();
-
-		luaHandler.getTableFromTable("sca");
-		scaleTo.x = luaHandler.getNumberFromTable(1);
-		scaleTo.y = luaHandler.getNumberFromTable(2);
-		scaleTo.z = luaHandler.getNumberFromTable(3);
-		model.scale(scaleTo);
-		luaHandler.popTable();
-
-		models.emplace_back(model);
-		luaHandler.popTable();
-	}
-	luaHandler.popTable();
-
-	luaHandler.loadTable("plane");	
-	AModel plane = AModel(luaHandler.getStringFromTable("file"));
-	luaHandler.getTableFromTable("pos");
-	translateTo.x = luaHandler.getNumberFromTable(1);
-	translateTo.y = luaHandler.getNumberFromTable(2);
-	translateTo.z = luaHandler.getNumberFromTable(3);
-	plane.translate(translateTo);
-	luaHandler.popTable();
-
-	luaHandler.getTableFromTable("rot");
-	rotateTo.x = luaHandler.getNumberFromTable(1);
-	rotateTo.y = luaHandler.getNumberFromTable(2);
-	rotateTo.z = luaHandler.getNumberFromTable(3);
-	plane.rotate(rotateTo);
-	luaHandler.popTable();
-
-	luaHandler.getTableFromTable("sca");
-	scaleTo.x = luaHandler.getNumberFromTable(1);
-	scaleTo.y = luaHandler.getNumberFromTable(2);
-	scaleTo.z = luaHandler.getNumberFromTable(3);
-	plane.scale(scaleTo);
-	luaHandler.popTable();
-	luaHandler.popTable();
-
-	glm::vec3 lightPositionValue;
-	glm::vec3 lightDirectionValue;
-	glm::vec3 lightUpValue;
-	glm::vec4 lightColorValue;
-	float lightIntensityValue;
-	bool lightDirectionalValue;
-
-	luaHandler.loadTable("light");
-	luaHandler.getTableFromTable("pos");
-	lightPositionValue.x = luaHandler.getNumberFromTable(1);
-	lightPositionValue.y = luaHandler.getNumberFromTable(2);
-	lightPositionValue.z = luaHandler.getNumberFromTable(3);
-	luaHandler.popTable();
-
-	luaHandler.getTableFromTable("dir");
-	lightDirectionValue.x = luaHandler.getNumberFromTable(1);
-	lightDirectionValue.y = luaHandler.getNumberFromTable(2);
-	lightDirectionValue.z = luaHandler.getNumberFromTable(3);
-	luaHandler.popTable();
-
-	luaHandler.getTableFromTable("up");
-	lightUpValue.x = luaHandler.getNumberFromTable(1);
-	lightUpValue.y = luaHandler.getNumberFromTable(2);
-	lightUpValue.z = luaHandler.getNumberFromTable(3);
-	luaHandler.popTable();
-
-	luaHandler.getTableFromTable("col");
-	lightColorValue.x = luaHandler.getNumberFromTable(1);
-	lightColorValue.y = luaHandler.getNumberFromTable(2);
-	lightColorValue.z = luaHandler.getNumberFromTable(3);
-	lightColorValue.w = luaHandler.getNumberFromTable(4);
-	luaHandler.popTable();
-
-	lightIntensityValue = luaHandler.getNumberFromTable("intensity");
-	lightDirectionalValue = luaHandler.getBoolFromTable("directional");
-	luaHandler.popTable();
-
-	ALight alight(lightPositionValue, lightDirectionValue, lightColorValue, lightIntensityValue, lightDirectionalValue);
-	alight.setUp(lightUpValue);
+	ALight* alight = ALuaHelper::loadLightFromTable("light", &luaHandler);
 
 	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, 0.1f, 1000.0f);
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
@@ -456,12 +347,12 @@ int main(void)
 	char title[128];
 
 	const std::vector<AMesh>* pointer;
-	glm::vec3 lightPosition = alight.getPosition();
-	glm::vec3 lightDirection = alight.getDirection();
-	glm::vec3 lightUp = alight.getUp();
-	glm::vec4 lightColor = alight.getColor();
-	float lightIntensity = alight.getIntensity();
-	bool lightDirectional = alight.getDirectional();
+	glm::vec3 lightPosition = alight->getPosition();
+	glm::vec3 lightDirection = alight->getDirection();
+	glm::vec3 lightUp = alight->getUp();
+	glm::vec4 lightColor = alight->getColor();
+	float lightIntensity = alight->getIntensity();
+	bool lightDirectional = alight->getDirectional();
 
 	near_plane = luaHandler.getGlobalNumber("nearPlane");
 	far_plane = luaHandler.getGlobalNumber("farPlane");
@@ -475,14 +366,14 @@ int main(void)
 	{
 		if(!paused) 
 		{
-			updateLightWithLua(&luaHandler, &alight, deltaTime, accumulator);
+			updateLightWithLua(&luaHandler, alight, deltaTime, accumulator);
 		}
 
-		lightPosition = alight.getPosition();
-		lightDirection = alight.getDirection();
-		lightUp = alight.getUp();
-		lightColor = alight.getColor();
-		lightIntensity = alight.getIntensity();
+		lightPosition = alight->getPosition();
+		lightDirection = alight->getDirection();
+		lightUp = alight->getUp();
+		lightColor = alight->getColor();
+		lightIntensity = alight->getIntensity();
 
 		glm::mat4 lightProjection = glm::ortho(-projectionDimension, projectionDimension, -projectionDimension, projectionDimension, near_plane, far_plane);
 		lightView = glm::lookAt(lightPosition, lightPosition + lightDirection, lightUp);
@@ -502,11 +393,11 @@ int main(void)
 
 		for(auto model : models) 
 		{
-			pointer = model.getMeshes();
+			pointer = model->getMeshes();
 
 			auto begin = pointer->begin();
 			auto end = pointer->end();
-			auto modelMatrix = model.getModelMatrix();
+			auto modelMatrix = model->getModelMatrix();
 			std::for_each(begin, end, [shadowModelMatrixUniform, modelMatrix, shadowProgramme](AMesh mesh)
 			{
 				glUniformMatrix4fv (shadowModelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
@@ -515,8 +406,8 @@ int main(void)
 		}
 		glBindVertexArray(0);
 
-		glUniformMatrix4fv (shadowModelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane.getModelMatrix()));
-		plane.Draw(shadowProgramme);
+		glUniformMatrix4fv (shadowModelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane->getModelMatrix()));
+		plane->Draw(shadowProgramme);
 		glBindVertexArray(0);
 #pragma endregion
 
@@ -553,11 +444,11 @@ int main(void)
 		
 		for(auto model : models) 
 		{
-			pointer = model.getMeshes();
+			pointer = model->getMeshes();
 
 			auto begin = pointer->begin();
 			auto end = pointer->end();
-			auto modelMatrix = model.getModelMatrix();
+			auto modelMatrix = model->getModelMatrix();
 			std::for_each(begin, end, [modelMatrixUniform, modelMatrix, shaderProgramme](AMesh mesh)
 			{
 				glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
@@ -566,8 +457,8 @@ int main(void)
 		}
 
 		glBindVertexArray(0);
-		glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane.getModelMatrix()));
-		plane.Draw(shaderProgramme);
+		glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane->getModelMatrix()));
+		plane->Draw(shaderProgramme);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 #pragma endregion
@@ -593,11 +484,11 @@ int main(void)
 		
 		for(auto model : models) 
 		{
-			pointer = model.getMeshes();
+			pointer = model->getMeshes();
 
 			auto begin = pointer->begin();
 			auto end = pointer->end();
-			auto modelMatrix = model.getModelMatrix();
+			auto modelMatrix = model->getModelMatrix();
 			std::for_each(begin, end, [modelMatrixUniform, modelMatrix, shaderProgramme](AMesh mesh)
 			{
 				glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
@@ -606,8 +497,8 @@ int main(void)
 		}
 
 		glBindVertexArray(0);
-		glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane.getModelMatrix()));
-		plane.Draw(shaderProgramme);
+		glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane->getModelMatrix()));
+		plane->Draw(shaderProgramme);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
