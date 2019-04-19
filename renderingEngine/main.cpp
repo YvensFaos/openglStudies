@@ -30,6 +30,7 @@ GLFWwindow* window;
 #include <stb_image.h>
 
 #include "askybox.hpp"
+#include "Utils/arenderquad.hpp"
 
 #define printMatrix(matrix) {int _i = -1; \
 							printf("%2.2f %2.2f %2.2f %2.2f\n", matrix[++_i][0], matrix[_i][1], matrix[_i][2], matrix[_i][3]); \
@@ -279,13 +280,10 @@ int main(void)
 	GLuint sfs = AShader::generateShader(luaHandler.getGlobalString("skyboxFragmentShader"), GL_FRAGMENT_SHADER);
 	GLuint hvs = AShader::generateShader(luaHandler.getGlobalString("shadowVertexShader"), GL_VERTEX_SHADER);
 	GLuint hfs = AShader::generateShader(luaHandler.getGlobalString("shadowFragmentShader"), GL_FRAGMENT_SHADER);
-	GLuint dvs = AShader::generateShader(luaHandler.getGlobalString("debugQuadVertexShader"), GL_VERTEX_SHADER);
-	GLuint dfs = AShader::generateShader(luaHandler.getGlobalString("debugQuadFragShader"), GL_FRAGMENT_SHADER);
 
   GLuint shaderProgramme = AShader::generateProgram(vs, fs);
 	GLuint skyboxProgramme  = AShader::generateProgram(svs, sfs);
 	GLuint shadowProgramme = AShader::generateProgram(hvs, hfs);
-	GLuint debugQuadProgramme = AShader::generateProgram(dvs, dfs);
 
 	std::vector<std::string> faces{
         "desertsky_ft.tga",
@@ -314,29 +312,11 @@ int main(void)
 	GLuint shadowModelMatrixUniform = glGetUniformLocation(shadowProgramme, "model");
 	GLuint shadowLightMatrixUniform = glGetUniformLocation(shadowProgramme, "lightViewProjection");
 
-	GLuint debugQuadShadowMapUniform = glGetUniformLocation(debugQuadProgramme, "shadowMap");
+	ARenderQuad debugQuad(luaHandler.getGlobalString("debugQuadVertexShader"), luaHandler.getGlobalString("debugQuadFragShader"));
 
 	unsigned int depthMapFBO;
 	glGenFramebuffers(1, &depthMapFBO);
 	const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
-
-	float quadVertices[] = {
-		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-		-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-		1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-		1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-	};
-	unsigned int quadVAO = 0;
-	unsigned int quadVBO;
-	glGenVertexArrays(1, &quadVAO);
-	glGenBuffers(1, &quadVBO);
-	glBindVertexArray(quadVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
 	unsigned int depthMap;
 	glGenTextures(1, &depthMap);
@@ -541,14 +521,7 @@ int main(void)
 		glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glUseProgram(debugQuadProgramme);
-
-		glBindTexture(GL_TEXTURE_2D, depthMap);
-		glUniform1i(debugQuadShadowMapUniform, 0);
-
-		glBindVertexArray(quadVAO);
-		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		glBindVertexArray(0);
+		debugQuad.render(depthMap);
 #pragma endregion
 
 #pragma region LIGHT CAMERA

@@ -172,13 +172,13 @@ debugQuadFragShader = [[
 
     in vec2 vuv;
 
-    uniform sampler2D depthMap;
+    uniform sampler2D textureUniform;
 
     out vec4 frag_colour;
 
     void main()
     {             
-        float depthValue = texture(depthMap, vuv).r;
+        float depthValue = texture(textureUniform, vuv).r;
         frag_colour = vec4(vec3(depthValue), 1.0);
     }
 ]]
