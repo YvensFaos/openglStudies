@@ -376,7 +376,7 @@ int main(void)
 		glBindVertexArray(0);
 
 		glUniformMatrix4fv (shadowModelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane->getModelMatrix()));
-		plane->Draw(shadowProgramme);
+		plane->draw();
 		glBindVertexArray(0);
 #pragma endregion
 
@@ -413,7 +413,7 @@ int main(void)
 
 		glBindVertexArray(0);
 		glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane->getModelMatrix()));
-		plane->Draw(shaderProgramme);
+		plane->draw();
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 #pragma endregion
@@ -440,7 +440,7 @@ int main(void)
 
 		glBindVertexArray(0);
 		glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane->getModelMatrix()));
-		plane->Draw(shaderProgramme);
+		plane->draw();
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 

@@ -1,10 +1,9 @@
 #pragma once
 
+#include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
-
-typedef unsigned int GLuint;
 
 struct AVertex {
     glm::vec3 Position;
@@ -13,7 +12,7 @@ struct AVertex {
 };
 
 struct ATexture {
-    unsigned int id;
+    GLuint id;
     std::string type;
     std::string path;
 };  
@@ -21,13 +20,13 @@ struct ATexture {
 class AMesh {
     public:
         std::vector<AVertex> vertices;
-        std::vector<unsigned int> indices;
+        std::vector<GLuint> indices;
         std::vector<ATexture> textures;
 
-        AMesh(std::vector<AVertex> vertices, std::vector<unsigned int> indices, std::vector<ATexture> textures);
-        void BindTextures(GLuint shader);
-        void Draw(GLuint shader);
+        AMesh(std::vector<AVertex> vertices, std::vector<GLuint> indices, std::vector<ATexture> textures);
+        void bindTextures(GLuint shader);
+        void draw(void) const;
     private:
-        unsigned int VAO, VBO, EBO;
+        GLuint VAO, VBO, EBO;
         void setupMesh();
 };

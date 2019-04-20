@@ -23,13 +23,13 @@ void AModel::loadModel(std::string path)
     }
 
     std::string directory = path.substr(0, path.find_last_of('/'));
-    glm::mat4 parentMat4 = this->aiMatrix4x4ToGlm(&scene->mRootNode->mTransformation);
+    glm::mat4 parentMat4 = AModel::aiMatrix4x4ToGlm(&scene->mRootNode->mTransformation);
     processNode(scene->mRootNode, scene, parentMat4);
 }
 
 void AModel::processNode(aiNode *node, const aiScene *scene, const glm::mat4 parentMat4)
 {
-    glm::mat4 currentTransform = this->aiMatrix4x4ToGlm(&node->mTransformation);
+    glm::mat4 currentTransform = AModel::aiMatrix4x4ToGlm(&node->mTransformation);
     glm::mat4 resulting = parentMat4 * currentTransform;
 
     for(unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -43,11 +43,10 @@ void AModel::processNode(aiNode *node, const aiScene *scene, const glm::mat4 par
     }
 }
 
-void AModel::Draw(unsigned int shader)
+void AModel::draw(void) const
 {
     for(unsigned int i = 0; i < meshes.size(); i++) {
-        meshes[i].BindTextures(shader);
-        meshes[i].Draw(shader);
+        meshes[i].draw();
     }
 }  
 
@@ -121,7 +120,6 @@ AMesh AModel::processMesh(aiMesh *mesh, const aiScene *scene, glm::mat4 transfor
         std::vector<ATexture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     }  
-    // printf("Mesh %d %d %d\n", vertices.size(), indices.size(), textures.size());
     return AMesh(vertices, indices, textures);
 }
 
@@ -225,7 +223,8 @@ void AModel::renderModelsInList(std::vector<AModel*>* list, GLuint modelMatrixUn
         std::for_each(begin, end, [modelMatrixUniform, modelMatrix, programme](AMesh mesh)
         {
             glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-            mesh.Draw(programme);
+            mesh.bindTextures(programme);
+            mesh.draw();
         });
     }
 }

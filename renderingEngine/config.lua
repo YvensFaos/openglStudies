@@ -188,9 +188,6 @@ models[1] = {file = "monkey.fbx", pos = { 4.0,  0.0, 0.0}, sca = {1.0, 1.0, 1.0}
 models[2] = {file = "monkey.fbx", pos = { 0.0,  0.0, 1.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,  0.0, 0.0}}
 models[3] = {file = "monkey.fbx", pos = {-2.0,  0.4, 0.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0, 30.0, 0.0}}
 models[4] = {file = "monkey.fbx", pos = { 1.0,  2.5, 0.8}, sca = {1.1, 1.1, 1.1}, rot = {90.0,  0.0, 0.0}}
-models[5] = {file = "monkey.fbx", pos = { 3.0,  0.5, 2.8}, sca = {0.3, 0.3, 0.3}, rot = {30.0,  0.0, 3.0}}
-models[6] = {file = "monkey.fbx", pos = { 0.0,  0.5, 0.8}, sca = {3.3, 3.3, 3.3}, rot = {30.0,  0.0, 3.0}}
-modelsCount = #models
 
 plane = {file = "plane.fbx",  pos = { 0.0, 0.5, -4.0}, sca = {8.0, 1.0, 8.0}, rot = {20.0,  0.0, 0.0}}
 lightIntensity = 80
