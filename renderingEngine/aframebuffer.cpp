@@ -48,6 +48,11 @@ GLfloat AFramebuffer::getHeight(void) const
     return height;
 }
 
+void AFramebuffer::bindBuffer(void) const 
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, FBO);    
+}
+
 ADepthbuffer::ADepthbuffer(GLfloat width, GLfloat height) : AFramebuffer()
 {
     this->width = width;

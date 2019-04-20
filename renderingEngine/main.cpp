@@ -367,7 +367,7 @@ int main(void)
 
 #pragma region SHADOW BUFFER
 		glViewport(0, 0, shadowWidth, shadowHeight);
-		glBindFramebuffer(GL_FRAMEBUFFER, adepthBuffer.getFBO());
+		adepthBuffer.bindBuffer();
 		glClear(GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(shadowProgramme);

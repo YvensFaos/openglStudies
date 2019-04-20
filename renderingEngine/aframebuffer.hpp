@@ -19,6 +19,8 @@ class AFramebuffer {
         GLuint getFramebufferTexture(void) const;
         GLfloat getWidth(void) const;
         GLfloat getHeight(void) const;
+
+        void bindBuffer(void) const;
 };
 
 class ADepthbuffer : public AFramebuffer{
