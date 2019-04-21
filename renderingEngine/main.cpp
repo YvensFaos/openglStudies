@@ -7,7 +7,6 @@
 
 // Include GLFW
 #include <GLFW/glfw3.h>
-GLFWwindow* window;
 
 // Include GLM
 #include <glm/glm.hpp>
@@ -21,6 +20,7 @@ GLFWwindow* window;
 #include <algorithm>
 #include <vector>
 
+#include "RenderingEngine/Core/arenderer.hpp"
 #include "RenderingEngine/Core/amodel.hpp"
 #include "RenderingEngine/Core/acamera.hpp"
 #include "RenderingEngine/Core/alight.hpp"
@@ -83,190 +83,19 @@ void updateLightWithLua(LuaHandler* luaHandler, ALight* alight, float deltaTime,
 }
 
 glm::mat4 skyView = glm::mat4(1.0);
-float deltaTime = 0.0f;
-float moveForce = 20.0f;
-double accumulator = 0.0f;
 float savedAcc = 0.0f;
 bool paused = false;
 float near_plane;
 float far_plane;
 float projectionDimension;
-ACamera acamera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-
-void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	float shiftModPower = 1.0f;
-	if (mods == GLFW_MOD_SHIFT)
-	{
-		shiftModPower = 2.5f;
-	} else if (mods == GLFW_MOD_CONTROL)
-	{
-		shiftModPower = 0.5f;
-	}
-    if ((key == GLFW_KEY_LEFT || key == GLFW_KEY_A) && (action == GLFW_PRESS || action == GLFW_REPEAT))
-    {
-		acamera.MoveSideway(shiftModPower * -moveForce * deltaTime);
-    }
-	if ((key == GLFW_KEY_RIGHT || key == GLFW_KEY_D) && (action == GLFW_PRESS || action == GLFW_REPEAT))
-    {
-		acamera.MoveSideway(shiftModPower * moveForce * deltaTime);
-    }
-	if ((key == GLFW_KEY_UP || key == GLFW_KEY_W) && (action == GLFW_PRESS || action == GLFW_REPEAT))
-    {
-		acamera.MoveForward(shiftModPower * moveForce * deltaTime);
-    }
-	if ((key == GLFW_KEY_DOWN || key == GLFW_KEY_S) && (action == GLFW_PRESS || action == GLFW_REPEAT))
-    {
-		acamera.MoveForward(shiftModPower *-moveForce * deltaTime);
-    }
-	if (key == GLFW_KEY_Z && (action == GLFW_PRESS || action == GLFW_REPEAT))
-    {
-		acamera.Zoom(5.0f);
-    }
-	if (key == GLFW_KEY_X && (action == GLFW_PRESS || action == GLFW_REPEAT))
-    {
-		acamera.Zoom(-5.0f);
-    }
-	if (key == GLFW_KEY_Q && (action == GLFW_PRESS || action == GLFW_REPEAT))
-    {
-		acamera.RotateWithMouse(10, 0);
-    }
-	if (key == GLFW_KEY_E && (action == GLFW_PRESS || action == GLFW_REPEAT))
-    {
-		acamera.RotateWithMouse(-10, 0);
-    }
-
-	if (key == GLFW_KEY_1 && (action == GLFW_PRESS || action == GLFW_REPEAT))
-    {
-		near_plane += 0.1;
-    }
-	if (key == GLFW_KEY_2 && (action == GLFW_PRESS || action == GLFW_REPEAT))
-    {
-		near_plane -= 0.1;
-    }
-	if (key == GLFW_KEY_3 && (action == GLFW_PRESS || action == GLFW_REPEAT))
-    {
-		far_plane += 0.1;
-    }
-	if (key == GLFW_KEY_4 && (action == GLFW_PRESS || action == GLFW_REPEAT))
-    {
-		far_plane -= 0.1;
-    }
-	if (key == GLFW_KEY_5 && (action == GLFW_PRESS || action == GLFW_REPEAT))
-    {
-		projectionDimension += 1.25;
-    }
-	if (key == GLFW_KEY_6 && (action == GLFW_PRESS || action == GLFW_REPEAT))
-    {
-			projectionDimension -= 1.25;
-    }
-	if (key == GLFW_KEY_P && (action == GLFW_PRESS || action == GLFW_REPEAT))
-    {
-			printf("Printing Info: \n");
-			printf("---------------\n");
-			printf("Acc: %9f\n", accumulator);
-			printf("---------------\n");
-			printf("Near: %9f\n", near_plane);
-			printf("Far:  %9f\n",  far_plane);
-			printf("Proj: %9f\n",  projectionDimension);
-			printf("---------------\n");
-    }
-	if (key == GLFW_KEY_SPACE && (action == GLFW_PRESS || action == GLFW_REPEAT))
-    {
-			if(paused) {
-				accumulator = savedAcc;
-				paused = false;
-			} else {
-				savedAcc = accumulator;
-				paused = true;
-			}
-    }
-}
 
 int width = 800;
 int height = 600;
-float lastX = width / 2.0f;
-float lastY = height / 2.0f;
-float mouseSensitivity = 5.0;
-bool firstMouse = true;
-bool mouseIsClickingLeft = false;
-
-void mouseCallback(GLFWwindow* window, double xpos, double ypos)
-{
-	if (firstMouse)
-	{
-		lastX = xpos;
-		lastY = ypos;
-		firstMouse = false;
-	}
-
-	float xoffset = xpos - lastX;
-	float yoffset = lastY - ypos;
-
-	lastX = xpos;
-	lastY = ypos;
-	
-	if(mouseIsClickingLeft)
-	{
-		acamera.RotateWithMouse(xoffset / mouseSensitivity, yoffset / mouseSensitivity);
-	}
-}
-
-void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
-{
-	mouseIsClickingLeft = false;
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
-	{
-		mouseIsClickingLeft = true;
-	}
-}
 
 int main(void)
 {
-	if(!glfwInit())
-	{
-		fprintf( stderr, "Failed to initialize GLFW\n" );
-		getchar();
-		return -1;
-	}
-
-	glfwWindowHint(GLFW_SAMPLES, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	window = glfwCreateWindow(width, height, "Shadow Mapping", NULL, NULL);
-	if( window == NULL ) 
-	{
-		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
-		getchar();
-		glfwTerminate();
-		return -1;
-	}
-
-	glfwMakeContextCurrent(window);
-	glfwSetKeyCallback(window, keyCallback);
-	glfwSetCursorPosCallback(window, mouseCallback);
-	glfwSetMouseButtonCallback(window, mouseButtonCallback);
-
-	if (glewInit() != GLEW_OK) 
-	{
-		fprintf(stderr, "Failed to initialize GLEW\n");
-		getchar();
-		glfwTerminate();
-		return -1;
-	}
-
-	glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LESS);
-	glFrontFace(GL_CCW);
-	glEnable(GL_BLEND);
-	glEnable(GL_CULL_FACE);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glClearColor(0.02f, 0.04f, 0.25f, 0.0f);
+	ARenderer arenderer(width, height, "Rendering Engine Demo Scene");	
+	arenderer.changeClearColor(glm::vec4(0.02f, 0.04f, 0.25f, 0.0f));
 
 	LuaHandler luaHandler;
 	luaHandler.openFile("config.lua");
@@ -318,17 +147,13 @@ int main(void)
 	AModel* plane = ALuaHelper::loadModelFromTable("plane", &luaHandler);
 	ALight* alight = ALuaHelper::loadLightFromTable("light", &luaHandler);
 
-	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, 0.1f, 1000.0f);
+	ACamera* acamera = arenderer.getCamera();
+	glm::mat4 projection = glm::perspective(glm::radians(acamera->getZoom()), (float) width / (float) height, 0.1f, 1000.0f);
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-	glm::mat4 view = acamera.getView();
+	glm::mat4 view = acamera->getView();
 	glm::mat4 viewProjectionMatrix = projection * view;
 	glm::mat4 skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
-
-	double currentTime = glfwGetTime();
-	double finishFrameTime = 0.0;
-	deltaTime = 0.0f;
-	char title[128];
 
 	glm::vec3 lightPosition = alight->getPosition();
 	glm::vec3 lightDirection = alight->getDirection();
@@ -349,7 +174,7 @@ int main(void)
 	{
 		if(!paused) 
 		{
-			updateLightWithLua(&luaHandler, alight, deltaTime, accumulator);
+			updateLightWithLua(&luaHandler, alight, arenderer.getDeltaTime(), arenderer.getAccumulator());
 		}
 
 		lightPosition = alight->getPosition();
@@ -362,9 +187,11 @@ int main(void)
 		lightView = glm::lookAt(lightPosition, lightPosition + lightDirection, lightUp);
 		lightMatrix = lightProjection * lightView;
 
-		projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, 0.1f, 1000.0f);
+		projection = glm::perspective(glm::radians(acamera->getZoom()), (float) width / (float) height, 0.1f, 1000.0f);
 		skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(skyView));
-		viewProjectionMatrix = projection * acamera.getView();
+		viewProjectionMatrix = projection * acamera->getView();
+
+		arenderer.startFrame();
 
 #pragma region SHADOW BUFFER
 		glViewport(0, 0, shadowWidth, shadowHeight);
@@ -451,19 +278,11 @@ int main(void)
 		
 		askybox.render();
 
-		glfwSwapBuffers(window);
-		glfwPollEvents();
-
 		glDisable(GL_SCISSOR_TEST);
 
-		finishFrameTime = glfwGetTime();
-		deltaTime = static_cast<float>(finishFrameTime - currentTime);
-		currentTime = finishFrameTime;
-		accumulator += deltaTime;
-		sprintf(title, "FPS: %4.2f", 1.0f / (float) deltaTime);
-		glfwSetWindowTitle(window, title);
+		arenderer.finishFrame();
 	}
-	while(glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window) == 0);
+	while(arenderer.isRunning());
 
 	glfwTerminate();
 	return 0;
