@@ -2,7 +2,7 @@
 
 #include <GL/glew.h>
 
-#include "../ashader.hpp"
+#include "../Core/ashader.hpp"
 #include "luahandler.hpp"
 
 float quadVertices[] = {

@@ -21,19 +21,20 @@ GLFWwindow* window;
 #include <algorithm>
 #include <vector>
 
-#include "amodel.hpp"
-#include "acamera.hpp"
-#include "alight.hpp"
-#include "ashader.hpp"
-#include "aframebuffer.hpp"
+#include "RenderingEngine/Core/amodel.hpp"
+#include "RenderingEngine/Core/acamera.hpp"
+#include "RenderingEngine/Core/alight.hpp"
+#include "RenderingEngine/Core/ashader.hpp"
+
+#include "RenderingEngine/GraphicalTools/aframebuffer.hpp"
+#include "RenderingEngine/GraphicalTools/askybox.hpp"
 
 #include <luahandler.hpp>
 #include <stb_image.h>
 
-#include "askybox.hpp"
-#include "Utils/amacrohelper.hpp"
-#include "Utils/arenderquad.hpp"
-#include "Utils/aluahelper.hpp"
+#include "RenderingEngine/Utils/amacrohelper.hpp"
+#include "RenderingEngine/Utils/arenderquad.hpp"
+#include "RenderingEngine/Utils/aluahelper.hpp"
 
 void updateLightWithLua(LuaHandler* luaHandler, ALight* alight, float deltaTime, float accumulator) 
 {
@@ -282,12 +283,12 @@ int main(void)
 	GLuint shadowProgramme = AShader::generateProgram(hvs, hfs);
 
 	ASkybox askybox(std::vector<std::string>{
-        "desertsky_ft.tga",
-        "desertsky_bc.tga",
-        "desertsky_up.tga",
-        "desertsky_dn.tga",
-        "desertsky_rt.tga",
-        "desertsky_lf.tga"
+        "RenderingEngine/Resources/desertsky_ft.tga",
+        "RenderingEngine/Resources/desertsky_bc.tga",
+        "RenderingEngine/Resources/desertsky_up.tga",
+        "RenderingEngine/Resources/desertsky_dn.tga",
+        "RenderingEngine/Resources/desertsky_rt.tga",
+        "RenderingEngine/Resources/desertsky_lf.tga"
     });
 
 	GLuint skyVpMatrixUniform = glGetUniformLocation(skyboxProgramme, "vpMatrix");

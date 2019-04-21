@@ -5,7 +5,24 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(lldb) Launch",
+            "name": "Build & Run Test",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.exe",
+            "args": [
+
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [
+
+            ],
+            "externalConsole": true,
+            "MIMode": "lldb",
+            "preLaunchTask": "Build Test"
+        },
+        {
+            "name": "Build & Run Main",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/main.exe",
@@ -14,10 +31,12 @@
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
-            "environment": [],
+            "environment": [
+
+            ],
             "externalConsole": true,
             "MIMode": "lldb",
-            "preLaunchTask": "build"
+            "preLaunchTask": "Build Main"
         }
     ]
 }

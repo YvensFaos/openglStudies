@@ -1,7 +1,7 @@
 #include "aluahelper.hpp"
 
-#include "../amodel.hpp"
-#include "../alight.hpp"
+#include "../Core/amodel.hpp"
+#include "../Core/alight.hpp"
 #include "luahandler.hpp"
 
 std::vector<AModel*> ALuaHelper::loadModelsFromTable(std::string identifier, LuaHandler* luaHandler) 

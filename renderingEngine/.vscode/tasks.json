@@ -2,17 +2,26 @@
     "version": "2.0.0",
     "tasks": [   
         {
-            "label": "build",
+            "label": "Build Main",
             "type": "shell",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "new",
+                "showReuseMessage": true,
+                "clear": true
+            },
             "command": "g++",
             "args": [
                 "-g", 
                 "-o",
                 "main.exe",
                 "-std=c++17",
-                "*.cpp",
-                "*/*.cpp",
+                "main.cpp",
+                "RenderingEngine/*/*.cpp",
                 "../LuaHandler/*.cpp",
+                "../3rdLibraries/stbLoader.cpp",
                 "-I/Users/yre03/Dev/Repositories/vcpkg/installed/x64-osx/include",
                 "-I/usr/local/Cellar/lua/5.3.5_1/include/lua",
                 "-I/Users/yre03/Dev/Repositories/openglStudies/LuaHandler",
