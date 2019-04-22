@@ -5,10 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Build & Run Test",
+            "name": "Build & Run Sample",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/main.exe",
+            "program": "${workspaceFolder}/sample.exe",
             "args": [
 
             ],
@@ -19,7 +19,7 @@
             ],
             "externalConsole": true,
             "MIMode": "lldb",
-            "preLaunchTask": "Build Test"
+            "preLaunchTask": "Build Sample"
         },
         {
             "name": "Build & Run Main",

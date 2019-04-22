@@ -8,7 +8,7 @@
                 "echo": true,
                 "reveal": "always",
                 "focus": true,
-                "panel": "new",
+                "panel": "shared",
                 "showReuseMessage": true,
                 "clear": true
             },
@@ -19,6 +19,45 @@
                 "main.exe",
                 "-std=c++17",
                 "main.cpp",
+                "RenderingEngine/*/*.cpp",
+                "../LuaHandler/*.cpp",
+                "../3rdLibraries/stbLoader.cpp",
+                "-I/Users/yre03/Dev/Repositories/vcpkg/installed/x64-osx/include",
+                "-I/usr/local/Cellar/lua/5.3.5_1/include/lua",
+                "-I/Users/yre03/Dev/Repositories/openglStudies/LuaHandler",
+                "/usr/local/Cellar/lua/5.3.5_1/lib/liblua.5.3.dylib",
+                "/Users/yre03/Dev/Repositories/vcpkg/installed/x64-osx/lib/libglfw3.a",
+                "/Users/yre03/Dev/Repositories/vcpkg/installed/x64-osx/lib/libGLEW.a",
+                "/usr/local/Cellar/assimp/4.1.0/lib/libassimp.4.1.0.dylib",
+                "/usr/local/Cellar/assimp/4.1.0/lib/libIrrXML.a",
+                "/System/Library/Frameworks/OpenGL.framework/Versions/Current/OpenGL",
+                "/System/Library/Frameworks/Cocoa.framework/Versions/Current/Cocoa",
+                "/System/Library/Frameworks/IOKit.framework/Versions/Current/IOKit",
+                "/System/Library/Frameworks/CoreVideo.framework/Versions/Current/CoreVideo"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "Build Sample",
+            "type": "shell",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            },
+            "command": "g++",
+            "args": [
+                "-g", 
+                "-o",
+                "sample.exe",
+                "-std=c++17",
+                "SampleCode/sample.cpp",
                 "RenderingEngine/*/*.cpp",
                 "../LuaHandler/*.cpp",
                 "../3rdLibraries/stbLoader.cpp",

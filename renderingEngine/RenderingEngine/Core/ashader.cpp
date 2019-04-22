@@ -20,6 +20,9 @@ GLuint AShader::generateShader(std::string shaderText, GLuint shaderType)
 
 		printf("Shader Error: %s\n", errorMessage.c_str());
     }
+    else {
+        printf("Shader compiled [%d]: %s\n", shader, shaderText.c_str());
+    }
 	return shader;
 }
 

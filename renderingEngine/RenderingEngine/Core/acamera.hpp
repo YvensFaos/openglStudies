@@ -14,6 +14,8 @@ class ACamera {
         float horizontalAngle;
         float verticalAngle;
         float zoom;
+        float near;
+        float far;
 
     public:
         ACamera(glm::vec3 cameraPos, glm::vec3 cameraTarget);
@@ -28,4 +30,6 @@ class ACamera {
         glm::mat4 getView(void) const;
         const glm::vec3 getPos(void) const;
         float getZoom(void) const;
+        float getNear(void) const;
+        float getFar(void) const;
 };

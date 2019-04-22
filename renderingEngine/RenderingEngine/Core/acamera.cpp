@@ -6,7 +6,8 @@
 #include <glm/gtx/rotate_vector.hpp>
 
 ACamera::ACamera(glm::vec3 cameraPos, glm::vec3 cameraTarget) : 
-    cameraPos(cameraPos), cameraTarget(cameraTarget), zoom(45.0f), horizontalAngle(0.0f), verticalAngle(0.0f)
+    cameraPos(cameraPos), cameraTarget(cameraTarget), zoom(45.0f), horizontalAngle(0.0f), verticalAngle(0.0f),
+    near(0.1f), far(1000.0f)
 {
     this->RotateWithMouse(-90.0, 0.0);
 }
@@ -69,4 +70,13 @@ void ACamera::Zoom(float zoom)
 float ACamera::getZoom(void) const
 {
     return this->zoom;
+}
+
+float ACamera::getNear(void) const
+{
+    return this->near;
+}
+float ACamera::getFar(void) const
+{
+    return this->far;
 }

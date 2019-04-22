@@ -49,7 +49,7 @@ ACamera* ARenderer::getCamera(void) const
 
 void ARenderer::startFrame(void) 
 {
-    glViewport(0, 0, width, height);
+    glViewport(0, 0, width * 2, height * 2);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
