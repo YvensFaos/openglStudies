@@ -16,9 +16,15 @@ class ARenderQuad {
 
         GLuint textureUniform;
         
+        static std::string defaultVertexShader;
+        static std::string defaultFragmentShader;
     public:
+        ARenderQuad(void);
+        ARenderQuad(std::string fragmentShaderText);
         ARenderQuad(std::string vertexShaderText, std::string fragmentShaderText);
         ~ARenderQuad(void);
         
         void render(GLuint texture) const;
+    private:
+        void initialize(std::string vertexShaderText, std::string fragmentShaderText);
 };

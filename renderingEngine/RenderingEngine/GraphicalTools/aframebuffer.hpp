@@ -21,6 +21,7 @@ class AFramebuffer {
         GLfloat getHeight(void) const;
 
         void bindBuffer(void) const;
+        void unbindBuffer(void) const;
 };
 
 class ADepthbuffer : public AFramebuffer{
