@@ -14,24 +14,22 @@ class ARenderer
         float height;
     private:
         GLFWwindow* window;
-        bool firstMouse = true;
-        bool mouseIsClickingLeft = false;
+        bool firstMouse;
+        bool mouseIsClickingLeft;
 
-        float shiftModPower = 1.0f;
-        float deltaTime = 0.0f;
+        float shiftModPower;
+        float deltaTime;
         float lastX;
         float lastY;
-        float moveForce = 20.0f;
-        float mouseSensitivity = 5.0;
+        float moveForce;
+        float mouseSensitivity;
 
-        double accumulator = 0.0f;
-        double currentTime = 0.0;
-        double finishFrameTime = 0.0;
+        double accumulator;
+        double currentTime;
+        double finishFrameTime;
 
         char titleBuffer[196];
-
-        glm::vec4 clearColor = glm::vec4(0.02f, 0.25f, 0.02f, 1.0f);
-
+        glm::vec4 clearColor;
         ACamera* acamera;
     public:
         ARenderer(float width, float height, std::string title);

@@ -22,7 +22,9 @@ void ARenderer::staticMouseButtonCallback(GLFWwindow* window, int button, int ac
 }
 
 ARenderer::ARenderer(float width, float height, std::string title) : 
-width(width), height(height), title(title), lastX(width / 2.0f), lastY(height / 2.0f)
+width(width), height(height), title(title), lastX(width / 2.0f), lastY(height / 2.0f),
+firstMouse(true), mouseIsClickingLeft(false), shiftModPower(1.0f), deltaTime(0.0f), moveForce(20.0f), mouseSensitivity(5.0f),
+accumulator(0.0), currentTime(0.0), finishFrameTime(0.0), clearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f))
 {
     initialize();
     acamera = new ACamera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f));
