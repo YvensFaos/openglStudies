@@ -14,25 +14,25 @@ float quadVertices[] = {
 };
 
 std::string ARenderQuad::defaultVertexShader = 
-    "#version 400"
-    "    layout (location = 0) in vec3 vertex;"
-    "    layout (location = 1) in vec2 uv;"
-    "    out vec2 vuv;"
-    "    void main()"
-    "    {"
-    "        vuv = uv;"
-    "        gl_Position = vec4(vertex, 1.0);"
-    "    }";
+    "#version 400\n"
+    "    layout (location = 0) in vec3 vertex;\n"
+    "    layout (location = 1) in vec2 uv;\n"
+    "    out vec2 vuv;\n"
+    "    void main()\n"
+    "    {\n"
+    "        vuv = uv;\n"
+    "        gl_Position = vec4(vertex, 1.0);\n"
+    "    }\n";
 
 std::string ARenderQuad::defaultFragmentShader = 
-    "#version 400"
-    "   in vec2 vuv;"
-    "   uniform sampler2D textureUniform;"
-    "   out vec4 frag_colour;"
-    "   void main()"
+    "#version 400\n"
+    "   in vec2 vuv;\n"
+    "   uniform sampler2D textureUniform;\n"
+    "   out vec4 frag_colour;\n"
+    "   void main()\n"
     "   {             "
-    "       float depthValue = texture(textureUniform, vuv).r;"
-    "       frag_colour = vec4(vec3(depthValue), 1.0);"
+    "       vec4 value = texture(textureUniform, vuv);"
+    "       frag_colour = vec4(vec3(value), 1.0);"
     "   }";
 
 ARenderQuad::ARenderQuad(void) 
@@ -62,6 +62,7 @@ void ARenderQuad::render(GLuint texture) const
     glUniform1i(textureUniform, 0);
     glBindVertexArray(quadVAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
 }
 

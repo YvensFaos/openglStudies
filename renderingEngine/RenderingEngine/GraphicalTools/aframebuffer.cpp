@@ -7,15 +7,24 @@ AFramebuffer::AFramebuffer(void)
 
 AFramebuffer::AFramebuffer(GLfloat width, GLfloat height) : width(width), height(height)
 {
+    FBO = 0;
     glGenFramebuffers(1, &FBO);
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-    glGenTextures(1, &framebufferTexture);
 
+    framebufferTexture = 0;
+    glGenTextures(1, &framebufferTexture);
     glBindTexture(GL_TEXTURE_2D, framebufferTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
+    glDrawBuffers(1, DrawBuffers);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebufferTexture, 0);
+    generateRenderbuffer();
+
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) 
     {
         printf("Error creating FrameBuffer!\n");
@@ -53,9 +62,23 @@ void AFramebuffer::bindBuffer(void) const
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 }
 
+void AFramebuffer::setViewport(void) const
+{
+    glViewport(0, 0, width, height);
+}
+
 void AFramebuffer::unbindBuffer(void) const 
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void AFramebuffer::generateRenderbuffer(void) 
+{
+    RBO = 0;
+    glGenRenderbuffers(1, &RBO);
+    glBindRenderbuffer(GL_RENDERBUFFER, RBO);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
 }
 
 ADepthbuffer::ADepthbuffer(GLfloat width, GLfloat height) : AFramebuffer()

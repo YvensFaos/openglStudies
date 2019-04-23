@@ -27,7 +27,7 @@ firstMouse(true), mouseIsClickingLeft(false), shiftModPower(1.0f), deltaTime(0.0
 accumulator(0.0), currentTime(0.0), finishFrameTime(0.0), clearColor(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f))
 {
     initialize();
-    acamera = new ACamera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+    acamera = new ACamera(glm::vec3(0.0f, 0.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     glfwSetWindowUserPointer(window, this);
 }
 
@@ -56,8 +56,8 @@ void ARenderer::startFrame(void)
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    double currentTime = glfwGetTime();
-	double finishFrameTime = 0.0;
+    currentTime = glfwGetTime();
+	finishFrameTime = 0.0;
 }
 
 void ARenderer::finishFrame(void) 

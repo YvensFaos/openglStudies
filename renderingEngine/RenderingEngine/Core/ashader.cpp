@@ -4,6 +4,7 @@
 
 GLuint AShader::generateShader(std::string shaderText, GLuint shaderType) 
 {
+    printf("Loading shader:\n%s\n", shaderText.c_str());
 	GLuint shader = glCreateShader(shaderType);
 	const char *s_str = shaderText.c_str();
     glShaderSource(shader, 1, &s_str, NULL);
@@ -18,10 +19,10 @@ GLuint AShader::generateShader(std::string shaderText, GLuint shaderType)
         std::string errorMessage(begin(errorLog), end(errorLog));
         glDeleteShader(shader);
 
-		printf("Shader Error: %s\n", errorMessage.c_str());
+		printf("Shader Error:\n%s\n\n", errorMessage.c_str());
     }
     else {
-        printf("Shader compiled [%d]: %s\n", shader, shaderText.c_str());
+        printf("Shader compiled:[%d].\n\n", shader);
     }
 	return shader;
 }
@@ -32,6 +33,8 @@ GLuint AShader::generateProgram(GLuint vertexShader, GLuint fragmentShader)
     glAttachShader(shaderProgramme, vertexShader);
     glAttachShader(shaderProgramme, fragmentShader);
     glLinkProgram(shaderProgramme);
+
+    printf("Program generated:[%d].\n\n", shaderProgramme);
 
     return shaderProgramme;
 }
