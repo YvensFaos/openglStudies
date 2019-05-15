@@ -50,6 +50,21 @@ void AModel::draw(void) const
     }
 }  
 
+void AModel::renderModels(GLuint modelMatrixUniform, GLuint programme) const
+{
+        auto pointer = this->getMeshes();
+
+        auto begin = pointer->begin();
+        auto end = pointer->end();
+        auto modelMatrix = this->getModelMatrix();
+        std::for_each(begin, end, [modelMatrixUniform, modelMatrix, programme](AMesh mesh)
+        {
+            glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+            mesh.bindTextures(programme);
+            mesh.draw();
+        });
+}
+
 glm::mat4 AModel::aiMatrix4x4ToGlm(const aiMatrix4x4* from)
 {
     glm::mat4 to;
@@ -209,11 +224,22 @@ glm::mat4 AModel::getModelMatrix(void) const
     return this->modelMatrix;
 }
 
+glm::vec4 AModel::getPosition(void) const 
+{
+    return this->modelMatrix[3];
+}
+
+void AModel::setPosition(glm::vec3 position) {
+    glm::vec3 previousPos(this->modelMatrix[3]);
+    this->modelMatrix = glm::translate(this->modelMatrix, -previousPos);
+    this->modelMatrix = glm::translate(this->modelMatrix, position);
+}
+
 void AModel::renderModelsInList(std::vector<AModel*>* list, GLuint modelMatrixUniform, GLuint programme)
 {
     std::vector<AModel*>::iterator amodelIterator;
     const std::vector<AMesh>* pointer;
-    for(amodelIterator = list->begin() ; amodelIterator != list->end() ; ++amodelIterator)
+    for(amodelIterator = list->begin(); amodelIterator != list->end(); ++amodelIterator)
     {
         pointer = (*amodelIterator)->getMeshes();
 

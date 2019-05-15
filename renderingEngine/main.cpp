@@ -272,11 +272,7 @@ int main(void)
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		glUseProgram(skyboxProgramme);
-		glUniformMatrix4fv (skyVpMatrixUniform, 1, GL_FALSE, glm::value_ptr(skyViewProjectionMatrix));
-		glUniform1i(skyboxUniform, 0);
-		
-		askybox.render();
+		askybox.render(skyViewProjectionMatrix);
 
 		glDisable(GL_SCISSOR_TEST);
 

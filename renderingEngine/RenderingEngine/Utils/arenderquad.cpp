@@ -55,14 +55,34 @@ ARenderQuad::~ARenderQuad(void)
 
 }
 
-void ARenderQuad::render(GLuint texture) const 
+void ARenderQuad::render(GLuint texture, bool setupProgramme) const 
 {
-    glUseProgram(programme);
+    if(setupProgramme)
+    {
+        glUseProgram(programme);
+    }
+    
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
     glUniform1i(textureUniform, 0);
     glBindVertexArray(quadVAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindTexture(GL_TEXTURE_2D, 0);
+    glBindVertexArray(0);
+}
+
+void ARenderQuad::render(std::vector<GLuint> textures) const
+{
+    for(size_t i = 0; i < textures.size(); i++)
+    {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, textures[i]);
+        std::string textureName("textureUniform" + std::to_string(i));
+        glUniform1i(glGetUniformLocation(programme, textureName.c_str()), i);
+    }
+
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
 }
 
@@ -82,4 +102,9 @@ void ARenderQuad::initialize(std::string vertexShaderText, std::string fragmentS
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+}
+
+GLuint ARenderQuad::getProgramme(void) const
+{
+    return this->programme;
 }

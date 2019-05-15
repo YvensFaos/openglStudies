@@ -112,10 +112,7 @@ int main(void)
 		glUniform1i(lightDirectionalUniform, lightDirectional);
 		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
 
-		glUseProgram(skyboxProgramme);
-		glUniformMatrix4fv (skyVpMatrixUniform, 1, GL_FALSE, glm::value_ptr(skyViewProjectionMatrix));
-		glUniform1i(skyboxUniform, 0);
-		askybox.render();
+		askybox.render(skyViewProjectionMatrix);
 
 		arenderer.finishFrame();
 	}
