@@ -156,14 +156,14 @@ models = {}
 models[1] = {file = "Resources/monkey.fbx", pos = { 0.0,  0.0,  3.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,  0.0, 0.0}}
 models[2] = {file = "Resources/monkey.fbx", pos = { 3.0,  0.0,  1.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0, 45.0, 0.0}}
 models[3] = {file = "Resources/monkey.fbx", pos = {-3.0,  0.0,  1.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,-45.0, 0.0}}
-models[4] = {file = "Resources/monkey.fbx", pos = { 6.0,  0.0,-15.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0, 25.0, 0.0}}
-models[5] = {file = "Resources/monkey.fbx", pos = {-6.0,  0.0,-15.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,-25.0, 0.0}}
+models[4] = {file = "Resources/monkey.fbx", pos = { 5.0,  0.0,-15.0}, sca = {2.0, 2.0, 2.0}, rot = { 0.0, 25.0, 0.0}}
+models[5] = {file = "Resources/monkey.fbx", pos = {-5.0,  0.0,-15.0}, sca = {2.0, 2.0, 2.0}, rot = { 0.0,-25.0, 0.0}}
 
 lightPos = { 0,  0.0, -10.0}
 lightObject = {file = "Resources/csphere.fbx", pos = lightPos, sca = {1.4, 1.4, 1.4}, rot = { 0.0,  0.0, 0.0}}
 
 lightIntensity = 100
-light = {pos = lightPos, dir = {0.0, 0.0, -1.0}, up = {0.0, 1.0, 0.0}, col = {1.0, 1.0, 0.9, 1.0}, intensity = lightIntensity, directional = true}
+light = {pos = lightPos, dir = {0.0, 0.0, -1.0}, up = {0.0, 1.0, 0.0}, col = {1.0, 0.0, 0.0, 1.0}, intensity = lightIntensity, directional = true}
 
 Exposure = 0.0034
 Decay = 1.00001
@@ -171,7 +171,7 @@ Density = 0.84
 Weight = 1.65
 
 LightMovement = 11
-LightSpeed = 0.9
+LightSpeed = 0.2
 
 function lightMovementFunction(accumulator, x, y, z)
     nx = x + LightMovement * math.sin(LightSpeed * accumulator)
