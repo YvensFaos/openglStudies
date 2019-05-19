@@ -1,0 +1,14 @@
+# Blender MTL File: 'tsphere.blend'
+# Material Count: 1
+
+newmtl PebbleMaterial
+Ns 749.999996
+Ka 1.000000 1.000000 1.000000
+Kd 0.037260 0.117312 0.791049
+Ks 0.891608 0.891608 0.891608
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd wildtextures-stone_pebbles_seamless_texture_512.jpg
+map_Bump wildtextures-stone_pebbles_seamless_normal_512.png
