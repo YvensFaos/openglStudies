@@ -46,11 +46,8 @@ int main(void)
 	
   GLuint vs =  AShader::generateShader(luaHandler.getGlobalString("vertexShader"), GL_VERTEX_SHADER);
 	GLuint fs =  AShader::generateShader(luaHandler.getGlobalString("fragmentShader"), GL_FRAGMENT_SHADER);
-	GLuint svs = AShader::generateShader(luaHandler.getGlobalString("skyboxVertexShader"), GL_VERTEX_SHADER);
-	GLuint sfs = AShader::generateShader(luaHandler.getGlobalString("skyboxFragmentShader"), GL_FRAGMENT_SHADER);
 
   GLuint shaderProgramme = AShader::generateProgram(vs, fs);
-	GLuint skyboxProgramme  = AShader::generateProgram(svs, sfs);
 
 	ASkybox askybox(std::vector<std::string>{
         "Resources/desertsky_ft.tga",
@@ -60,9 +57,6 @@ int main(void)
         "Resources/desertsky_rt.tga",
         "Resources/desertsky_lf.tga"
     });
-
-	GLuint skyVpMatrixUniform = glGetUniformLocation(skyboxProgramme, "vpMatrix");
-	GLuint skyboxUniform = glGetUniformLocation(skyboxProgramme, "skybox");
 
 	GLuint modelMatrixUniform = glGetUniformLocation(shaderProgramme, "model");
 	GLuint vpMatrixUniform = glGetUniformLocation(shaderProgramme, "viewProjection");

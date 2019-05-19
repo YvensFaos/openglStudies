@@ -1,34 +1,3 @@
-skyboxVertexShader = [[
-    #version 400
-    layout (location = 0) in vec3 aPos;
-
-    uniform mat4 vpMatrix;
-
-    out vec3 texCoord;
-
-    void main()
-    {
-        texCoord = aPos;
-        vec4 pos = vpMatrix * vec4(aPos, 1.0);
-        gl_Position = pos.xyww;
-    }  
-]]
-
-skyboxFragmentShader = [[
-    #version 400
-    in vec3 texCoord;
-
-    uniform samplerCube skybox;
-
-    out vec4 frag_colour;
-
-    void main()
-    {   
-        vec4 color = texture(skybox, texCoord);
-        frag_colour = color;
-    }
-]]
-
 vertexShader = [[
     #version 400
     layout (location = 0) in vec3 vertex;
