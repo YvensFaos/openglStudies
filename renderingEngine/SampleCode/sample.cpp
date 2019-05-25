@@ -99,7 +99,6 @@ int main(void)
 	glm::mat4 lightMatrix = lightProjection * lightView;
     glm::mat4 skyView = glm::mat4(1.0);
 
-	glActiveTexture(GL_TEXTURE0);
 	lightPosition = alight->getPosition();
 	lightDirection = alight->getDirection();
 	lightUp = alight->getUp();

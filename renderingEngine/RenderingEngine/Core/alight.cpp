@@ -1,5 +1,28 @@
 #include "alight.hpp"
 
+AAmbientLight::AAmbientLight(glm::vec4 color, float intensity)
+ : color(color), intensity(intensity)
+ { }
+
+glm::vec4 AAmbientLight::getColor(void) const {
+    return this->color;
+}
+
+float AAmbientLight::getIntensity(void) const {
+    return this->intensity;
+}
+
+void AAmbientLight::setColor(const glm::vec4 color) {
+    this->color.x = color.x;
+    this->color.y = color.y;
+    this->color.z = color.z;
+    this->color.w = color.w;
+}
+
+void AAmbientLight::setIntensity(const float intensity) {
+    this->intensity = intensity;
+}
+
 ALight::ALight(glm::vec3 position, glm::vec3 direction, glm::vec4 color, float intensity, bool directional) 
  : position(position), direction(direction), color(color), intensity(intensity), directional(directional), up(glm::vec3(0,1,0))
 { }
@@ -30,6 +53,10 @@ bool ALight::getDirectional(void) const {
     return this->directional;
 }
 
+float ALight::getSpecularPower(void) const {
+    return this->specularPower;
+}
+
 void ALight::setPosition(const glm::vec3 position) {
     this->position.x = position.x;
     this->position.y = position.y;
@@ -51,6 +78,10 @@ void ALight::setColor(const glm::vec4 color) {
 
 void ALight::setIntensity(const float intensity) {
     this->intensity = intensity;
+}
+
+void ALight::setSpecularPower(const float specularPower) {
+    this->specularPower = specularPower;
 }
 
 void ALight::setUp(const glm::vec3 up) {

@@ -43,6 +43,21 @@ const glm::vec3 ACamera::getPos(void) const
     return this->cameraPos;
 }
 
+const glm::vec3 ACamera::getDir(void) const
+{
+    return this->cameraDirection;
+}
+
+const glm::vec3 ACamera::getUp(void) const
+{
+    return this->cameraUp;
+}
+
+const glm::vec3 ACamera::getRight(void) const
+{
+    return this->cameraRight;
+}
+
 void ACamera::RotateWithMouse(float horizontalAngle, float verticalAngle)
 {
     this->horizontalAngle += horizontalAngle;
@@ -79,4 +94,32 @@ float ACamera::getNear(void) const
 float ACamera::getFar(void) const
 {
     return this->far;
+}
+
+void ACamera::setPos(const glm::vec3 value)
+{
+    this->cameraPos.x = value.x;
+    this->cameraPos.y = value.y;
+    this->cameraPos.z = value.z;
+}
+
+void ACamera::setDir(const glm::vec3 value)
+{
+    this->cameraDirection.x = value.x;
+    this->cameraDirection.y = value.y;
+    this->cameraDirection.z = value.z;
+}
+
+void ACamera::setUp(const glm::vec3 value)
+{
+    this->cameraUp.x = value.x;
+    this->cameraUp.y = value.y;
+    this->cameraUp.z = value.z;
+}
+
+void ACamera::setRight(const glm::vec3 value)
+{
+    this->cameraRight.x = value.x;
+    this->cameraRight.y = value.y;
+    this->cameraRight.z = value.z;
 }

@@ -29,7 +29,15 @@ class ACamera {
 
         glm::mat4 getView(void) const;
         const glm::vec3 getPos(void) const;
+        const glm::vec3 getDir(void) const;
+        const glm::vec3 getUp(void) const;
+        const glm::vec3 getRight(void) const;
         float getZoom(void) const;
         float getNear(void) const;
         float getFar(void) const;
+
+        void setPos  (const glm::vec3 value);
+        void setDir  (const glm::vec3 value);
+        void setUp   (const glm::vec3 value);
+        void setRight(const glm::vec3 value);
 };

@@ -2,6 +2,7 @@
 
 #include "../Core/amodel.hpp"
 #include "../Core/alight.hpp"
+#include "../Core/acamera.hpp"
 #include "luahandler.hpp"
 
 std::vector<AModel*> ALuaHelper::loadModelsFromTable(std::string identifier, LuaHandler* luaHandler) 
@@ -75,6 +76,7 @@ ALight* ALuaHelper::loadLight(LuaHandler* luaHandler, bool popTable)
 	glm::vec3 lightUpValue;
 	glm::vec4 lightColorValue;
 	float lightIntensityValue;
+    float lightSpecularValue;
 	bool lightDirectionalValue;
 
 	luaHandler->getTableFromTable("pos");
@@ -103,11 +105,79 @@ ALight* ALuaHelper::loadLight(LuaHandler* luaHandler, bool popTable)
 	luaHandler->popTable();
 
 	lightIntensityValue = luaHandler->getNumberFromTable("intensity");
+    lightSpecularValue = luaHandler->getNumberFromTable("specularPower");
 	lightDirectionalValue = luaHandler->getBoolFromTable("directional");
 	luaHandler->popTable();
 
 	ALight* alight = new ALight(lightPositionValue, lightDirectionValue, lightColorValue, lightIntensityValue, lightDirectionalValue);
 	alight->setUp(lightUpValue);
+    alight->setSpecularPower(lightSpecularValue);
 
     return alight;
+}
+
+void ALuaHelper::setupCameraPosition(std::string cameraTable, ACamera* acamera , LuaHandler* luaHandler)
+{
+    luaHandler->loadTable(cameraTable.c_str());
+    glm::vec3 positionValue(0,0,0);
+    glm::vec3 directionValue(0,0,1);
+	glm::vec3 upValue(0,1,0);
+	glm::vec3 rightValue(1,0,0);
+    
+    luaHandler->getTableFromTable("pos");
+	positionValue.x = luaHandler->getNumberFromTable(1);
+	positionValue.y = luaHandler->getNumberFromTable(2);
+	positionValue.z = luaHandler->getNumberFromTable(3);
+    luaHandler->popTable();
+
+    if(luaHandler->getTableFromTable("up"))
+    {
+        upValue.x = luaHandler->getNumberFromTable(1);
+        upValue.y = luaHandler->getNumberFromTable(2);
+        upValue.z = luaHandler->getNumberFromTable(3);
+        luaHandler->popTable();
+    }
+
+    if(luaHandler->getTableFromTable("right"))
+    {
+        rightValue.x = luaHandler->getNumberFromTable(1);
+        rightValue.y = luaHandler->getNumberFromTable(2);
+        rightValue.z = luaHandler->getNumberFromTable(3);
+        luaHandler->popTable();
+    }
+
+    if(luaHandler->getTableFromTable("dir"))
+    {
+        directionValue.x = luaHandler->getNumberFromTable(1);
+        directionValue.y = luaHandler->getNumberFromTable(2);
+        directionValue.z = luaHandler->getNumberFromTable(3);
+        luaHandler->popTable();
+    }
+	luaHandler->popTable();
+
+    acamera->setPos(positionValue);
+    acamera->setDir(directionValue);
+    acamera->setRight(rightValue);
+    acamera->setUp(upValue);
+}
+
+AAmbientLight* ALuaHelper::loadAmbientLightFromTable(std::string identifier, LuaHandler* luaHandler)
+{
+    luaHandler->loadTable(identifier);
+    glm::vec4 lightColorValue;
+	float lightIntensityValue;
+
+    luaHandler->getTableFromTable("col");
+	lightColorValue.x = luaHandler->getNumberFromTable(1);
+	lightColorValue.y = luaHandler->getNumberFromTable(2);
+	lightColorValue.z = luaHandler->getNumberFromTable(3);
+	lightColorValue.w = luaHandler->getNumberFromTable(4);
+	luaHandler->popTable();
+
+	lightIntensityValue = luaHandler->getNumberFromTable("intensity");
+    luaHandler->popTable();
+
+    AAmbientLight* aambientlight = new AAmbientLight(lightColorValue, lightIntensityValue);
+    
+    return aambientlight;
 }

@@ -22,7 +22,8 @@ void AModel::loadModel(std::string path)
         return;
     }
 
-    std::string directory = path.substr(0, path.find_last_of('/'));
+    directory = path.substr(0, path.find_last_of('/'));
+    printf("Loading object: %s\r\nDirectory: %s\r\n", path.c_str(), directory.c_str());
     glm::mat4 parentMat4 = AModel::aiMatrix4x4ToGlm(&scene->mRootNode->mTransformation);
     processNode(scene->mRootNode, scene, parentMat4);
 }
@@ -43,10 +44,10 @@ void AModel::processNode(aiNode *node, const aiScene *scene, const glm::mat4 par
     }
 }
 
-void AModel::draw(void) const
+void AModel::draw(GLuint programme) const
 {
     for(unsigned int i = 0; i < meshes.size(); i++) {
-        meshes[i].draw();
+        meshes[i].draw(programme);
     }
 }  
 
@@ -60,8 +61,7 @@ void AModel::renderModels(GLuint modelMatrixUniform, GLuint programme) const
         std::for_each(begin, end, [modelMatrixUniform, modelMatrix, programme](AMesh mesh)
         {
             glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-            mesh.bindTextures(programme);
-            mesh.draw();
+            mesh.draw(programme);
         });
 }
 
@@ -83,6 +83,7 @@ AMesh AModel::processMesh(aiMesh *mesh, const aiScene *scene, glm::mat4 transfor
 
     glm::vec4 vector4; 
     glm::vec2 vec;
+    glm::vec4 tv;
 
     for(unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
@@ -91,7 +92,8 @@ AMesh AModel::processMesh(aiMesh *mesh, const aiScene *scene, glm::mat4 transfor
         vector4.y = mesh->mVertices[i].y;
         vector4.z = mesh->mVertices[i].z; 
         vector4.w = 1.0f;
-        glm::vec4 tv = transformation * vector4;
+        
+        tv = transformation * vector4;
         vertex.Position.x = tv.x;
         vertex.Position.y = tv.y;
         vertex.Position.z = tv.z;
@@ -102,6 +104,17 @@ AMesh AModel::processMesh(aiMesh *mesh, const aiScene *scene, glm::mat4 transfor
         vertex.Normal.x = vector4.x; 
         vertex.Normal.y = vector4.y; 
         vertex.Normal.z = vector4.z; 
+
+        if(mesh->mTangents)
+        {
+            vector4.x = mesh->mTangents[i].x;
+            vector4.y = mesh->mTangents[i].y;
+            vector4.z = mesh->mTangents[i].z;
+        }
+
+        vertex.Tangent.x = vector4.x;
+        vertex.Tangent.y = vector4.y;
+        vertex.Tangent.z = vector4.z;
 
         if(mesh->mTextureCoords[0])
         {
@@ -134,6 +147,8 @@ AMesh AModel::processMesh(aiMesh *mesh, const aiScene *scene, glm::mat4 transfor
         textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
         std::vector<ATexture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
         textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+        std::vector<ATexture> normalMaps = loadMaterialTextures(material, aiTextureType_NORMALS, "texture_normal");
+        textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
     }  
     return AMesh(vertices, indices, textures);
 }
@@ -141,10 +156,11 @@ AMesh AModel::processMesh(aiMesh *mesh, const aiScene *scene, glm::mat4 transfor
 std::vector<ATexture> AModel::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName)
 {
     std::vector<ATexture> textures;
-    for(unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+    for(size_t i = 0; i < mat->GetTextureCount(type); i++)
     {
         aiString str;
         mat->GetTexture(type, i, &str);
+
         ATexture texture;
         texture.id = TextureFromFile(str.C_Str(), directory);
         texture.type = typeName;
@@ -160,9 +176,10 @@ unsigned int AModel::TextureFromFile(const char *path, const std::string &direct
     if(!directory.empty()) {
         filename = directory + '/' + filename;
     }
-
     unsigned int textureID;
+
     glGenTextures(1, &textureID);
+    printf("Loading texture [%d]: %s ... ", textureID, filename.c_str());
 
     int width, height, nrComponents;
     unsigned char *data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
@@ -170,23 +187,31 @@ unsigned int AModel::TextureFromFile(const char *path, const std::string &direct
     {
         GLenum format;
         if (nrComponents == 1)
+        {
             format = GL_RED;
+        }
         else if (nrComponents == 3)
+        {
             format = GL_RGB;
+        }
         else if (nrComponents == 4)
+        {
             format = GL_RGBA;
+        }
+
+        printf("Loaded with %d x %d [Components: %d]!\r\n", width, height, nrComponents);
 
         glBindTexture(GL_TEXTURE_2D, textureID);
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        // glGenerateMipmap(GL_TEXTURE_2D);
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        stbi_image_free(data);
         glBindTexture(GL_TEXTURE_2D, 0);
+        stbi_image_free(data);
     }
     else
     {
@@ -249,8 +274,7 @@ void AModel::renderModelsInList(std::vector<AModel*>* list, GLuint modelMatrixUn
         std::for_each(begin, end, [modelMatrixUniform, modelMatrix, programme](AMesh mesh)
         {
             glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-            mesh.bindTextures(programme);
-            mesh.draw();
+            mesh.draw(programme);
         });
     }
 }

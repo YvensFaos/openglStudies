@@ -169,7 +169,6 @@ int main(void)
 	glm::mat4 lightView = glm::lookAt(lightPosition, lightPosition + lightDirection, lightUp);
 	glm::mat4 lightMatrix = lightProjection * lightView;
 
-	glActiveTexture(GL_TEXTURE0);
 	do
 	{
 		if(!paused) 
@@ -204,7 +203,7 @@ int main(void)
 		glBindVertexArray(0);
 
 		glUniformMatrix4fv (shadowModelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane->getModelMatrix()));
-		plane->draw();
+		plane->draw(shadowProgramme);
 		glBindVertexArray(0);
 #pragma endregion
 
@@ -241,7 +240,7 @@ int main(void)
 
 		glBindVertexArray(0);
 		glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane->getModelMatrix()));
-		plane->draw();
+		plane->draw(shadowProgramme);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 #pragma endregion
@@ -268,7 +267,7 @@ int main(void)
 
 		glBindVertexArray(0);
 		glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane->getModelMatrix()));
-		plane->draw();
+		plane->draw(shaderProgramme);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 

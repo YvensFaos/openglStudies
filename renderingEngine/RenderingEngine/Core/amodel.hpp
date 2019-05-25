@@ -19,7 +19,7 @@ class AModel
 
     public:
         AModel(std::string path);
-        void draw(void) const;
+        void draw(GLuint programme) const;
         void renderModels(GLuint modelMatrixUniform, GLuint programme) const;
         const std::vector<AMesh>* getMeshes(void) const;
 

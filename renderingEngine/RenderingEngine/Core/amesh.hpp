@@ -8,6 +8,7 @@
 struct AVertex {
     glm::vec3 Position;
     glm::vec3 Normal;
+    glm::vec3 Tangent;
     glm::vec2 TexCoords;
 };
 
@@ -24,9 +25,9 @@ class AMesh {
         std::vector<ATexture> textures;
 
         AMesh(std::vector<AVertex> vertices, std::vector<GLuint> indices, std::vector<ATexture> textures);
-        void bindTextures(GLuint shader);
-        void draw(void) const;
+        void draw(GLuint shader) const;
     private:
         GLuint VAO, VBO, EBO;
         void setupMesh();
+        void bindTextures(GLuint shader) const;
 };

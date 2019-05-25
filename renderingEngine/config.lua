@@ -191,7 +191,7 @@ models[4] = {file = "RenderingEngine/Resources/monkey.fbx", pos = { 1.0,  2.5, 0
 
 plane = {file = "RenderingEngine/Resources/plane.fbx",  pos = { 0.0, 0.5, -4.0}, sca = {8.0, 1.0, 8.0}, rot = {20.0,  0.0, 0.0}}
 lightIntensity = 80
-light = {pos = { 0.0, 2.0, 0.0}, dir = {0.0, 0.0, -1.0}, up = {0.0, 1.0, 0.0}, col = {247 / 255, 208 / 255, 54 / 255, 1.0}, intensity = lightIntensity, directional = true}
+light = {pos = { 0.0, 2.0, 0.0}, dir = {0.0, 0.0, -1.0}, up = {0.0, 1.0, 0.0}, col = {247 / 255, 208 / 255, 54 / 255, 1.0}, intensity = lightIntensity, specularPower = 0.0, directional = true}
 nearPlane = -4.0
 farPlane = 16.0
 projectionDimension = 11.25
