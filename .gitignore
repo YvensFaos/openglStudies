@@ -34,3 +34,4 @@
 *.DS_Store
 *.dSYM
 **/ipch
+*.blend[1-9]
