@@ -190,13 +190,13 @@ void LuaHandler::getFunction(std::string functionName) {
     lua_getglobal(lua, functionName.c_str());
 }
 
-void LuaHandler::callFunctionFromStack(int parameters, int returns) {
-    lua_call(lua, parameters, returns);
+int LuaHandler::callFunctionFromStack(int parameters, int returns) {
+    return lua_pcall(lua, parameters, returns, 0);
 }
 
-void LuaHandler::getAndCallFunction(std::string functionName, int returns) {
+int LuaHandler::getAndCallFunction(std::string functionName, int returns) {
     lua_getglobal(lua, functionName.c_str());
-    lua_call(lua, 0, returns);
+    return lua_pcall(lua, 0, returns, 0);
 }
 
 void LuaHandler::pushBoolean(bool value) {

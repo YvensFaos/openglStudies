@@ -30,8 +30,8 @@ class LuaHandler {
         bool getTableFromTable(std::string key);
 
         void getFunction(std::string functionName);
-        void callFunctionFromStack(int parameters, int returns);
-        void getAndCallFunction(std::string functionName, int returns);
+        int callFunctionFromStack(int parameters, int returns);
+        int getAndCallFunction(std::string functionName, int returns);
 
         void pushBoolean(bool value);
         void pushInteger(int value);
