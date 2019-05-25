@@ -39,7 +39,7 @@ int main(void)
 	int width = 800;
 	int height = 600;
 	ARenderer arenderer(width, height, "Empty Project Scene");	
-	arenderer.changeClearColor(glm::vec4(0.02f, 0.04f, 0.25f, 0.0f));
+	arenderer.changeClearColor(glm::vec4(0.02f, 0.02f, 0.02f, 0.0f));
 
 	LuaHandler luaHandler;
 	luaHandler.openFile("config.lua");
@@ -50,12 +50,12 @@ int main(void)
   GLuint shaderProgramme = AShader::generateProgram(vs, fs);
 
 	ASkybox askybox(std::vector<std::string>{
-        "Resources/desertsky_ft.tga",
-        "Resources/desertsky_bc.tga",
-        "Resources/desertsky_up.tga",
-        "Resources/desertsky_dn.tga",
-        "Resources/desertsky_rt.tga",
-        "Resources/desertsky_lf.tga"
+        "../3DModels/desertsky_ft.tga",
+        "../3DModels/desertsky_bc.tga",
+        "../3DModels/desertsky_up.tga",
+        "../3DModels/desertsky_dn.tga",
+        "../3DModels/desertsky_rt.tga",
+        "../3DModels/desertsky_lf.tga"
     });
 
 	GLuint modelMatrixUniform = glGetUniformLocation(shaderProgramme, "model");
@@ -96,8 +96,8 @@ int main(void)
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.02f, 0.04f, 0.25f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 		glUseProgram(shaderProgramme);
+
 		glUniformMatrix4fv(vpMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
 		glUniform3f(lightPositionUniform, lightPosition.x, lightPosition.y, lightPosition.z);
 		glUniform3f(lightDirectionUniform, lightDirection.x, lightDirection.y, lightDirection.z);
