@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <glm/glm.hpp>
 
 class LuaHandler;
 class AModel;
@@ -26,6 +27,9 @@ class ALuaHelper {
         ///Load camera position, up and right parameters from the cameraTable and set it to the acamera pointer.
         static void setupCameraPosition(std::string cameraTable, ACamera* acamera , LuaHandler* luaHandler);
 
-        //Load a AAmbientLight from a table, popping it out of the stack after it finises reading it.
+        ///Load a AAmbientLight from a table, popping it out of the stack after it finises reading it.
         static AAmbientLight* loadAmbientLightFromTable(std::string identifier, LuaHandler* luaHandler);
+
+        ///Load a glm::vec4 from 4 consecutive values in a table by the identifier name.
+        static glm::vec4 readVec4FromTable(std::string identifier, LuaHandler* luaHandler);
 };

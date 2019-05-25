@@ -181,3 +181,15 @@ AAmbientLight* ALuaHelper::loadAmbientLightFromTable(std::string identifier, Lua
     
     return aambientlight;
 }
+
+glm::vec4 ALuaHelper::readVec4FromTable(std::string identifier, LuaHandler* luaHandler)
+{
+    luaHandler->loadTable(identifier.c_str());
+    glm::vec4 value(0,0,0,0);
+    value.x = luaHandler->getNumberFromTable(1);
+	value.y = luaHandler->getNumberFromTable(2);
+	value.z = luaHandler->getNumberFromTable(3);
+    value.w = luaHandler->getNumberFromTable(4);
+    luaHandler->popTable();
+    return value;
+}

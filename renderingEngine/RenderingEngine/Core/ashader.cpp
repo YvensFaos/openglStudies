@@ -38,3 +38,16 @@ GLuint AShader::generateProgram(GLuint vertexShader, GLuint fragmentShader)
 
     return shaderProgramme;
 }
+
+GLuint AShader::generateProgram(GLuint vertexShader, GLuint geometryShader, GLuint fragmentShader)
+{
+    GLuint shaderProgramme = glCreateProgram();
+    glAttachShader(shaderProgramme, vertexShader);
+    glAttachShader(shaderProgramme, geometryShader);
+    glAttachShader(shaderProgramme, fragmentShader);
+    glLinkProgram(shaderProgramme);
+
+    printf("Program generated:[%d].\n\n", shaderProgramme);
+
+    return shaderProgramme;
+}
