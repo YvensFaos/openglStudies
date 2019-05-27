@@ -163,7 +163,7 @@ lightPos = { 0,  0.0, -10.0}
 lightObject = {file = "Resources/csphere.fbx", pos = lightPos, sca = {1.4, 1.4, 1.4}, rot = { 0.0,  0.0, 0.0}}
 
 lightIntensity = 100
-light = {pos = lightPos, dir = {0.0, 0.0, -1.0}, up = {0.0, 1.0, 0.0}, col = {1.0, 0.0, 0.0, 1.0}, intensity = lightIntensity, directional = true}
+light = {pos = lightPos, dir = {0.0, 0.0, -1.0}, up = {0.0, 1.0, 0.0}, col = {1.0, 0.0, 0.0, 1.0}, intensity = lightIntensity, specularPower = 128.0, directional = true}
 
 Exposure = 0.0034
 Decay = 1.00001
