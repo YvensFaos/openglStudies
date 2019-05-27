@@ -71,12 +71,12 @@ int main(void)
 	GLuint lightboxProgramme  = AShader::generateProgram(vs, lfs);
 	
 	ASkybox askybox(std::vector<std::string>{
-        "Resources/desertsky_ft.tga",
-        "Resources/desertsky_bc.tga",
-        "Resources/desertsky_up.tga",
-        "Resources/desertsky_dn.tga",
-        "Resources/desertsky_rt.tga",
-        "Resources/desertsky_lf.tga"
+        "../3DModels/desertsky_ft.tga",
+        "../3DModels/desertsky_bc.tga",
+        "../3DModels/desertsky_up.tga",
+        "../3DModels/desertsky_dn.tga",
+        "../3DModels/desertsky_rt.tga",
+        "../3DModels/desertsky_lf.tga"
     });
 
 	GLuint modelMatrixUniform = glGetUniformLocation(shaderProgramme, "model");
