@@ -111,4 +111,4 @@ models[2] = {file = "Resources/monkey.fbx", pos = { 2.0,  0.0, 4.0}, sca = {1.0,
 models[3] = {file = "Resources/monkey.fbx", pos = {-2.0,  0.0, 4.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,  0.0, 0.0}}
 
 lightIntensity = 100
-light = {pos = { 0.0, 0.0, 5.0}, dir = {0.0, 0.0, -1.0}, up = {0.0, 1.0, 0.0}, col = {1.0, 0.0, 0.0, 1.0}, intensity = lightIntensity, directional = true}
+light = {pos = { 0.0, 0.0, 5.0}, dir = {0.0, 0.0, -1.0}, up = {0.0, 1.0, 0.0}, col = {1.0, 0.0, 0.0, 1.0}, intensity = lightIntensity, specularPower = 128.0, directional = true}
