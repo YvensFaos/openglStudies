@@ -31,16 +31,23 @@
 #include <RenderingEngine/Utils/amacrohelper.hpp>
 #include <RenderingEngine/Utils/arenderquad.hpp>
 #include <RenderingEngine/Utils/aluahelper.hpp>
+#include <RenderingEngine/Utils/anormaldebugger.hpp>
 
 #include <stb_image.h>
 
-float moveLight(LuaHandler* luaHandler, ALight* light, float deltaTime)
+glm::vec3 moveLight(LuaHandler* luaHandler, ALight* light, float deltaTime)
 {
-	luaHandler->getFunction("moveY");
+	luaHandler->getFunction("move");
+	luaHandler->pushNumber(light->getPosition().x);
 	luaHandler->pushNumber(light->getPosition().y);
+	luaHandler->pushNumber(light->getPosition().z);
 	luaHandler->pushNumber(deltaTime);
-	luaHandler->callFunctionFromStack(2, 1);
-	return luaHandler->popNumber();
+	luaHandler->callFunctionFromStack(4, 3);
+	glm::vec3 newPosition;
+	newPosition.z = luaHandler->popNumber();
+	newPosition.y = luaHandler->popNumber();
+	newPosition.x = luaHandler->popNumber();
+	return newPosition;
 }
 
 int main(void)
@@ -53,6 +60,8 @@ int main(void)
 	LuaHandler luaHandler;
 	luaHandler.openFile("config.lua");
 	
+	bool DEBUG = luaHandler.getGlobalBoolean("debug");
+
   GLuint vs =  AShader::generateShader(luaHandler.getGlobalString("vertexShader"), GL_VERTEX_SHADER);
 	GLuint fs =  AShader::generateShader(luaHandler.getGlobalString("fragmentShader"), GL_FRAGMENT_SHADER);
 	GLuint ls =  AShader::generateShader(luaHandler.getGlobalString("lightFragmentShader"), GL_FRAGMENT_SHADER);
@@ -72,6 +81,7 @@ int main(void)
 	GLuint modelMatrixUniform = glGetUniformLocation(shaderProgramme, "model");
 	GLuint vpMatrixUniform = glGetUniformLocation(shaderProgramme, "viewProjection");
 	GLuint lightMatrixUniform = glGetUniformLocation(shaderProgramme, "lightViewProjection");
+	GLuint viewMatrixUniform = glGetUniformLocation(shaderProgramme, "viewMatrix");
 	GLuint viewPositionUniform = glGetUniformLocation(shaderProgramme, "viewPosition");
 	GLuint vlightPositionUniform = glGetUniformLocation(shaderProgramme, "lightPosition");
 
@@ -115,6 +125,9 @@ int main(void)
 	glm::vec4 ambientLightColor = aambientLight->getColor();
 	float ambientLightIntensity = aambientLight->getIntensity();
 
+	ANormalDebugger normalDebugger;
+	GLuint anormalDebuggerModelUniform = normalDebugger.getModelUniformLocation();
+	GLuint anormalDebuggerProgramme = normalDebugger.getProgramme();
 	do
 	{
 		arenderer.startFrame();
@@ -125,19 +138,29 @@ int main(void)
 		skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
 
 		glUseProgram(shaderProgramme);
+		glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(vpMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
+		cameraPosition = acamera->getPos();
 		glUniform3f(viewPositionUniform, cameraPosition.x, cameraPosition.y, cameraPosition.z);
 		glUniform4f(ambientColorUniform, ambientLightColor.x, ambientLightColor.y, ambientLightColor.z, ambientLightColor.w);
 		glUniform1f(ambientIntensityUniform, ambientLightIntensity);
 
+		lightPosition = alight->getPosition();
 		glUniform3f(vlightPositionUniform, lightPosition.x, lightPosition.y, lightPosition.z);
 		glUniform3f(lightPositionUniform, lightPosition.x, lightPosition.y, lightPosition.z);
 		glUniform3f(lightDirectionUniform, lightDirection.x, lightDirection.y, lightDirection.z);
 		glUniform4f(lightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		glUniform1f(lightIntensityUniform, lightIntensity);
 		glUniform1i(lightDirectionalUniform, lightDirectional);
+		glUniform1f(lightSpecularPowerUniform, alight->getSpecularPower());
 		
 		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
+
+		if(DEBUG)
+		{
+			normalDebugger.setupForRendering(viewProjectionMatrix);
+			AModel::renderModelsInList(&models, anormalDebuggerModelUniform, anormalDebuggerProgramme);
+		}
 
 		glUseProgram(lightProgramme);
 		glUniformMatrix4fv(coloredVpMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
@@ -148,7 +171,7 @@ int main(void)
 
 		arenderer.finishFrame();
 
-		lightPosition.y = moveLight(&luaHandler, alight, arenderer.getDeltaTime());
+		lightPosition = moveLight(&luaHandler, alight, arenderer.getDeltaTime());
 		alight->setPosition(lightPosition);
 		lightObject->setPosition(lightPosition);
 	}

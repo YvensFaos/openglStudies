@@ -10,56 +10,51 @@ vertexShader = [[
         vec3 vnormal;
         vec2 vuv;
         vec3 vtangent;
-        
+
         vec3 tangentLightPos;
         vec3 tangentViewPos;
         vec3 tangentFragPos;
     } vectorOut;
 
+    uniform mat4 viewMatrix;
     uniform mat4 viewProjection;
     uniform mat4 model;
-
     uniform vec3 lightPosition;
     uniform vec3 viewPosition;
+
+    out vec3 vPosition;
+
+    out mat3 normalMatrix;
 
     void main()
     {
         vectorOut.vposition = vec3(model * vec4(vertex, 1.0));
         vectorOut.vuv = uv;
-
-        mat3 normalMatrix = transpose(inverse(mat3(model)));
-        vec3 T = normalize(normalMatrix * tangent);
-        vec3 N = normalize(normalMatrix * normal);
-        T = normalize(T - dot(T, N) * N);
-        vec3 B = cross(N, T);
-
-        mat3 TBN = transpose(mat3(T, B, N));
-        vectorOut.tangentLightPos = TBN * lightPosition;
-        vectorOut.tangentViewPos = TBN * viewPosition;
-        vectorOut.tangentFragPos = TBN * vectorOut.vposition;
         
-        vectorOut.vnormal = N;
-        vectorOut.vtangent = tangent;
+        normalMatrix = transpose(inverse(mat3(model)));
+        vec3 t = normalize(normalMatrix * tangent);
+        vec3 n = normalize(normalMatrix * normal);
+        t = normalize(t - dot(t,n) * n);
+        vec3 b = cross(n, t);
+
+        mat3 TBN = transpose(mat3(t, b, n));
+
+        vectorOut.vnormal = n;
+        vectorOut.vtangent = t;
+
+        vectorOut.tangentLightPos = TBN * lightPosition;
+        vectorOut.tangentViewPos  = TBN * viewPosition;
+        vectorOut.tangentFragPos  = TBN * vectorOut.vposition;
+        
+        vPosition = viewPosition;
 
         gl_Position = viewProjection * vec4(vectorOut.vposition, 1.0);
     }
 ]]
 
-lightFragmentShader = [[
-    #version 400
-
-    uniform vec4 lightColor;
-
-    out vec4 frag_colour;
-
-    void main()
-    {          
-        frag_colour = lightColor;
-    }
-]]
-
 fragmentShader = [[
     #version 400
+    precision highp float;
 
     struct AmbientLight {
         vec4 color;
@@ -80,7 +75,7 @@ fragmentShader = [[
         vec3 vnormal;
         vec2 vuv;
         vec3 vtangent;
-        
+
         vec3 tangentLightPos;
         vec3 tangentViewPos;
         vec3 tangentFragPos;
@@ -97,77 +92,91 @@ fragmentShader = [[
     uniform sampler2D texture_diffuse1;
     uniform sampler2D texture_normal1;
 
+    in mat3 normalMatrix;
+    in vec3 vPosition;
+
     out vec4 frag_colour;
 
     void main()
     {
-        //Calculate normal vector
         vec3 normal = texture(texture_normal1, vectorIn.vuv).rgb;
         normal = normalize(normal * 2.0 - 1.0);
+        vec4 diffuseText = texture(texture_diffuse1, vectorIn.vuv);
 
-        //Calculate diffuse color
-        vec4 diffuse = texture(texture_diffuse1, vectorIn.vuv);
+        vec4 ambient = sceneAmbientLight.intensity * sceneAmbientLight.color * diffuseText;
+        ambient.a = 1.0;
 
-        //Calculate ambientTerm
-        vec4 ambientTerm = sceneAmbientLight.intensity * sceneAmbientLight.color * diffuse;
-        ambientTerm.a = 1.0;
-
-        //Calculate diffuseTerm
         vec3 lightDirection = normalize(vectorIn.tangentLightPos - vectorIn.tangentFragPos);
         float diff = max(dot(lightDirection, normal), 0.0);
 
-        //Calculate attenuation
-        float distance = length(sceneLight.position - vectorIn.tangentFragPos);
+        float distance = length(sceneLight.position - vectorIn.vposition);
         float attenuationIntensity = sceneLight.intensity / maximumIntensity;
-        float lightConstant = 1.0f    / attenuationIntensity;
-        float lightLinear = 0.09f     / attenuationIntensity;
-        float lightQuadratic = 0.032f / attenuationIntensity;
+        lightConstant = 1.0f    / attenuationIntensity;
+        lightLinear = 0.09f     / attenuationIntensity;
+        lightQuadratic = 0.032f / attenuationIntensity;
+
         float attenuation = 1.0 / (lightConstant + lightLinear * distance + lightQuadratic * (distance * distance));
 
-        vec4 diffuseTerm = attenuation * diff * sceneLight.color * diffuse;
-        diffuseTerm.a = 1.0;
+        vec4 diffuse = attenuation * diff * sceneLight.color * diffuseText;
+        diffuse.a = 1.0;
 
-        //Calculate specularTerm
-        vec3 viewDirection = normalize(vectorIn.tangentViewPos - vectorIn.tangentFragPos);
-        vec3 reflectDirection = reflect(-lightDirection, normal);
-        vec3 halfwayDirection = normalize(lightDirection + viewDirection);
-        float spec = pow(max(dot(normal, halfwayDirection), 0.0), sceneLight.specularPower);
+        vec3 viewDir = normalize(vectorIn.tangentViewPos - vectorIn.tangentFragPos);
+        vec3 reflectDir = reflect(-lightDirection, normal);
+        
+        float inc = max(dot(viewDir, reflectDir), 0.0);
+        float spec = pow(inc, sceneLight.specularPower);
+        vec4 specular = attenuation * vec4(vec3(spec), 1.0);
+        specular.a = 1.0;
 
-        vec4 specularTerm = vec4(0.2) * spec;
-        specularTerm.a = 1.0;
-
-        vec4 result = specularTerm; //ambientTerm; // + diffuseTerm;// + specularTerm;
-        result.a = 1.0;
-        frag_colour = result;
+        frag_colour = ambient + diffuse + specular;
     }
 ]]
 
---[[
-    
+lightFragmentShader = [[
+    #version 400
 
-        
-]]-- 
+    uniform vec4 lightColor;
+
+    out vec4 frag_colour;
+
+    void main()
+    {          
+        frag_colour = lightColor;
+    }
+]]
 
 models = {}
 models[1] = {file = "../3DModels/monkey.obj",  pos =  { 0.0,  0.0, 3.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,  0.0, 0.0}}
 models[2] = {file =  "../3DModels/tsphere.obj", pos =  {-2.5,  0.0, 3.0}, sca = {1.0, 1.0, 1.0},   rot = { 0.0,  10.0, 0.0}}
 models[3] = {file =  "../3DModels/tsphere.obj",  pos =  { 2.5,  0.0, 3.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0, -10.0, 0.0}}
 models[4] = {file = "../3DModels/monkey.obj",  pos =  {-2.5, 0.0,-6.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0, 45.0, 0.0}}
-models[5] = {file = "../3DModels/monkey.obj",  pos =  { 2.5, 0.0,-6.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,-45.0, 0.0}}
-models[6] = {file = "../3DModels/monkey.obj",  pos =  { 0.0,  0.0,-7.5}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,  0.0, 0.0}}
+models[5] = {file = "../3DModels/monkey.fbx",  pos =  { 2.5, 0.0,-6.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,-45.0, 0.0}}
+models[6] = {file = "../3DModels/cube.obj",  pos =  { 0.0,  0.0,-7.5}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,  0.0, 0.0}}
 
-lightObject = {file = "../3DModels/tsphere.fbx",  pos =  { 0.0,  0.0, 0.0}, sca = {0.125, 0.125, 0.125}, rot = { 0.0,  0.0, 0.0}}
+lightObject = {file = "../3DModels/tsphere.fbx", pos = {0.0,  0.0, 0.0}, sca = {0.125, 0.125, 0.125}, rot = { 0.0,  0.0, 0.0}}
 
-ambient = {col = {255 / 255, 255 / 255, 255 / 255, 1.0}, intensity = 0.2}
-
-cameraPosition = {pos =  { -3.3,  0.2, 2.11}, up = {0.0, 1.0, 0.0}, dir = { 0.36, -0.046, -0.93}, right = { 0.93,  0.0, 0.35}}
+ambient = {col = {255 / 255, 255 / 255, 255 / 255, 1.0}, intensity = 0.05}
+cameraPosition = {
+    pos =   { 1.835, 8.501, 17.85}, 
+    dir =   {-0.053, -0.457, -0.888}, 
+    up =    {-0.027, 0.890, -0.456}, 
+    right = { 0.998,  0.0, -0.059}}
 
 lightIntensity = 200
-initialY = -1.0
-light = {pos = { 0.0, initialY, -6.0}, dir = {0.0, 0.0, -1.0}, up = {0.0, 1.0, 0.0}, col = {50 / 255, 50 / 255, 227 / 255, 1.0}, intensity = lightIntensity, specularPower = 1.0, directional = true}
+initialX = 0.0
+initialY = 0.0
+initialZ = 0.0
+light = {pos = {initialX, initialY, initialZ}, dir = {0.0, 0.0, -1.0}, up = {0.0, 1.0, 0.0}, col = {250 / 255, 150 / 255, 227 / 205, 1.0}, intensity = lightIntensity, specularPower = 256.0, directional = true}
 
-accu = 0
-function moveY(value, deltaTime)
-    accu = accu + deltaTime * 0.275
-    return initialY + 4 * math.sin(accu)
+accuX = 0
+accuY = 0
+accuZ = 0
+
+function move(x, y, z, deltaTime)
+    accuX = accuX + deltaTime * 0.275
+    accuY = accuY + deltaTime * 4.275
+    accuZ = accuZ + deltaTime * 0.400
+    return z, initialY + 4 * math.sin(accuY), initialX + 6 * math.sin(accuX)
 end
+
+debug = false
