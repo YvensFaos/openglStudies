@@ -1,4 +1,4 @@
-# Blender MTL File: 'monkey.blend'
+# Blender MTL File: 'cube.blend'
 # Material Count: 1
 
 newmtl Material.001
@@ -11,4 +11,4 @@ Ni 1.000000
 d 1.000000
 illum 2
 map_Bump wildtextures-stone_pebbles_seamless_normal_512.jpg
-map_Kd bricks2.jpg
+map_Kd wildtextures-stone_pebbles_seamless_texture_512.jpg
