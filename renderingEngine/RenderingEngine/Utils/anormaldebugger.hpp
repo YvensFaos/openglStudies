@@ -28,6 +28,7 @@ class ANormalDebugger
 
         void setupForRendering(glm::mat4 viewProjectionMatrix) const;
 
+        const GLuint getProgramme(void) const;
         const GLuint getModelUniformLocation(void) const;
 
         const glm::vec4 getNormalColor(void) const;

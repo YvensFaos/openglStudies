@@ -21,9 +21,9 @@ std::string ANormalDebugger::defaultVertexShader =
     "   void main()\n"
     "   {\n"
     "       vectorOut.vposition = viewProjection * model * vec4(vertex, 1.0);\n"
-    "       vectorOut.vnormal = normal; //mat3(transpose(inverse(model))) * \n"
+    "       vectorOut.vnormal = normal;\n"
     "       gl_Position = vectorOut.vposition;\n"
-    "   };\n";
+    "   }\n";
 
 std::string ANormalDebugger::defaultGeometryShader = 
     "#version 400\n"
@@ -88,6 +88,11 @@ void ANormalDebugger::setupForRendering(glm::mat4 viewProjectionMatrix) const
     glUseProgram(programme);
     glUniformMatrix4fv(viewProjectionMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
     glUniform4f(normalColorUniform, normalColor.x, normalColor.y, normalColor.z, normalColor.w);
+}
+
+const GLuint ANormalDebugger::getProgramme(void) const
+{
+    return programme;
 }
 
 const GLuint ANormalDebugger::getModelUniformLocation(void) const
