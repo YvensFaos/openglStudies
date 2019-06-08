@@ -1,4 +1,6 @@
-OpenGL Studies
+### OpenGL Studies
+
+<a href='https://coveralls.io/github/YvensFaos/openglStudies?branch=master'><img src='https://coveralls.io/repos/github/YvensFaos/openglStudies/badge.svg?branch=master' alt='Coverage Status' /></a>
 
 This repository contains some of my personal studies while developing and studying openGL applications and related APIs.
 
