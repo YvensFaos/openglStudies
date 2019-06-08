@@ -21,9 +21,11 @@ class LuaHandler {
         std::string getGlobalString(std::string globalVariableName);
 
         bool getBoolFromTable(std::string key);
+        int getIntegerFromTable(int index);
         int getIntegerFromTable(std::string key);
         float getNumberFromTable(int index);
         float getNumberFromTable(std::string key);
+        std::string getStringFromTable(int index);
         std::string getStringFromTable(std::string key);
 
         bool getTableFromTable(int index);
