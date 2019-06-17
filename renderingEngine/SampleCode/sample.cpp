@@ -30,8 +30,8 @@
 
 int main(void)
 {
-    int width = 800;
-    int height = 800;
+    int width = 500;
+    int height = 500;
 	ARenderer arenderer(width, height, "Rendering Engine Sample Scene");	
 	arenderer.changeClearColor(glm::vec4(0.2f, 0.0f, 0.0f, 1.0f));
 
@@ -120,10 +120,7 @@ int main(void)
 		glUniform1i(lightDirectionalUniform, lightDirectional);
 		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
 
-		glUseProgram(skyboxProgramme);
-		glUniformMatrix4fv (skyVpMatrixUniform, 1, GL_FALSE, glm::value_ptr(skyViewProjectionMatrix));
-		glUniform1i(skyboxUniform, 0);
-		askybox.render();
+		askybox.render(skyViewProjectionMatrix);
 		
 		arenderer.finishFrame();
 	}

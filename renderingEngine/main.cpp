@@ -100,14 +100,14 @@ int main(void)
 	LuaHandler luaHandler;
 	luaHandler.openFile("config.lua");
 	
-  GLuint vs =  AShader::generateShader(luaHandler.getGlobalString("vertexShader"), GL_VERTEX_SHADER);
+  	GLuint vs =  AShader::generateShader(luaHandler.getGlobalString("vertexShader"), GL_VERTEX_SHADER);
 	GLuint fs =  AShader::generateShader(luaHandler.getGlobalString("fragmentShader"), GL_FRAGMENT_SHADER);
 	GLuint svs = AShader::generateShader(luaHandler.getGlobalString("skyboxVertexShader"), GL_VERTEX_SHADER);
 	GLuint sfs = AShader::generateShader(luaHandler.getGlobalString("skyboxFragmentShader"), GL_FRAGMENT_SHADER);
 	GLuint hvs = AShader::generateShader(luaHandler.getGlobalString("shadowVertexShader"), GL_VERTEX_SHADER);
 	GLuint hfs = AShader::generateShader(luaHandler.getGlobalString("shadowFragmentShader"), GL_FRAGMENT_SHADER);
 
-  GLuint shaderProgramme = AShader::generateProgram(vs, fs);
+  	GLuint shaderProgramme = AShader::generateProgram(vs, fs);
 	GLuint skyboxProgramme  = AShader::generateProgram(svs, sfs);
 	GLuint shadowProgramme = AShader::generateProgram(hvs, hfs);
 
