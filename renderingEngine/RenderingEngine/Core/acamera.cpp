@@ -5,6 +5,13 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/rotate_vector.hpp>
 
+ACamera::ACamera(void) :
+    cameraPos(glm::vec3()), cameraTarget(glm::vec3(0.0f, 0.0f, 1.0f)), up(glm::vec3(0.0f, 1.0f, 0.0f)),
+    zoom(45.0f), horizontalAngle(0.0f), verticalAngle(0.0f), near(0.1f), far(1000.0f)
+{
+    this->RotateWithMouse(-90.0, 0.0);
+}
+
 ACamera::ACamera(glm::vec3 cameraPos, glm::vec3 cameraTarget, glm::vec3 up) : 
     cameraPos(cameraPos), cameraTarget(cameraTarget), up(up), zoom(45.0f), horizontalAngle(0.0f), verticalAngle(0.0f),
     near(0.1f), far(1000.0f)

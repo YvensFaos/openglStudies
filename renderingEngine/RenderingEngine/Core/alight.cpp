@@ -4,6 +4,8 @@ AAmbientLight::AAmbientLight(glm::vec4 color, float intensity)
  : color(color), intensity(intensity)
  { }
 
+AAmbientLight::~AAmbientLight(void) { }
+
 glm::vec4 AAmbientLight::getColor(void) const {
     return this->color;
 }

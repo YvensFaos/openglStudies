@@ -18,6 +18,7 @@ class ACamera {
         float far;
 
     public:
+        ACamera(void);
         ACamera(glm::vec3 cameraPos, glm::vec3 cameraTarget, glm::vec3 up);
         ~ACamera(void);
 
