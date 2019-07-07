@@ -62,11 +62,11 @@ int main(void)
 	
 	bool DEBUG = luaHandler.getGlobalBoolean("debug");
 
-  GLuint vs =  AShader::generateShader(luaHandler.getGlobalString("vertexShader"), GL_VERTEX_SHADER);
+  	GLuint vs =  AShader::generateShader(luaHandler.getGlobalString("vertexShader"), GL_VERTEX_SHADER);
 	GLuint fs =  AShader::generateShader(luaHandler.getGlobalString("fragmentShader"), GL_FRAGMENT_SHADER);
 	GLuint ls =  AShader::generateShader(luaHandler.getGlobalString("lightFragmentShader"), GL_FRAGMENT_SHADER);
 
-  GLuint shaderProgramme = AShader::generateProgram(vs, fs);
+	GLuint shaderProgramme = AShader::generateProgram(vs, fs);
 	GLuint lightProgramme = AShader::generateProgram(vs, ls);
 
 	ASkybox askybox(std::vector<std::string>{

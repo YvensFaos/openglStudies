@@ -23,7 +23,6 @@ vertexShader = [[
     uniform vec3 viewPosition;
 
     out vec3 vPosition;
-
     out mat3 normalMatrix;
 
     void main()
