@@ -36,52 +36,6 @@
 #include "RenderingEngine/Utils/arenderquad.hpp"
 #include "RenderingEngine/Utils/aluahelper.hpp"
 
-void updateLightWithLua(LuaHandler* luaHandler, ALight* alight, float deltaTime, float accumulator) 
-{
-	luaHandler->getFunction("updateLight");
-	luaHandler->pushNumber(deltaTime);
-	luaHandler->pushNumber(accumulator);
-	glm::vec3 position = alight->getPosition();
-	luaHandler->pushNumber(position.x);
-	luaHandler->pushNumber(position.y);
-	luaHandler->pushNumber(position.z);
-	glm::vec3 direction = alight->getDirection();
-	luaHandler->pushNumber(direction.x);
-	luaHandler->pushNumber(direction.y);
-	luaHandler->pushNumber(direction.z);
-	glm::vec3 up = alight->getUp();
-	luaHandler->pushNumber(up.x);
-	luaHandler->pushNumber(up.y);
-	luaHandler->pushNumber(up.z);
-	glm::vec4 color = alight->getColor();
-	luaHandler->pushNumber(color.x);
-	luaHandler->pushNumber(color.y);
-	luaHandler->pushNumber(color.z);
-	luaHandler->pushNumber(color.w);
-	luaHandler->pushNumber(alight->getIntensity());
-
-	luaHandler->callFunctionFromStack(16, 14);
-
-	position.x = luaHandler->popNumber();
-	position.y = luaHandler->popNumber();
-	position.z = luaHandler->popNumber();
-	alight->setPosition(position);
-	direction.x = luaHandler->popNumber();
-	direction.y = luaHandler->popNumber();
-	direction.z = luaHandler->popNumber();
-	alight->setDirection(direction);
-	up.x = luaHandler->popNumber();
-	up.y = luaHandler->popNumber();
-	up.z = luaHandler->popNumber();
-	alight->setUp(up);
-	color.x = luaHandler->popNumber();
-	color.y = luaHandler->popNumber();
-	color.z = luaHandler->popNumber();
-	color.w = luaHandler->popNumber();
-	alight->setColor(color);
-	alight->setIntensity(luaHandler->popNumber());
-}
-
 glm::mat4 skyView = glm::mat4(1.0);
 float savedAcc = 0.0f;
 bool paused = false;
@@ -173,7 +127,7 @@ int main(void)
 	{
 		if(!paused) 
 		{
-			updateLightWithLua(&luaHandler, alight, arenderer.getDeltaTime(), arenderer.getAccumulator());
+			ALuaHelper::updateLight(&luaHandler, alight, "updateLight", arenderer.getDeltaTime());
 		}
 
 		lightPosition = alight->getPosition();

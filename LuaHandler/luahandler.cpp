@@ -183,7 +183,7 @@ bool LuaHandler::getTableFromTable(int index) {
     lua_pushinteger(lua, index);
     lua_gettable(lua, -2);
 
-    bool success = lua_istable(lua, -1);
+    bool success = isTopOfStackATable();
     if(!success) {
         printf("%sUnable to read table indexed %d from current table.\r\n", 
         LUA_LOG, index);
@@ -196,7 +196,7 @@ bool LuaHandler::getTableFromTable(std::string key) {
     lua_pushstring(lua, key.c_str());
     lua_gettable(lua, -2);
 
-    bool success = lua_istable(lua, -1);
+    bool success = isTopOfStackATable();
     if(!success) {
         printf("%sUnable to read table named %s from current table.\r\n", 
         LUA_LOG, key.c_str());
@@ -205,23 +205,33 @@ bool LuaHandler::getTableFromTable(std::string key) {
     return success;
 }
 
+bool LuaHandler::isTopOfStackATable(void) const {
+    return lua_istable(lua, -1);
+}
+
 void LuaHandler::loadTable(std::string tableName) {
     lua_getglobal(lua, tableName.c_str());
-    if(!lua_istable(lua, -1)) {
+    if(!isTopOfStackATable()) {
         printf("%sUnable to read table named: %s.\r\n", LUA_LOG, tableName.c_str());
     }
 }
 
 void LuaHandler::popTable(void) {
-    if(lua_istable(lua, -1)) {
+    if(isTopOfStackATable()) {
         lua_pop(lua, 1);
     } else {
         printf("%sAttempt to pop a table failed. No table found in the stack top.\r\n", LUA_LOG);
     }
 }
 
-void LuaHandler::getFunction(std::string functionName) {
+bool LuaHandler::getFunction(std::string functionName) {
     lua_getglobal(lua, functionName.c_str());
+    bool validFunction = lua_isfunction(lua, -1);
+    if(!validFunction) {
+        printf("%sAttempt to load function named \"%s\" failed.\r\n", LUA_LOG, functionName.c_str());
+        lua_pop(lua, 1);
+    }
+    return validFunction;
 }
 
 int LuaHandler::callFunctionFromStack(int parameters, int returns) {
@@ -298,10 +308,19 @@ std::string LuaHandler::popString() {
     return "\0";
 }
 
-int LuaHandler::getStackTop(void) {
+int LuaHandler::popTop(void) {
+    if(this->getStackTop() > 0) {
+        lua_pop(lua, 1);
+    }
+
+    return this->getStackTop();
+}
+
+int LuaHandler::getStackTop(void) const {
     return lua_gettop(lua);
 }
 
-int LuaHandler::getLength(void) {
+///Get the length of the object on top of the stack.
+int LuaHandler::getLength(void) const {
     return lua_rawlen(lua, -1);
 }

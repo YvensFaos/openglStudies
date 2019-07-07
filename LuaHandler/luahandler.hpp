@@ -30,8 +30,10 @@ class LuaHandler {
 
         bool getTableFromTable(int index);
         bool getTableFromTable(std::string key);
+        ///Returns true or false if the top of the stack is a table.
+        bool isTopOfStackATable(void) const;
 
-        void getFunction(std::string functionName);
+        bool getFunction(std::string functionName);
         int callFunctionFromStack(int parameters, int returns);
         int getAndCallFunction(std::string functionName, int returns);
 
@@ -48,6 +50,8 @@ class LuaHandler {
         void loadTable(std::string tableName);
         void popTable(void);
 
-        int getStackTop(void);
-        int getLength(void);
+        ///Pop the top of the stack and return the stack top.
+        int popTop(void);
+        int getStackTop(void) const;
+        int getLength(void) const;
 };

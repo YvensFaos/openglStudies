@@ -66,13 +66,25 @@ TEST_CASE("Calling Functions.") {
     CHECK(handler.popInteger() == 10);
     CHECK(handler.getStackTop() == 0);
 
-    handler.getFunction("addNumbers");
+    CHECK(handler.getFunction("addNumbers"));
     handler.pushNumber(2.50f);
     handler.pushNumber(3.25f);
     CHECK(handler.getStackTop() == 3);
     handler.callFunctionFromStack(2, 1);
     CHECK(handler.getStackTop() == 1);
     CHECK(handler.popNumber() == 5.75f);
+    CHECK(handler.getStackTop() == 0);
+}
+
+TEST_CASE("Check reading functions.") {
+    LuaHandler handler;
+    handler.openFile("testLua.lua");
+
+    CHECK(handler.getFunction("addNumbers"));
+    CHECK(handler.popTop() == 0);
+    
+    //Checking inexistent function
+    CHECK(!handler.getFunction("adddNumbers"));
     CHECK(handler.getStackTop() == 0);
 }
 
@@ -90,6 +102,28 @@ TEST_CASE("Fail safe while reading variables that are not in the table reading."
     CHECK(handler.getIntegerFromTable("value3") == 321);
     CHECK(handler.getStackTop() == 1);
 
+    handler.popTable();
+    CHECK(handler.getStackTop() == 0);
+}
+
+TEST_CASE("Test table checking.") {
+    LuaHandler handler;
+    handler.openFile("testLua.lua");
+
+    CHECK(handler.getStackTop() == 0);
+    handler.loadTable("missingTable");
+    CHECK(handler.getStackTop() == 1);
+    CHECK(handler.isTopOfStackATable());
+    handler.popTable();
+    CHECK(handler.getStackTop() == 0);
+
+    handler.loadTable("complexTable");
+    CHECK(handler.getStackTop() == 1);
+    handler.getTableFromTable("value5");
+    CHECK(handler.getStackTop() == 2);
+    CHECK(handler.isTopOfStackATable());
+    handler.popTable();
+    CHECK(handler.getStackTop() == 1);
     handler.popTable();
     CHECK(handler.getStackTop() == 0);
 }

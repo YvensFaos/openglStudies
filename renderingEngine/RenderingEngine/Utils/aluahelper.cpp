@@ -63,9 +63,37 @@ AModel* ALuaHelper::loadModel(LuaHandler* luaHandler, bool popTable)
     return model;
 }
 
-ALight* ALuaHelper::loadLightFromTable(std::string identifier, LuaHandler* luaHandler) 
+std::vector<ALight*> ALuaHelper::loadLightsFromTable(std::string identifier, LuaHandler* luaHandler)
 {
     luaHandler->loadTable(identifier);
+    const int tableSize = luaHandler->getLength();
+
+    std::vector<ALight*> vector;
+    vector.reserve(tableSize);
+    for(unsigned int i = 0; i < tableSize; i++)
+    {
+        ALight* light = ALuaHelper::loadLightFromTable(i + 1, luaHandler);
+        vector.push_back(light);
+    }
+
+    return vector;
+}
+
+ALight* ALuaHelper::loadLightFromTable(int index, LuaHandler* luaHandler) 
+{
+    luaHandler->getTableFromTable(index);
+    return ALuaHelper::loadLight(luaHandler, true);
+}
+
+ALight* ALuaHelper::loadLightFromTable(std::string identifier, LuaHandler* luaHandler) 
+{
+    if(luaHandler->isTopOfStackATable()) 
+    {
+        luaHandler->getTableFromTable(identifier);
+    }
+    else {
+        luaHandler->loadTable(identifier);
+    }
     return ALuaHelper::loadLight(luaHandler, true);
 }
 
@@ -112,6 +140,55 @@ ALight* ALuaHelper::loadLight(LuaHandler* luaHandler, bool popTable)
 	ALight* alight = new ALight(lightPositionValue, lightDirectionValue, lightColorValue, lightIntensityValue, lightDirectionalValue);
 	alight->setUp(lightUpValue);
     alight->setSpecularPower(lightSpecularValue);
+
+    return alight;
+}
+
+ALight* ALuaHelper::updateLight(LuaHandler* luaHandler, ALight* alight, std::string updateFunction, float deltaTime)
+{
+    if(luaHandler->getFunction(updateFunction))
+    {
+        luaHandler->pushNumber(deltaTime);
+        glm::vec3 position = alight->getPosition();
+        luaHandler->pushNumber(position.x);
+        luaHandler->pushNumber(position.y);
+        luaHandler->pushNumber(position.z);
+        glm::vec3 direction = alight->getDirection();
+        luaHandler->pushNumber(direction.x);
+        luaHandler->pushNumber(direction.y);
+        luaHandler->pushNumber(direction.z);
+        glm::vec3 up = alight->getUp();
+        luaHandler->pushNumber(up.x);
+        luaHandler->pushNumber(up.y);
+        luaHandler->pushNumber(up.z);
+        glm::vec4 color = alight->getColor();
+        luaHandler->pushNumber(color.x);
+        luaHandler->pushNumber(color.y);
+        luaHandler->pushNumber(color.z);
+        luaHandler->pushNumber(color.w);
+        luaHandler->pushNumber(alight->getIntensity());
+
+        luaHandler->callFunctionFromStack(15, 14);
+
+        position.x = luaHandler->popNumber();
+        position.y = luaHandler->popNumber();
+        position.z = luaHandler->popNumber();
+        alight->setPosition(position);
+        direction.x = luaHandler->popNumber();
+        direction.y = luaHandler->popNumber();
+        direction.z = luaHandler->popNumber();
+        alight->setDirection(direction);
+        up.x = luaHandler->popNumber();
+        up.y = luaHandler->popNumber();
+        up.z = luaHandler->popNumber();
+        alight->setUp(up);
+        color.x = luaHandler->popNumber();
+        color.y = luaHandler->popNumber();
+        color.z = luaHandler->popNumber();
+        color.w = luaHandler->popNumber();
+        alight->setColor(color);
+        alight->setIntensity(luaHandler->popNumber());
+    }
 
     return alight;
 }

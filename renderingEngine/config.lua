@@ -196,7 +196,9 @@ nearPlane = -4.0
 farPlane = 16.0
 projectionDimension = 11.25
 
-function updateLight(deltaTime, accumulator, posx, posy, posz, dirx, diry, dirz, upx, upy, upz, colr, colg, colb, cola, intensity)
+accumulator = 0
+function updateLight(deltaTime, posx, posy, posz, dirx, diry, dirz, upx, upy, upz, colr, colg, colb, cola, intensity)
+    accumulator = accumulator + deltaTime
     angle = math.rad(accumulator * 0.04)
     cos = math.cos(angle)
     sin = math.sin(angle)
