@@ -1,5 +1,6 @@
 #pragma once
 
+#include <GL/glew.h>
 #include <glm/glm.hpp>
 
 class AAmbientLight {
@@ -15,6 +16,36 @@ class AAmbientLight {
         float getIntensity(void) const;
         void setColor(const glm::vec4 color);
         void setIntensity(const float intensity);
+};
+
+struct ALightUniform {
+    public:
+        GLuint    lightPositionUniform;
+        GLuint   lightDirectionUniform;
+        GLuint       lightColorUniform;
+        GLuint   lightIntensityUniform;
+        GLuint lightDirectionalUniform;
+
+    public:
+        ALightUniform(GLuint lightPositionUniform, GLuint lightDirectionUniform, GLuint lightColorUniform, GLuint lightIntensityUniform, GLuint lightDirectionalUniform) :
+        lightPositionUniform(lightPositionUniform),  lightDirectionUniform(lightDirectionUniform), lightColorUniform(lightColorUniform), lightIntensityUniform(lightIntensityUniform), lightDirectionalUniform(lightDirectionalUniform) 
+        { }
+        ~ALightUniform(void) {}
+        ALightUniform(const ALightUniform& copyFrom) {
+            this->lightPositionUniform = copyFrom.lightPositionUniform;
+            this->lightDirectionUniform = copyFrom.lightDirectionUniform;
+            this->lightColorUniform = copyFrom.lightColorUniform;
+            this->lightIntensityUniform = copyFrom.lightIntensityUniform;
+            this->lightDirectionalUniform = copyFrom.lightDirectionalUniform;
+        }
+
+        void operator=(const ALightUniform& copyFrom) {
+            this->lightPositionUniform = copyFrom.lightPositionUniform;
+            this->lightDirectionUniform = copyFrom.lightDirectionUniform;
+            this->lightColorUniform = copyFrom.lightColorUniform;
+            this->lightIntensityUniform = copyFrom.lightIntensityUniform;
+            this->lightDirectionalUniform = copyFrom.lightDirectionalUniform;
+        }
 };
 
 class ALight {
