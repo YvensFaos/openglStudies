@@ -1,5 +1,12 @@
 #include "alight.hpp"
 
+#include <string>
+
+#define READ_UNIFORM(buffer, uniformName, lightUniform, shaderProgramme, appendText) \
+    buffer = ""; \
+    buffer.append(uniformName); \
+    lightUniform = glGetUniformLocation(shaderProgramme, buffer.append(appendText).c_str());
+
 AAmbientLight::AAmbientLight(glm::vec4 color, float intensity)
  : color(color), intensity(intensity)
  { }
@@ -25,8 +32,38 @@ void AAmbientLight::setIntensity(const float intensity) {
     this->intensity = intensity;
 }
 
+//##### A LIGHT UNIFORM
+
+ALightUniform ALightUniform::loadALightUniformFromProgramme(GLuint shaderProgramme, GLuint lightIndex, ALight* alight) {
+    GLuint    lightPositionUniform = -1;
+	GLuint   lightDirectionUniform = -1;
+	GLuint       lightColorUniform = -1;
+	GLuint   lightIntensityUniform = -1;
+	GLuint lightDirectionalUniform = -1;
+
+	char uniformName[64];
+	bool isDirectional = alight->getDirectional();
+    sprintf(uniformName, "%s[%d].", isDirectional ? "directionalLights" : "pointLights", lightIndex);
+	std::string buffer;
+
+    READ_UNIFORM(buffer, uniformName, lightPositionUniform, shaderProgramme, "position");
+    READ_UNIFORM(buffer, uniformName, lightDirectionUniform, shaderProgramme, "direction");
+    READ_UNIFORM(buffer, uniformName, lightColorUniform, shaderProgramme, "color");
+    READ_UNIFORM(buffer, uniformName, lightIntensityUniform, shaderProgramme, "intensity");
+    READ_UNIFORM(buffer, uniformName, lightDirectionalUniform, shaderProgramme, "directional");
+
+    return ALightUniform(lightPositionUniform, lightDirectionUniform, lightColorUniform, lightIntensityUniform, lightDirectionalUniform);
+}
+
+//##### A LIGHT
+
 ALight::ALight(glm::vec3 position, glm::vec3 direction, glm::vec4 color, float intensity, bool directional) 
  : position(position), direction(direction), color(color), intensity(intensity), directional(directional), up(glm::vec3(0,1,0))
+{ }
+
+ALight::ALight(const ALight& anotherLight) 
+ : position(anotherLight.getPosition()), direction(anotherLight.getDirection()), color(anotherLight.getColor()),
+   intensity(anotherLight.getIntensity()), directional(anotherLight.getDirectional()), up(anotherLight.getUp())
 { }
 
 ALight::~ALight(void) { }
@@ -90,4 +127,33 @@ void ALight::setUp(const glm::vec3 up) {
     this->up.x = up.x;
     this->up.y = up.y;
     this->up.z = up.z;
+}
+
+ALight& ALight::operator=(const ALight& anotherLight) {
+    glm::vec3 position = anotherLight.getPosition();
+    this->position.x = position.x;
+    this->position.y = position.y;
+    this->position.z = position.z;
+
+    glm::vec3 direction = anotherLight.getDirection();
+    this->direction.x = direction.x;
+    this->direction.y = direction.y;
+    this->direction.z = direction.z;
+
+    glm::vec3 up = anotherLight.getUp();
+    this->up.x = up.x;
+    this->up.y = up.y;
+    this->up.z = up.z;
+
+    glm::vec4 color = anotherLight.getColor();
+    this->color.x = color.x;
+    this->color.y = color.y;
+    this->color.z = color.z;
+    this->color.w = color.w;
+
+    this->setIntensity(anotherLight.getIntensity());
+    this->setSpecularPower(anotherLight.getSpecularPower());
+    this->directional = anotherLight.getDirectional();
+
+    return *this;
 }

@@ -46,7 +46,7 @@ float projectionDimension;
 int width = 800;
 int height = 600;
 
-int main(void)
+int main(int argc, char* argv[])
 {
 	ARenderer arenderer(width, height, "Rendering Engine Demo Scene");	
 	arenderer.changeClearColor(glm::vec4(0.02f, 0.04f, 0.25f, 0.0f));

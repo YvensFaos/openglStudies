@@ -126,5 +126,4 @@ void ANormalDebugger::initialize(std::string vertexShaderText, std::string geome
     normalColorUniform = glGetUniformLocation(programme, "normalColor");
 
     normalColor = glm::vec4(1,1,0,1);
-    
 }
