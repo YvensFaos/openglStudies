@@ -51,12 +51,18 @@ int main(void)
 	GLuint ls =  AShader::generateShader(luaHandler.getGlobalString("lightFragmentShader"), GL_FRAGMENT_SHADER);
 
 	GLuint lightProgramme = AShader::generateProgram(vs, gs, ls);
+	GLuint simpleLightProgramme = AShader::generateProgram(vs, ls);
 
 	GLuint lightModelMatrixUniform = glGetUniformLocation(lightProgramme, "model");
 	GLuint lightVMatrixUniform = glGetUniformLocation(lightProgramme, "view");
 	GLuint lightPMatrixUniform = glGetUniformLocation(lightProgramme, "projection");
 	GLuint lightLightColorUniform = glGetUniformLocation(lightProgramme, "lightColor");
 	GLuint lightDirectionUniform = glGetUniformLocation(lightProgramme, "lightDirection");
+
+	GLuint simpleLightModelMatrixUniform = glGetUniformLocation(simpleLightProgramme, "model");
+	GLuint simpleLightVMatrixUniform = glGetUniformLocation(simpleLightProgramme, "view");
+	GLuint simpleLightPMatrixUniform = glGetUniformLocation(simpleLightProgramme, "projection");
+	GLuint simpleLightLightColorUniform = glGetUniformLocation(simpleLightProgramme, "lightColor");
 
 	ACamera* acamera = arenderer.getCamera();
 	ALuaHelper::setupCameraPosition("cameraPosition", acamera, &luaHandler);
@@ -92,9 +98,15 @@ int main(void)
 		glUniformMatrix4fv(lightPMatrixUniform, 1, GL_FALSE, glm::value_ptr(projection));
 		lightColor = pointLightPointer->getColor();
 		lightDirection = pointLightPointer->getDirection();
-		glUniform4f(lightLightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+		glUniform4f(lightLightColorUniform, 1.0f, 1.0f, 1.0f, 1.0f);
 		glUniform3f(lightDirectionUniform, lightDirection.x, lightDirection.y, lightDirection.z);
 		alightModel->renderModels(lightModelMatrixUniform, lightProgramme);
+
+		glUseProgram(simpleLightProgramme);
+		glUniformMatrix4fv(simpleLightVMatrixUniform, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(simpleLightPMatrixUniform, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniform4f(simpleLightLightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+		alightModel->renderModels(simpleLightModelMatrixUniform, simpleLightProgramme);
 
 		ALuaHelper::updateLight(&luaHandler, pointLightPointer, "updateLight", arenderer.getDeltaTime());
 		alightModel->setPosition(pointLightPointer->getPosition());
