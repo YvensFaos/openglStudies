@@ -50,8 +50,12 @@ int main(void)
 	GLuint gs =  AShader::generateShader(luaHandler.getGlobalString("geometryShader"), GL_GEOMETRY_SHADER);
 	GLuint ls =  AShader::generateShader(luaHandler.getGlobalString("lightFragmentShader"), GL_FRAGMENT_SHADER);
 
+	GLuint cvs = AShader::generateShader(luaHandler.getGlobalString("completeVertexShader"), GL_VERTEX_SHADER);
+	GLuint cfs = AShader::generateShader(luaHandler.getGlobalString("directionalLightFragmentShader"), GL_FRAGMENT_SHADER);
+
 	GLuint lightProgramme = AShader::generateProgram(vs, gs, ls);
 	GLuint simpleLightProgramme = AShader::generateProgram(vs, ls);
+	GLuint objectsProgramme = AShader::generateProgram(cvs, cfs);
 
 	GLuint lightModelMatrixUniform = glGetUniformLocation(lightProgramme, "model");
 	GLuint lightVMatrixUniform = glGetUniformLocation(lightProgramme, "view");
@@ -64,6 +68,13 @@ int main(void)
 	GLuint simpleLightPMatrixUniform = glGetUniformLocation(simpleLightProgramme, "projection");
 	GLuint simpleLightLightColorUniform = glGetUniformLocation(simpleLightProgramme, "lightColor");
 
+	GLuint objectsModelMatrixUniform = glGetUniformLocation(objectsProgramme, "model");
+	GLuint objectsVMatrixUniform = glGetUniformLocation(objectsProgramme, "view");
+	GLuint objectsPMatrixUniform = glGetUniformLocation(objectsProgramme, "projection");
+	GLuint objectsLightMatrixUniform = glGetUniformLocation(objectsProgramme, "lightViewProjection");
+	GLuint objectsNumberPointLightsUniform = glGetUniformLocation(objectsProgramme, "numberPointLights");
+	GLuint objectsNumberDirectionLightsUniform = glGetUniformLocation(objectsProgramme, "numberDirectionLights");
+
 	ACamera* acamera = arenderer.getCamera();
 	ALuaHelper::setupCameraPosition("cameraPosition", acamera, &luaHandler);
 	glm::vec3 cameraPosition = acamera->getPos();
@@ -75,9 +86,16 @@ int main(void)
 
 	ALight* pointLightPointer = ALuaHelper::loadLightFromTable("pointLight", &luaHandler);
 	AModel* alightModel = new AModel(luaHandler.getGlobalString("lightModel"));
+	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
     alightModel->scale(glm::vec3(0.1, 0.1, 0.1));
-	glm::vec4 lightColor;
+	glm::vec3 lightPosition;
 	glm::vec3 lightDirection;
+	glm::vec3 lightUp;
+	glm::vec4 lightColor;
+	float lightIntensity;
+	bool lightDirectional;
+
+	ALightUniform directionalLightUniforms = ALightUniform::loadALightUniformFromProgramme(objectsProgramme, 0, pointLightPointer);
 
 	glActiveTexture(GL_TEXTURE0);
 	do
@@ -98,7 +116,7 @@ int main(void)
 		glUniformMatrix4fv(lightPMatrixUniform, 1, GL_FALSE, glm::value_ptr(projection));
 		lightColor = pointLightPointer->getColor();
 		lightDirection = pointLightPointer->getDirection();
-		glUniform4f(lightLightColorUniform, 1.0f, 1.0f, 1.0f, 1.0f);
+		glUniform4f(lightLightColorUniform, 0.2f, 0.2f, 0.2f, 1.0f);
 		glUniform3f(lightDirectionUniform, lightDirection.x, lightDirection.y, lightDirection.z);
 		alightModel->renderModels(lightModelMatrixUniform, lightProgramme);
 
@@ -108,6 +126,26 @@ int main(void)
 		glUniform4f(simpleLightLightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		alightModel->renderModels(simpleLightModelMatrixUniform, simpleLightProgramme);
 
+		glUseProgram(objectsProgramme);
+	
+		glUniformMatrix4fv(objectsVMatrixUniform, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(objectsPMatrixUniform, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniform1i(objectsNumberPointLightsUniform, 0);
+		glUniform1i(objectsNumberDirectionLightsUniform, 1);
+		lightDirectional = pointLightPointer->getDirectional();
+		lightPosition = pointLightPointer->getPosition();
+		lightDirection = pointLightPointer->getDirection();
+		lightUp = pointLightPointer->getUp();
+		lightColor = pointLightPointer->getColor();
+		lightIntensity = pointLightPointer->getIntensity();
+
+		glUniform3f(directionalLightUniforms.lightPositionUniform, lightPosition.x, lightPosition.y, lightPosition.z);
+		glUniform3f(directionalLightUniforms.lightDirectionUniform, lightDirection.x, lightDirection.y, lightDirection.z);
+		glUniform4f(directionalLightUniforms.lightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+		glUniform1f(directionalLightUniforms.lightIntensityUniform, lightIntensity);
+		glUniform1i(directionalLightUniforms.lightDirectionalUniform, lightDirectional);
+
+		AModel::renderModelsInList(&models, objectsModelMatrixUniform, objectsProgramme);
 		ALuaHelper::updateLight(&luaHandler, pointLightPointer, "updateLight", arenderer.getDeltaTime());
 		alightModel->setPosition(pointLightPointer->getPosition());
 
