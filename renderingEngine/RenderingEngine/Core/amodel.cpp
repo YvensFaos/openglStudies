@@ -255,9 +255,7 @@ glm::vec4 AModel::getPosition(void) const
 }
 
 void AModel::setPosition(glm::vec3 position) {
-    glm::vec3 previousPos(this->modelMatrix[3]);
-    this->modelMatrix = glm::translate(this->modelMatrix, -previousPos);
-    this->modelMatrix = glm::translate(this->modelMatrix, position);
+    this->modelMatrix[3] = glm::vec4(position, 1.0f);
 }
 
 void AModel::renderModelsInList(std::vector<AModel*>* list, GLuint modelMatrixUniform, GLuint programme)
