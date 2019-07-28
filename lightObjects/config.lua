@@ -92,9 +92,15 @@ directionalLightFragmentShader = [[
     }
 
     vec4 calculateDirectionalLight(int index, const vec3 norm) {
-        float diff = max(dot(-directionalLights[index].direction, norm), 0.0);
+        vec3 directionV = directionalLights[index].position - vectorIn.vposition;
+        float distance = length(directionV);
         float attenuationIntensity = directionalLights[index].intensity / maximumIntensity;
-        vec3 diffuse =  attenuationIntensity * diff * directionalLights[index].color.rgb;
+        lightConstant = 1.0f   / attenuationIntensity;
+        lightLinear = 0.09f    / attenuationIntensity;
+        lightQuadratic = 0.032f/ attenuationIntensity;
+        float attenuation = 1.0 / (lightConstant + lightLinear * distance + lightQuadratic * (distance * distance));
+        float diff = max(dot(-directionalLights[index].direction, norm), 0.0);
+        vec3 diffuse =  attenuation * diff * directionalLights[index].color.rgb;
         return vec4(diffuse, 1.0);
     }
 
@@ -208,15 +214,34 @@ initialDirX = 0.0;
 models = {}
 models[1] = {file = "../3DModels/nonormalsphere.obj", pos = {0.0,  0.0, 0.0}, sca = {1.0, 1.0, 1.0}, rot = {0.0,  0.0, 0.0}}
 models[2] = {file = "../3DModels/nonormalmonkey.obj", pos = {0.0,  1.0, 0.3}, sca = {0.5, 0.5, 0.5}, rot = {0.0,  0.0, 0.0}}
-models[3] = {file = "../3DModels/cube.obj", pos = {-1.0,  0.0, 0.0}, sca = {0.3, 0.8, 0.3}, rot = {10.0, 30.0, 0.0}}
-models[4] = {file = "../3DModels/cube.obj", pos = { 1.0,  0.0, 0.0}, sca = {0.3, 0.8, 0.3}, rot = {10.0, 30.0, 0.0}}
+models[3] = {file = "../3DModels/nonormalcube.obj", pos = {-1.0,  0.0, 0.0}, sca = {0.3, 0.8, 0.3}, rot = {10.0, 30.0, 0.0}}
+models[4] = {file = "../3DModels/nonormalcube.obj", pos = { 1.0,  0.0, 0.0}, sca = {0.3, 0.8, 0.3}, rot = {10.0, 30.0, 0.0}}
 
-pointLight = 
-    {pos = {0.0, 0.0, posInitial}, dir = {0.0, 0.0, -1.0}, up = {0.0, 0.0, 0.0}, 
-    col = {255 / 255, 255 / 255, 0 / 255, 1.0}, 
-    intensity = 50, 
+lights = {
+    {pos = {0.0, 5.0, 0.0}, dir = {0.0, -1.0, 0.0}, up = {0.0, 0.0, 0.0}, 
+    col = {255 / 255, 0 / 255, 0 / 255, 1.0}, 
+    intensity = 100, 
     specularPower = 256.0, 
-    directional = true}
+    directional = true},
+
+    {pos = {2.0, 4.0, 0.0}, dir = {-1.0, -1.0, 0.0}, up = {0.0, 0.0, 0.0}, 
+    col = {0 / 255, 255 / 255, 0 / 255, 1.0}, 
+    intensity = 70, 
+    specularPower = 256.0, 
+    directional = true},
+
+    {pos = {0.0, 0.0, 3.0}, dir = {0.0, 0.0, -1.0}, up = {0.0, 0.0, 0.0}, 
+    col = {20 / 255, 60 / 255, 120 / 255, 1.0}, 
+    intensity = 70,
+    specularPower = 256.0, 
+    directional = true},
+
+    {pos = {0.0, 0.0, 1.0}, dir = {0.0, 0.0, 0.0}, up = {0.0, 0.0, 0.0}, 
+    col = {0 / 255, 60 / 255, 180 / 255, 1.0}, 
+    intensity = 70, 
+    specularPower = 256.0, 
+    directional = false}
+}
 
 accumulator = 0
 sign = 1
