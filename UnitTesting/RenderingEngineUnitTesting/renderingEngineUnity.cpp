@@ -4,7 +4,10 @@
 
 #include <RenderingEngine/Core/alight.hpp>
 #include <RenderingEngine/Core/acamera.hpp>
+#include <RenderingEngine/Core/amodel.hpp>
 #include <RenderingEngine/Utils/aluahelper.hpp>
+#include <RenderingEngine/Utils/amacrohelper.hpp>
+
 
 TEST_CASE("Single Light reading.") {
     LuaHandler handler;
@@ -253,4 +256,104 @@ TEST_CASE("List of Lights reading.") {
         CHECK(!alight->getDirectional());
     }
     delete alight;
+}
+
+TEST_CASE("Geometric Operations with Objects.") {
+    LuaHandler handler;
+    handler.openFile("testLua.lua");
+
+    AModel* amodel = new AModel(handler.getGlobalString("testModel"));
+
+    glm::vec3 position;
+    glm::mat4 matrix;
+
+    position = amodel->getPosition();
+    CHECK(position.x == 0.0f);
+    CHECK(position.y == 0.0f);
+    CHECK(position.z == 0.0f);
+
+    matrix = amodel->getModelMatrix();
+    CHECK(matrix[0][0] == 1.0f);    CHECK(matrix[0][1] == 0.0f);    CHECK(matrix[0][2] == 0.0f);    CHECK(matrix[0][3] == 0.0f);
+    CHECK(matrix[1][0] == 0.0f);    CHECK(matrix[1][1] == 1.0f);    CHECK(matrix[1][2] == 0.0f);    CHECK(matrix[1][3] == 0.0f);
+    CHECK(matrix[2][0] == 0.0f);    CHECK(matrix[2][1] == 0.0f);    CHECK(matrix[2][2] == 1.0f);    CHECK(matrix[2][3] == 0.0f);
+    CHECK(matrix[3][0] == 0.0f);    CHECK(matrix[3][1] == 0.0f);    CHECK(matrix[3][2] == 0.0f);    CHECK(matrix[3][3] == 1.0f);
+
+    amodel->translate(glm::vec3(0.0f, 1.0f, 0.0f));
+    position = amodel->getPosition();
+    CHECK(position.x == 0.0f);
+    CHECK(position.y == 1.0f);
+    CHECK(position.z == 0.0f);
+
+    amodel->translate(glm::vec3(0.0f, 3.0f, 0.0f));
+    position = amodel->getPosition();
+    CHECK(position.x == 0.0f);
+    CHECK(position.y == 4.0f);
+    CHECK(position.z == 0.0f);
+
+    amodel->rotate(glm::vec3(90.0f, 0.0f, 0.0f));
+    position = amodel->getPosition();
+    CHECK(position.x == 0.0f);
+    CHECK(position.y == 4.0f);
+    CHECK(position.z == 0.0f);
+
+    matrix = amodel->getModelMatrix();
+    CHECK(fabs(matrix[0][0] - 1.0f) < 0.01f);    CHECK(fabs(matrix[0][1] - 0.0f) < 0.01f);    CHECK(fabs(matrix[0][2] - 0.0f) < 0.01f);    CHECK(fabs(matrix[0][3] - 0.0f) < 0.01f);
+    CHECK(fabs(matrix[1][0] - 0.0f) < 0.01f);    CHECK(fabs(matrix[1][1] - 0.0f) < 0.01f);    CHECK(fabs(matrix[1][2] - 1.0f) < 0.01f);    CHECK(fabs(matrix[1][3] - 0.0f) < 0.01f);
+    CHECK(fabs(matrix[2][0] - 0.0f) < 0.01f);    CHECK(fabs(matrix[2][1] + 1.0f) < 0.01f);    CHECK(fabs(matrix[2][2] - 0.0f) < 0.01f);    CHECK(fabs(matrix[2][3] - 0.0f) < 0.01f);
+    CHECK(fabs(matrix[3][0] - 0.0f) < 0.01f);    CHECK(fabs(matrix[3][1] - 4.0f) < 0.01f);    CHECK(fabs(matrix[3][2] - 0.0f) < 0.01f);    CHECK(fabs(matrix[3][3] - 1.0f) < 0.01f);
+
+    amodel->rotate(glm::vec3(-90.0f, 0.0f, 0.0f));
+    position = amodel->getPosition();
+    CHECK(position.x == 0.0f);
+    CHECK(position.y == 4.0f);
+    CHECK(position.z == 0.0f);
+
+    matrix = amodel->getModelMatrix();
+    CHECK(fabs(matrix[0][0] - 1.0f) < 0.01f);    CHECK(fabs(matrix[0][1] - 0.0f) < 0.01f);    CHECK(fabs(matrix[0][2] - 0.0f) < 0.01f);    CHECK(fabs(matrix[0][3] - 0.0f) < 0.01f);
+    CHECK(fabs(matrix[1][0] - 0.0f) < 0.01f);    CHECK(fabs(matrix[1][1] - 1.0f) < 0.01f);    CHECK(fabs(matrix[1][2] - 0.0f) < 0.01f);    CHECK(fabs(matrix[1][3] - 0.0f) < 0.01f);
+    CHECK(fabs(matrix[2][0] - 0.0f) < 0.01f);    CHECK(fabs(matrix[2][1] - 0.0f) < 0.01f);    CHECK(fabs(matrix[2][2] - 1.0f) < 0.01f);    CHECK(fabs(matrix[2][3] - 0.0f) < 0.01f);
+    CHECK(fabs(matrix[3][0] - 0.0f) < 0.01f);    CHECK(fabs(matrix[3][1] - 4.0f) < 0.01f);    CHECK(fabs(matrix[3][2] - 0.0f) < 0.01f);    CHECK(fabs(matrix[3][3] - 1.0f) < 0.01f);
+
+    amodel->scale(glm::vec3(0.1f, 0.1f, 0.1f));
+    position = amodel->getPosition();
+    CHECK(position.x == 0.0f);
+    CHECK(position.y == 4.0f);
+    CHECK(position.z == 0.0f);
+
+    amodel->scale(glm::vec3(2.0f, 2.0f, 2.0f));
+    position = amodel->getPosition();
+    CHECK(position.x == 0.0f);
+    CHECK(position.y == 4.0f);
+    CHECK(position.z == 0.0f);
+
+    matrix = amodel->getModelMatrix();
+    CHECK(fabs(matrix[0][0] - 0.2f) < 0.01f);    CHECK(fabs(matrix[0][1] - 0.0f) < 0.01f);    CHECK(fabs(matrix[0][2] - 0.0f) < 0.01f);    CHECK(fabs(matrix[0][3] - 0.0f) < 0.01f);
+    CHECK(fabs(matrix[1][0] - 0.0f) < 0.01f);    CHECK(fabs(matrix[1][1] - 0.2f) < 0.01f);    CHECK(fabs(matrix[1][2] - 0.0f) < 0.01f);    CHECK(fabs(matrix[1][3] - 0.0f) < 0.01f);
+    CHECK(fabs(matrix[2][0] - 0.0f) < 0.01f);    CHECK(fabs(matrix[2][1] - 0.0f) < 0.01f);    CHECK(fabs(matrix[2][2] - 0.2f) < 0.01f);    CHECK(fabs(matrix[2][3] - 0.0f) < 0.01f);
+    CHECK(fabs(matrix[3][0] - 0.0f) < 0.01f);    CHECK(fabs(matrix[3][1] - 4.0f) < 0.01f);    CHECK(fabs(matrix[3][2] - 0.0f) < 0.01f);    CHECK(fabs(matrix[3][3] - 1.0f) < 0.01f);
+
+    amodel->setPosition(glm::vec3(0.0f, 0.0f, 0.0f));
+    position = amodel->getPosition();
+    CHECK(position.x == 0.0f);
+    CHECK(position.y == 0.0f);
+    CHECK(position.z == 0.0f);
+    matrix = amodel->getModelMatrix();
+    CHECK(fabs(matrix[0][0] - 0.2f) < 0.01f);    CHECK(fabs(matrix[0][1] - 0.0f) < 0.01f);    CHECK(fabs(matrix[0][2] - 0.0f) < 0.01f);    CHECK(fabs(matrix[0][3] - 0.0f) < 0.01f);
+    CHECK(fabs(matrix[1][0] - 0.0f) < 0.01f);    CHECK(fabs(matrix[1][1] - 0.2f) < 0.01f);    CHECK(fabs(matrix[1][2] - 0.0f) < 0.01f);    CHECK(fabs(matrix[1][3] - 0.0f) < 0.01f);
+    CHECK(fabs(matrix[2][0] - 0.0f) < 0.01f);    CHECK(fabs(matrix[2][1] - 0.0f) < 0.01f);    CHECK(fabs(matrix[2][2] - 0.2f) < 0.01f);    CHECK(fabs(matrix[2][3] - 0.0f) < 0.01f);
+    CHECK(fabs(matrix[3][0] - 0.0f) < 0.01f);    CHECK(fabs(matrix[3][1] - 0.0f) < 0.01f);    CHECK(fabs(matrix[3][2] - 0.0f) < 0.01f);    CHECK(fabs(matrix[3][3] - 1.0f) < 0.01f);
+
+    amodel->translate(glm::vec3(0.0f, 0.0f, 10.0f));
+    position = amodel->getPosition();
+    CHECK(position.x == 0.0f);
+    CHECK(position.y == 0.0f);
+    CHECK(position.z == 2.0f); //Because of the scale by 0.2
+
+    matrix = amodel->getModelMatrix();
+    CHECK(fabs(matrix[0][0] - 0.2f) < 0.01f);    CHECK(fabs(matrix[0][1] - 0.0f) < 0.01f);    CHECK(fabs(matrix[0][2] - 0.0f) < 0.01f);    CHECK(fabs(matrix[0][3] - 0.0f) < 0.01f);
+    CHECK(fabs(matrix[1][0] - 0.0f) < 0.01f);    CHECK(fabs(matrix[1][1] - 0.2f) < 0.01f);    CHECK(fabs(matrix[1][2] - 0.0f) < 0.01f);    CHECK(fabs(matrix[1][3] - 0.0f) < 0.01f);
+    CHECK(fabs(matrix[2][0] - 0.0f) < 0.01f);    CHECK(fabs(matrix[2][1] - 0.0f) < 0.01f);    CHECK(fabs(matrix[2][2] - 0.2f) < 0.01f);    CHECK(fabs(matrix[2][3] - 0.0f) < 0.01f);
+    CHECK(fabs(matrix[3][0] - 0.0f) < 0.01f);    CHECK(fabs(matrix[3][1] - 0.0f) < 0.01f);    CHECK(fabs(matrix[3][2] - 2.0f) < 0.01f);    CHECK(fabs(matrix[3][3] - 1.0f) < 0.01f);
+
+    delete amodel;
 }

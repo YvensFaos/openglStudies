@@ -18,6 +18,8 @@ cameraPosition = {
     right = { 0.8, 0.2,  0.0}
 }
 
+testModel = "../3DModels/nonormalsphere.obj"
+
 lights = {
     {
         pos = { 0.0, 2.0, 0.0}, dir = {0.0, 0.0, -1.0}, up = {0.0, 1.0, 0.0}, 
