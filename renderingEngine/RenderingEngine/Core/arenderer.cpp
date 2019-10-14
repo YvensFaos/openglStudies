@@ -44,9 +44,9 @@ void ARenderer::changeClearColor(glm::vec4 clearColor)
     this->clearColor.a = clearColor.a;
 }
 
-ACamera* ARenderer::getCamera(void) const
+ACamera& ARenderer::getCamera(void) const
 {
-    return acamera;
+    return *acamera;
 }
 
 void ARenderer::startFrame(void) 

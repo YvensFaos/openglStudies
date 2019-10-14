@@ -58,13 +58,13 @@ int main(void)
 	GLuint objectsNumberPointLightsUniform = glGetUniformLocation(objectsProgramme, "numberPointLights");
 	GLuint objectsNumberDirectionLightsUniform = glGetUniformLocation(objectsProgramme, "numberDirectionLights");
 
-	ACamera* acamera = arenderer.getCamera();
-	ALuaHelper::setupCameraPosition("cameraPosition", acamera, &luaHandler);
-	glm::vec3 cameraPosition = acamera->getPos();
-	glm::mat4 projection = glm::perspective(glm::radians(acamera->getZoom()), (float) width / (float) height, acamera->getNear(), acamera->getFar());
+	ACamera& acamera = arenderer.getCamera();
+	ALuaHelper::setupCameraPosition("cameraPosition", &acamera, &luaHandler);
+	glm::vec3 cameraPosition = acamera.getPos();
+	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-	glm::mat4 view = acamera->getView();
+	glm::mat4 view = acamera.getView();
 	glm::mat4 viewProjectionMatrix = projection * view;
 
 	std::vector<ALight*> lights = ALuaHelper::loadLightsFromTable("lights", &luaHandler);
@@ -104,8 +104,8 @@ int main(void)
 	glActiveTexture(GL_TEXTURE0);
 	do
 	{
-		projection = glm::perspective(glm::radians(acamera->getZoom()), (float) width / (float) height, acamera->getNear(), acamera->getFar());
-		view = acamera->getView();
+		projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
+		view = acamera.getView();
 		viewProjectionMatrix = projection * view;
 		
 		arenderer.startFrame();

@@ -97,11 +97,11 @@ int main(void)
 	AModel* lightObject = ALuaHelper::loadModelFromTable("lightObject", &luaHandler);
 	ALight* alight = ALuaHelper::loadLightFromTable("light", &luaHandler);
 
-	ACamera* acamera = arenderer.getCamera();
-	glm::mat4 projection = glm::perspective(glm::radians(acamera->getZoom()), (float) width / (float) height, acamera->getNear(), acamera->getFar());
+	ACamera& acamera = arenderer.getCamera();
+	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-	glm::mat4 view = acamera->getView();
+	glm::mat4 view = acamera.getView();
 	glm::mat4 viewProjectionMatrix = projection * view;
 	glm::mat4 skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
 

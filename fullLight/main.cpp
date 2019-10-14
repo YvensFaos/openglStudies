@@ -103,12 +103,12 @@ int main(void)
 	AModel* lightObject = ALuaHelper::loadModelFromTable("lightObject", &luaHandler);
 	ALight* alight = ALuaHelper::loadLightFromTable("light", &luaHandler);
 
-	ACamera* acamera = arenderer.getCamera();
-	ALuaHelper::setupCameraPosition("cameraPosition", acamera, &luaHandler);
-	glm::vec3 cameraPosition = acamera->getPos();
-	glm::mat4 projection = glm::perspective(glm::radians(acamera->getZoom()), (float) width / (float) height, acamera->getNear(), acamera->getFar());
+	ACamera& acamera = arenderer.getCamera();
+	ALuaHelper::setupCameraPosition("cameraPosition", &acamera, &luaHandler);
+	glm::vec3 cameraPosition = acamera.getPos();
+	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 
-	glm::mat4 view = acamera->getView();
+	glm::mat4 view = acamera.getView();
 	glm::mat4 viewProjectionMatrix = projection * view;
 	glm::mat4 skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
 
@@ -132,15 +132,15 @@ int main(void)
 	{
 		arenderer.startFrame();
 
-		projection = glm::perspective(glm::radians(acamera->getZoom()), (float) width / (float) height, acamera->getNear(), acamera->getFar());
-		view = acamera->getView();
+		projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
+		view = acamera.getView();
 		viewProjectionMatrix = projection * view;
 		skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
 
 		glUseProgram(shaderProgramme);
 		glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(vpMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
-		cameraPosition = acamera->getPos();
+		cameraPosition = acamera.getPos();
 		glUniform3f(viewPositionUniform, cameraPosition.x, cameraPosition.y, cameraPosition.z);
 		glUniform4f(ambientColorUniform, ambientLightColor.x, ambientLightColor.y, ambientLightColor.z, ambientLightColor.w);
 		glUniform1f(ambientIntensityUniform, ambientLightIntensity);

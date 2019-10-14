@@ -44,10 +44,10 @@ int main(void)
 	LuaHandler luaHandler;
 	luaHandler.openFile("config.lua");
 	
-  GLuint vs =  AShader::generateShader(luaHandler.getGlobalString("vertexShader"), GL_VERTEX_SHADER);
+  	GLuint vs =  AShader::generateShader(luaHandler.getGlobalString("vertexShader"), GL_VERTEX_SHADER);
 	GLuint fs =  AShader::generateShader(luaHandler.getGlobalString("fragmentShader"), GL_FRAGMENT_SHADER);
 
-  GLuint shaderProgramme = AShader::generateProgram(vs, fs);
+  	GLuint shaderProgramme = AShader::generateProgram(vs, fs);
 
 	ASkybox askybox(std::vector<std::string>{
         "../3DModels/desertsky_ft.tga",
@@ -71,11 +71,11 @@ int main(void)
 	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
 	ALight* alight = ALuaHelper::loadLightFromTable("light", &luaHandler);
 
-	ACamera* acamera = arenderer.getCamera();
-	glm::mat4 projection = glm::perspective(glm::radians(acamera->getZoom()), (float) width / (float) height, acamera->getNear(), acamera->getFar());
+	ACamera& acamera = arenderer.getCamera();
+	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-	glm::mat4 view = acamera->getView();
+	glm::mat4 view = acamera.getView();
 	glm::mat4 viewProjectionMatrix = projection * view;
 	glm::mat4 skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
 	glm::mat4 skyView = glm::mat4(1.0);
@@ -90,6 +90,11 @@ int main(void)
 	glActiveTexture(GL_TEXTURE0);
 	do
 	{
+		projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
+		view = acamera.getView();
+		viewProjectionMatrix = projection * view;
+		skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
+
 		arenderer.startFrame();
 
 		glViewport(0, 0, width * 2, height * 2);
@@ -113,5 +118,6 @@ int main(void)
 	while(arenderer.isRunning());
 
 	glfwTerminate();
+	delete alight;
 	return 0;
 }

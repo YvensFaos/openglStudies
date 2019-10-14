@@ -37,7 +37,7 @@ class ARenderer
 
         void changeClearColor(glm::vec4 clearColor);
 
-        ACamera* getCamera(void) const;
+        ACamera& getCamera(void) const;
 
         void startFrame(void);
         void finishFrame(void);
