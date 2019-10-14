@@ -6,7 +6,6 @@
 #include "../Core/amodel.hpp"
 
 ///ALightObject is the union of a ALight and AMesh.
-///The shaderProgramme 
 class ALightObject {
     private:
         ALight* alight;
@@ -17,24 +16,35 @@ class ALightObject {
         GLuint lightIndex;
 
         static std::string defaultVertexShader;
+        static std::string defaultGeometryShader;
         static std::string defaultFragmentShader;
+
         static GLuint lightObjectsVertexShader;
         static GLuint lightObjectsFragmentShader;
         static GLuint lightObjectsProgramme;
 
-        static std::string directionVertexShader;
-        static std::string directionFragmentShader;
-        static std::string directionGeometryShader;
-        static GLuint directionObjectsVertexShader;
-        static GLuint directionObjectsFragmentShader;
         static GLuint directionObjectsGeometryShader;
         static GLuint directionObjectsProgramme;
+
+        static GLuint directionModelMatrixUniform;
+        static GLuint directionVPMatrixUniform;
+        static GLuint directionLightColorUniform;
+        static GLuint directionDirectionUniform;
+        static GLuint lightModelMatrixUniform;
+        static GLuint lightVPMatrixUniform;
+        static GLuint lightLightColorUniform;
+
     public:
         ALightObject(ALight* alight, GLuint shaderProgramme, GLuint lightIndex);
         ~ALightObject(void);
 
+        void renderLightObject(glm::mat4 viewProjection);
+        void setupUniforms(void);
+
+        const ALight& getLight(void) const;
     public:
-        static void GenerateALightObjectDefaultProgramme(void);
+        static std::vector<ALightObject*> GenerateALightObjectsFromLights(GLuint programme, std::vector<ALight*> lights);
     private:
+        static void GenerateALightObjectDefaultProgramme(void);
         static bool CheckLightObjectsProgramme(void);
 };

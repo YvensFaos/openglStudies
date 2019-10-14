@@ -19,7 +19,7 @@
                 "main.exe",
                 "-std=c++17",
                 "main.cpp",
-                "RenderingEngine/*/*.cpp",
+                "RenderingEngine/**/*.cpp",
                 "../LuaHandler/*.cpp",
                 "../3rdLibraries/stbLoader.cpp",
                 "-I/Users/yre03/Dev/Repositories/vcpkg/installed/x64-osx/include",
