@@ -44,14 +44,14 @@ int main(void)
 	LuaHandler luaHandler;
 	luaHandler.openFile("config.lua");
 	
-  GLuint vs =  AShader::generateShader(luaHandler.getGlobalString("vertexShader"), GL_VERTEX_SHADER);
+  	GLuint vs =  AShader::generateShader(luaHandler.getGlobalString("vertexShader"), GL_VERTEX_SHADER);
 	GLuint fs =  AShader::generateShader(luaHandler.getGlobalString("fragmentShader"), GL_FRAGMENT_SHADER);
 
 	GLuint ndvs =  AShader::generateShader(luaHandler.getGlobalString("vertexDebugNormalShader"), GL_VERTEX_SHADER);
 	GLuint ndgs =  AShader::generateShader(luaHandler.getGlobalString("geometryDebugShader"), GL_GEOMETRY_SHADER);
 	GLuint ndfs =  AShader::generateShader(luaHandler.getGlobalString("fragmentDebugShader"), GL_FRAGMENT_SHADER);
 
-  GLuint shaderProgramme = AShader::generateProgram(vs, fs);
+  	GLuint shaderProgramme = AShader::generateProgram(vs, fs);
 	GLuint normalDebugProgramme = AShader::generateProgram(ndvs, ndgs, ndfs);
 
 	ASkybox askybox(std::vector<std::string>{
