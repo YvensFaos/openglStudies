@@ -44,24 +44,24 @@ void AModel::processNode(aiNode *node, const aiScene *scene, const glm::mat4 par
     }
 }
 
-void AModel::draw(GLuint programme) const
+void AModel::draw(GLuint programme, GLenum mode) const
 {
     for(unsigned int i = 0; i < meshes.size(); i++) {
-        meshes[i].draw(programme);
+        meshes[i].draw(programme, mode);
     }
 }  
 
-void AModel::renderModels(GLuint modelMatrixUniform, GLuint programme) const
+void AModel::renderModels(GLuint modelMatrixUniform, GLuint programme, GLenum mode) const
 {
         auto pointer = this->getMeshes();
 
         auto begin = pointer->begin();
         auto end = pointer->end();
         auto modelMatrix = this->getModelMatrix();
-        std::for_each(begin, end, [modelMatrixUniform, modelMatrix, programme](AMesh mesh)
+        std::for_each(begin, end, [modelMatrixUniform, modelMatrix, programme, mode](AMesh mesh)
         {
             glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-            mesh.draw(programme);
+            mesh.draw(programme, mode);
         });
 }
 
@@ -258,7 +258,7 @@ void AModel::setPosition(glm::vec3 position) {
     this->modelMatrix[3] = glm::vec4(position, 1.0f);
 }
 
-void AModel::renderModelsInList(std::vector<AModel*>* list, GLuint modelMatrixUniform, GLuint programme)
+void AModel::renderModelsInList(std::vector<AModel*>* list, GLuint modelMatrixUniform, GLuint programme, GLenum mode)
 {
     std::vector<AModel*>::iterator amodelIterator;
     const std::vector<AMesh>* pointer;
@@ -269,10 +269,10 @@ void AModel::renderModelsInList(std::vector<AModel*>* list, GLuint modelMatrixUn
         auto begin = pointer->begin();
         auto end = pointer->end();
         auto modelMatrix = (*amodelIterator)->getModelMatrix();
-        std::for_each(begin, end, [modelMatrixUniform, modelMatrix, programme](AMesh mesh)
+        std::for_each(begin, end, [modelMatrixUniform, modelMatrix, programme, mode](AMesh mesh)
         {
             glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-            mesh.draw(programme);
+            mesh.draw(programme, mode);
         });
     }
 }

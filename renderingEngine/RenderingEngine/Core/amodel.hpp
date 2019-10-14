@@ -19,8 +19,8 @@ class AModel
 
     public:
         AModel(std::string path);
-        void draw(GLuint programme) const;
-        void renderModels(GLuint modelMatrixUniform, GLuint programme) const;
+        void draw(GLuint programme, GLenum mode) const;
+        void renderModels(GLuint modelMatrixUniform, GLuint programme, GLenum mode = GL_TRIANGLES) const;
         const std::vector<AMesh>* getMeshes(void) const;
 
         void translate(glm::vec3 translateTo);
@@ -38,6 +38,6 @@ class AModel
         unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma = false);
 
     public:
-        static void renderModelsInList(std::vector<AModel*>* list, GLuint modelMatrixUniform, GLuint programme);
+        static void renderModelsInList(std::vector<AModel*>* list, GLuint modelMatrixUniform, GLuint programme, GLenum mode = GL_TRIANGLES);
         static glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4* from);
 };

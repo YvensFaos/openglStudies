@@ -25,7 +25,7 @@ class AMesh {
         std::vector<ATexture> textures;
 
         AMesh(std::vector<AVertex> vertices, std::vector<GLuint> indices, std::vector<ATexture> textures);
-        void draw(GLuint shader) const;
+        void draw(GLuint shader, GLenum mode) const;
     private:
         GLuint VAO, VBO, EBO;
         void setupMesh();
