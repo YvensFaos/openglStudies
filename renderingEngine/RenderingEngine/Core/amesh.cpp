@@ -2,13 +2,15 @@
 
 #include <GL/glew.h>
 
-AMesh::AMesh(std::vector<AVertex> vertices, std::vector<unsigned int> indices, std::vector<ATexture> textures)
+AMesh::AMesh(std::vector<AVertex> vertices, std::vector<unsigned int> indices, std::vector<ATexture> textures) 
+    : vertices(vertices), indices(indices), textures(textures)
 {
-    this->vertices = vertices;
-    this->indices = indices;
-    this->textures = textures;
     this->setupMesh();
 }
+
+AMesh::AMesh(const AMesh& anotherMesh) : VAO(anotherMesh.getVAO()), VBO(anotherMesh.getVBO()), EBO(anotherMesh.getEBO()),
+    vertices(anotherMesh.getVertices()), indices(anotherMesh.getIndices()), textures(anotherMesh.getTextures())
+{ }
 
 void AMesh::setupMesh()
 {
@@ -75,3 +77,46 @@ void AMesh::draw(GLuint shader, GLenum mode) const
     glBindVertexArray(VAO);
     glDrawElements(mode, indices.size(), GL_UNSIGNED_INT, 0);
 }  
+
+ABoundingBox AMesh::getBoundingBox(void) const 
+{
+    glm::vec3 min(+999999.0f, +999999.0f, +999999.0f);
+    glm::vec3 max(-999999.0f, -999999.0f, -999999.0f);
+
+    glm::vec3 position;
+    for(size_t i = 0; i < this->vertices.size(); i++)
+    {
+        position = this->vertices[i].Position;
+        min.x = std::min(min.x, position.x);
+        min.y = std::min(min.y, position.y);
+        min.z = std::min(min.z, position.z);
+
+        max.x = std::max(max.x, position.x);
+        max.y = std::max(max.y, position.y);
+        max.z = std::max(max.z, position.z);
+    }
+
+    return ABoundingBox(min, max);
+}
+
+const std::vector<AVertex>& AMesh::getVertices(void) const {
+    return this->vertices;
+}
+
+const std::vector<GLuint>& AMesh::getIndices(void) const {
+    return this->indices;
+}
+
+const std::vector<ATexture>& AMesh::getTextures(void) const {
+    return this->textures;
+}
+
+const GLuint AMesh::getVAO(void) const {
+    return this->VAO;
+}
+const GLuint AMesh::getVBO(void) const {
+    return this->VBO;
+}
+const GLuint AMesh::getEBO(void) const {
+    return this->EBO;
+}

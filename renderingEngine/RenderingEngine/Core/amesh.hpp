@@ -5,6 +5,8 @@
 #include <string>
 #include <vector>
 
+#include "aboundingbox.hpp"
+
 struct AVertex {
     glm::vec3 Position;
     glm::vec3 Normal;
@@ -23,11 +25,24 @@ class AMesh {
         std::vector<AVertex> vertices;
         std::vector<GLuint> indices;
         std::vector<ATexture> textures;
-
-        AMesh(std::vector<AVertex> vertices, std::vector<GLuint> indices, std::vector<ATexture> textures);
-        void draw(GLuint shader, GLenum mode) const;
     private:
-        GLuint VAO, VBO, EBO;
+        GLuint VAO;
+        GLuint VBO; 
+        GLuint EBO;
+    public:
+        AMesh(std::vector<AVertex> vertices, std::vector<GLuint> indices, std::vector<ATexture> textures);
+        AMesh(const AMesh& anotherMesh);
+        void draw(GLuint shader, GLenum mode) const;
+        ABoundingBox getBoundingBox(void) const;
+
+        const std::vector<AVertex>& getVertices(void) const;
+        const std::vector<GLuint>& getIndices(void) const;
+        const std::vector<ATexture>& getTextures(void) const;
+
+        const GLuint getVAO(void) const;
+        const GLuint getVBO(void) const;
+        const GLuint getEBO(void) const;
+    private:
         void setupMesh();
         void bindTextures(GLuint shader) const;
 };

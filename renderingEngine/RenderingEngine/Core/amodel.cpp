@@ -265,13 +265,13 @@ ABoundingBox AModel::getBoundingBox(void) const {
     ABoundingBox abb;
     for(auto ameshIterator = this->meshes.begin(); ameshIterator != this->meshes.end(); ++ameshIterator)
     {
-        //abb = (*ameshIterator).getBoundingBox();
-        //min.x = std::min(min.x, abb.getMin().x);
-        //min.y = std::min(min.y, abb.getMin().y);
-        //min.z = std::min(min.z, abb.getMin().z);
-        //max.x = std::max(max.x, abb.getMax().x);
-        //max.y = std::max(max.y, abb.getMax().y);
-        //max.z = std::max(max.z, abb.getMax().z);
+        abb = (*ameshIterator).getBoundingBox();
+        min.x = std::min(min.x, abb.getMin().x);
+        min.y = std::min(min.y, abb.getMin().y);
+        min.z = std::min(min.z, abb.getMin().z);
+        max.x = std::max(max.x, abb.getMax().x);
+        max.y = std::max(max.y, abb.getMax().y);
+        max.z = std::max(max.z, abb.getMax().z);
     }
 
     return ABoundingBox(min, max);
