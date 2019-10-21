@@ -101,11 +101,11 @@ int main(int argc, char* argv[])
 	AModel* plane = ALuaHelper::loadModelFromTable("plane", &luaHandler);
 	ALight* alight = ALuaHelper::loadLightFromTable("light", &luaHandler);
 
-	ACamera* acamera = arenderer.getCamera();
-	glm::mat4 projection = glm::perspective(glm::radians(acamera->getZoom()), (float) width / (float) height, 0.1f, 1000.0f);
+	ACamera& acamera = arenderer.getCamera();
+	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, 0.1f, 1000.0f);
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-	glm::mat4 view = acamera->getView();
+	glm::mat4 view = acamera.getView();
 	glm::mat4 viewProjectionMatrix = projection * view;
 	glm::mat4 skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
 
@@ -140,9 +140,9 @@ int main(int argc, char* argv[])
 		lightView = glm::lookAt(lightPosition, lightPosition + lightDirection, lightUp);
 		lightMatrix = lightProjection * lightView;
 
-		projection = glm::perspective(glm::radians(acamera->getZoom()), (float) width / (float) height, 0.1f, 1000.0f);
+		projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, 0.1f, 1000.0f);
 		skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(skyView));
-		viewProjectionMatrix = projection * acamera->getView();
+		viewProjectionMatrix = projection * acamera.getView();
 
 		arenderer.startFrame();
 

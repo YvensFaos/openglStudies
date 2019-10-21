@@ -6,7 +6,7 @@
 APointCloud::APointCloud(const AMesh& referenceMesh, float density) : referenceMesh(referenceMesh), density(density), pointCloudMesh(this->generatePointCloud()) { }
 
 AMesh APointCloud::generatePointCloud(void) {
-    ABoundingBox abb = referenceMesh.getBoundingBox();
+    ABoundingBox abb;// = referenceMesh.getBoundingBox();
     glm::vec3 direction = glm::vec3(0.0f, 0.0f, -1.0f);
 
     float distanceX = abb.getMax().x - abb.getMin().x;
@@ -14,8 +14,8 @@ AMesh APointCloud::generatePointCloud(void) {
 
     float step = 1.0 / this->density;
 
-    const std::vector<AVertex>& vertices = referenceMesh.getVertices();
-    const std::vector<GLuint>& indices = referenceMesh.getIndices();
+    const std::vector<AVertex> vertices;// = referenceMesh.getVertices();
+    const std::vector<GLuint> indices;// = referenceMesh.getIndices();
 
     ARay aray(abb.getMin(), direction);
     ARay fray(abb.getMin(), direction);

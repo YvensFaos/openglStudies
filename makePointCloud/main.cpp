@@ -47,11 +47,10 @@ int main(void)
 	luaHandler.openFile("config.lua");
 	
   	GLuint vs =  AShader::generateShader(luaHandler.getGlobalString("vertexShader"), GL_VERTEX_SHADER);
-	// GLuint gs = AShader::generateShader(luaHandler.getGlobalString("pointGeometricShader"), GL_GEOMETRY_SHADER);
+	GLuint gs = AShader::generateShader(luaHandler.getGlobalString("pointGeometricShader"), GL_GEOMETRY_SHADER);
 	GLuint fs =  AShader::generateShader(luaHandler.getGlobalString("fragmentShader"), GL_FRAGMENT_SHADER);
 
-  	// GLuint shaderProgramme = AShader::generateProgram(vs, gs, fs);
-	GLuint shaderProgramme = AShader::generateProgram(vs, fs);
+  	GLuint shaderProgramme = AShader::generateProgram(vs, gs, fs);
 
 	ASkybox askybox(std::vector<std::string>{
         "../3DModels/desertsky_ft.tga",
@@ -74,7 +73,7 @@ int main(void)
 	GLuint lightDirectionalUniform = glGetUniformLocation(shaderProgramme, "sceneLight.directional");
 
 	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
-	// APointCloud apointcloud(model->getMeshAt(0), 4.0f);
+	//APointCloud apointcloud(model->getMeshAt(0), 4.0f);
 	ALight* alight = ALuaHelper::loadLightFromTable("light", &luaHandler);
 
 	ACamera& acamera = arenderer.getCamera();
