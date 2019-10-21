@@ -53,16 +53,15 @@ void AModel::draw(GLuint programme, GLenum mode) const
 
 void AModel::renderModels(GLuint modelMatrixUniform, GLuint programme, GLenum mode) const
 {
-        auto pointer = this->getMeshes();
-
-        auto begin = pointer->begin();
-        auto end = pointer->end();
-        auto modelMatrix = this->getModelMatrix();
-        std::for_each(begin, end, [modelMatrixUniform, modelMatrix, programme, mode](AMesh mesh)
-        {
-            glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-            mesh.draw(programme, mode);
-        });
+    auto pointer = this->getMeshes();
+    auto begin = pointer->begin();
+    auto end = pointer->end();
+    auto modelMatrix = this->getModelMatrix();
+    std::for_each(begin, end, [modelMatrixUniform, modelMatrix, programme, mode](AMesh mesh)
+    {
+        glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+        mesh.draw(programme, mode);
+    });
 }
 
 glm::mat4 AModel::aiMatrix4x4ToGlm(const aiMatrix4x4* from)
@@ -258,6 +257,26 @@ void AModel::setPosition(glm::vec3 position) {
     this->modelMatrix[3] = glm::vec4(position, 1.0f);
 }
 
+ABoundingBox AModel::getBoundingBox(void) const {
+    glm::vec3 min(+999999.0f, +999999.0f, +999999.0f);
+    glm::vec3 max(-999999.0f, -999999.0f, -999999.0f);
+
+    glm::vec3 position;
+    ABoundingBox abb;
+    for(auto ameshIterator = this->meshes.begin(); ameshIterator != this->meshes.end(); ++ameshIterator)
+    {
+        //abb = (*ameshIterator).getBoundingBox();
+        //min.x = std::min(min.x, abb.getMin().x);
+        //min.y = std::min(min.y, abb.getMin().y);
+        //min.z = std::min(min.z, abb.getMin().z);
+        //max.x = std::max(max.x, abb.getMax().x);
+        //max.y = std::max(max.y, abb.getMax().y);
+        //max.z = std::max(max.z, abb.getMax().z);
+    }
+
+    return ABoundingBox(min, max);
+}
+
 void AModel::renderModelsInList(std::vector<AModel*>* list, GLuint modelMatrixUniform, GLuint programme, GLenum mode)
 {
     std::vector<AModel*>::iterator amodelIterator;
@@ -275,4 +294,9 @@ void AModel::renderModelsInList(std::vector<AModel*>* list, GLuint modelMatrixUn
             mesh.draw(programme, mode);
         });
     }
+}
+
+const AMesh& AModel::getMeshAt(int index) const 
+{
+    return this->meshes[index];
 }
