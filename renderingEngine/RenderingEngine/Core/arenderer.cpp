@@ -156,6 +156,14 @@ void ARenderer::keyCallback(GLFWwindow* window, int key, int scancode, int actio
     {
 		acamera->MoveForward(shiftModPower *-moveForce * deltaTime);
     }
+	if ((key == GLFW_KEY_R) && (action == GLFW_PRESS || action == GLFW_REPEAT))
+    {
+		acamera->MoveUp(shiftModPower * moveForce * deltaTime);
+    }
+	if (( key == GLFW_KEY_F) && (action == GLFW_PRESS || action == GLFW_REPEAT))
+    {
+		acamera->MoveUp(shiftModPower *-moveForce * deltaTime);
+    }
 	if (key == GLFW_KEY_Z && (action == GLFW_PRESS || action == GLFW_REPEAT))
     {
 		acamera->Zoom(5.0f);
