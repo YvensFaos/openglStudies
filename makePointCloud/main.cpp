@@ -46,11 +46,10 @@ int main(void)
 	LuaHandler luaHandler;
 	luaHandler.openFile("config.lua");
 	
-  	GLuint vs =  AShader::generateShader(luaHandler.getGlobalString("vertexShader"), GL_VERTEX_SHADER);
-	GLuint gs = AShader::generateShader(luaHandler.getGlobalString("pointGeometricShader"), GL_GEOMETRY_SHADER);
-	GLuint fs =  AShader::generateShader(luaHandler.getGlobalString("fragmentShader"), GL_FRAGMENT_SHADER);
+	GLuint vss =  AShader::generateShader(luaHandler.getGlobalString("simpleVertexShader"), GL_VERTEX_SHADER);
+	GLuint fss =  AShader::generateShader(luaHandler.getGlobalString("simpleFragmentShader"), GL_FRAGMENT_SHADER);
 
-  	GLuint shaderProgramme = AShader::generateProgram(vs, gs, fs);
+	GLuint simpleShaderProgramme = AShader::generateProgram(vss, fss);
 
 	ASkybox askybox(std::vector<std::string>{
         "../3DModels/desertsky_ft.tga",
@@ -61,22 +60,18 @@ int main(void)
         "../3DModels/desertsky_lf.tga"
     });
 
-	GLuint modelMatrixUniform = glGetUniformLocation(shaderProgramme, "model");
-	GLuint vpMatrixUniform = glGetUniformLocation(shaderProgramme, "viewProjection");
-	GLuint lightMatrixUniform = glGetUniformLocation(shaderProgramme, "lightViewProjection");
-	GLuint densityUniform = glGetUniformLocation(shaderProgramme, "density");
-
-	GLuint    lightPositionUniform = glGetUniformLocation(shaderProgramme, "sceneLight.position");
-	GLuint   lightDirectionUniform = glGetUniformLocation(shaderProgramme, "sceneLight.direction");
-	GLuint       lightColorUniform = glGetUniformLocation(shaderProgramme, "sceneLight.color");
-	GLuint   lightIntensityUniform = glGetUniformLocation(shaderProgramme, "sceneLight.intensity");
-	GLuint lightDirectionalUniform = glGetUniformLocation(shaderProgramme, "sceneLight.directional");
+	GLuint modelSimpleMatrixUniform = glGetUniformLocation(simpleShaderProgramme, "model");
+	GLuint vpSimpleMatrixUniform = glGetUniformLocation(simpleShaderProgramme, "viewProjection");
+	GLuint colorSimpleUniform = glGetUniformLocation(simpleShaderProgramme, "color");
 
 	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
-	//APointCloud apointcloud(model->getMeshAt(0), 4.0f);
-	ALight* alight = ALuaHelper::loadLightFromTable("light", &luaHandler);
+	float raysPerUnit = luaHandler.getGlobalNumber("raysPerUnit");
+	float pointsPerUnit = luaHandler.getGlobalNumber("pointsPerUnit");
+	APointCloud apointcloud(models[0]->getMeshAt(0), raysPerUnit, pointsPerUnit);
+	const AMesh& apointCloudMesh = apointcloud.getMesh();
 
 	ACamera& acamera = arenderer.getCamera();
+	ALuaHelper::setupCameraPosition("cameraPosition", &acamera, &luaHandler);
 	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
@@ -85,14 +80,8 @@ int main(void)
 	glm::mat4 skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
 	glm::mat4 skyView = glm::mat4(1.0);
 
-	glm::vec3 lightPosition = alight->getPosition();
-	glm::vec3 lightDirection = alight->getDirection();
-	glm::vec3 lightUp = alight->getUp();
-	glm::vec4 lightColor = alight->getColor();
-	float lightIntensity = alight->getIntensity();
-	bool lightDirectional = alight->getDirectional();
-	int density = luaHandler.getGlobalInteger("density");
-
+	glm::mat4 pointModelMatrix = glm::mat4(1.0);
+	glm::vec4 pointColor = glm::vec4(luaHandler.getGlobalNumber("rcolorR"), luaHandler.getGlobalNumber("rcolorG"), luaHandler.getGlobalNumber("rcolorB"), luaHandler.getGlobalNumber("rcolorA"));
 	glActiveTexture(GL_TEXTURE0);
 	do
 	{
@@ -107,16 +96,12 @@ int main(void)
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(1.00f, 1.00f, 1.00f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glUseProgram(shaderProgramme);
 
-		glUniformMatrix4fv(vpMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
-		glUniform3f(lightPositionUniform, lightPosition.x, lightPosition.y, lightPosition.z);
-		glUniform3f(lightDirectionUniform, lightDirection.x, lightDirection.y, lightDirection.z);
-		glUniform4f(lightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-		glUniform1f(lightIntensityUniform, lightIntensity);
-		glUniform1i(lightDirectionalUniform, lightDirectional);
-		glUniform1i(densityUniform, density);
-		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
+		glUseProgram(simpleShaderProgramme);
+		glUniformMatrix4fv (modelSimpleMatrixUniform, 1, GL_FALSE, glm::value_ptr(pointModelMatrix));
+		glUniformMatrix4fv(vpSimpleMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
+		glUniform4f(colorSimpleUniform, pointColor.x, pointColor.y, pointColor.z, pointColor.w);
+		apointCloudMesh.draw(simpleShaderProgramme, GL_POINTS);
 
 		askybox.render(skyViewProjectionMatrix);
 
