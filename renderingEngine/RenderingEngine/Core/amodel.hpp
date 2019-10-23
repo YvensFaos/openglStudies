@@ -22,7 +22,7 @@ class AModel
         AModel(std::string path);
         void draw(GLuint programme, GLenum mode = GL_TRIANGLES) const;
         void renderModels(GLuint modelMatrixUniform, GLuint programme, GLenum mode = GL_TRIANGLES) const;
-        const std::vector<AMesh>* getMeshes(void) const;
+        const std::vector<AMesh>& getMeshes(void) const;
         const AMesh& getMeshAt(int index) const;
 
         void translate(glm::vec3 translateTo);

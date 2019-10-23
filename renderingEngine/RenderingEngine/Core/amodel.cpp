@@ -54,14 +54,13 @@ void AModel::draw(GLuint programme, GLenum mode) const
 void AModel::renderModels(GLuint modelMatrixUniform, GLuint programme, GLenum mode) const
 {
     auto pointer = this->getMeshes();
-    auto begin = pointer->begin();
-    auto end = pointer->end();
     auto modelMatrix = this->getModelMatrix();
-    std::for_each(begin, end, [modelMatrixUniform, modelMatrix, programme, mode](AMesh mesh)
+
+    glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+    for (size_t i = 0; i < pointer.size(); i++)
     {
-        glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-        mesh.draw(programme, mode);
-    });
+        pointer[i].draw(programme, mode);
+    }
 }
 
 glm::mat4 AModel::aiMatrix4x4ToGlm(const aiMatrix4x4* from)
@@ -221,9 +220,9 @@ unsigned int AModel::TextureFromFile(const char *path, const std::string &direct
     return textureID;
 }
 
-const std::vector<AMesh>* AModel::getMeshes(void) const
+const std::vector<AMesh>& AModel::getMeshes(void) const
 {
-    return &this->meshes;
+    return this->meshes;
 }
 
 void AModel::translate(glm::vec3 translateTo) 
@@ -280,19 +279,15 @@ ABoundingBox AModel::getBoundingBox(void) const {
 void AModel::renderModelsInList(std::vector<AModel*>* list, GLuint modelMatrixUniform, GLuint programme, GLenum mode)
 {
     std::vector<AModel*>::iterator amodelIterator;
-    const std::vector<AMesh>* pointer;
     for(amodelIterator = list->begin(); amodelIterator != list->end(); ++amodelIterator)
     {
-        pointer = (*amodelIterator)->getMeshes();
-
-        auto begin = pointer->begin();
-        auto end = pointer->end();
+        const std::vector<AMesh>& pointer = (*amodelIterator)->getMeshes();
         auto modelMatrix = (*amodelIterator)->getModelMatrix();
-        std::for_each(begin, end, [modelMatrixUniform, modelMatrix, programme, mode](AMesh mesh)
+        for(unsigned int i = 0; i < pointer.size(); i++)
         {
             glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-            mesh.draw(programme, mode);
-        });
+            pointer[i].draw(programme, mode);
+        }
     }
 }
 
