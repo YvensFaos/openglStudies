@@ -1,0 +1,46 @@
+{
+    "version": "2.0.0",
+    "tasks": [   
+        {
+            "label": "Build Main",
+            "type": "shell",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            },
+            "command": "g++",
+            "args": [
+                "-g", 
+                "-o",
+                "main.exe",
+                "-std=c++17",
+                "*.cpp",
+                "../renderingEngine/RenderingEngine/**/*.cpp",
+                "../LuaHandler/*.cpp",
+                "../3rdLibraries/stbLoader.cpp",
+                "-I/Users/yre03/Dev/Repositories/vcpkg/installed/x64-osx/include",
+                "-I/Users/yre03/Dev/Repositories/openglStudies/LuaHandler",
+                "-I/Users/yre03/Dev/Repositories/openglStudies/renderingEngine",
+                "-I/Users/yre03/Dev/Repositories/openglStudies/PerlinNoise/perlinNoiseHeader",
+                "-I/usr/local/Cellar/lua/5.3.5_1/include/lua",
+                "/usr/local/Cellar/lua/5.3.5_1/lib/liblua.5.3.dylib",
+                "/usr/local/Cellar/assimp/4.1.0/lib/libassimp.4.1.0.dylib",
+                "/usr/local/Cellar/assimp/4.1.0/lib/libIrrXML.a",
+                "/Users/yre03/Dev/Repositories/vcpkg/installed/x64-osx/lib/libglfw3.a",
+                "/Users/yre03/Dev/Repositories/vcpkg/installed/x64-osx/lib/libGLEW.a",
+                "/System/Library/Frameworks/OpenGL.framework/Versions/Current/OpenGL",
+                "/System/Library/Frameworks/Cocoa.framework/Versions/Current/Cocoa",
+                "/System/Library/Frameworks/IOKit.framework/Versions/Current/IOKit",
+                "/System/Library/Frameworks/CoreVideo.framework/Versions/Current/CoreVideo"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}
