@@ -36,10 +36,12 @@ void ATextureHolder::setTextureData(const ATextureData& textureData) {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void ATextureHolder::bindTexture(void) const {
+void ATextureHolder::bindTexture(GLuint activateTextureIndex) const {
+    glActiveTexture(GL_TEXTURE0 + activateTextureIndex);
     glBindTexture(GL_TEXTURE_2D, this->textureID);
 }
 
-void ATextureHolder::unbindTexture(void) const {
+void ATextureHolder::unbindTexture(GLuint activateTextureIndex) const {
+    glActiveTexture(GL_TEXTURE0 + activateTextureIndex);
     glBindTexture(GL_TEXTURE_2D, 0);
 }

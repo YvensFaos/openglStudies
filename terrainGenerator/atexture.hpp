@@ -29,8 +29,8 @@ class ATextureHolder {
 
         const GLuint getTextureID(void) const;
         void setTextureData(const ATextureData& textureData);
-        void bindTexture(void) const;
-        void unbindTexture(void) const;
+        void bindTexture(GLuint activateTextureIndex = 0) const;
+        void unbindTexture(GLuint activateTextureIndex = 0) const;
     private:
         void initializeTexture(void);
 };

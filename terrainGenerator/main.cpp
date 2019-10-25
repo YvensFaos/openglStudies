@@ -26,11 +26,9 @@
 #include <RenderingEngine/Core/acamera.hpp>
 #include <RenderingEngine/Core/alight.hpp>
 #include <RenderingEngine/Core/ashader.hpp>
-#include <RenderingEngine/GraphicalTools/aframebuffer.hpp>
-#include <RenderingEngine/GraphicalTools/askybox.hpp>
 #include <RenderingEngine/Utils/amacrohelper.hpp>
-#include <RenderingEngine/Utils/arenderquad.hpp>
 #include <RenderingEngine/Utils/aluahelper.hpp>
+#include <RenderingEngine/Objects/alightobject.hpp>
 
 #include <perlinFunction.hpp>
 
@@ -53,55 +51,38 @@ int main(void)
 
   	GLuint shaderProgramme = AShader::generateProgram(vs, fs);
 
-	ASkybox askybox(std::vector<std::string>{
-        "../3DModels/desertsky_ft.tga",
-        "../3DModels/desertsky_bc.tga",
-        "../3DModels/desertsky_up.tga",
-        "../3DModels/desertsky_dn.tga",
-        "../3DModels/desertsky_rt.tga",
-        "../3DModels/desertsky_lf.tga"
-    });
-
 	GLuint modelMatrixUniform = glGetUniformLocation(shaderProgramme, "model");
 	GLuint vpMatrixUniform = glGetUniformLocation(shaderProgramme, "viewProjection");
-	GLuint lightMatrixUniform = glGetUniformLocation(shaderProgramme, "lightViewProjection");
-	GLuint textureUniform = glGetUniformLocation(shaderProgramme, "textureUniform");
-
-	GLuint    lightPositionUniform = glGetUniformLocation(shaderProgramme, "sceneLight.position");
-	GLuint   lightDirectionUniform = glGetUniformLocation(shaderProgramme, "sceneLight.direction");
-	GLuint       lightColorUniform = glGetUniformLocation(shaderProgramme, "sceneLight.color");
-	GLuint   lightIntensityUniform = glGetUniformLocation(shaderProgramme, "sceneLight.intensity");
-	GLuint lightDirectionalUniform = glGetUniformLocation(shaderProgramme, "sceneLight.directional");
+	GLuint textureUniform1 = glGetUniformLocation(shaderProgramme, "textureUniform1");
+	GLuint textureUniform2 = glGetUniformLocation(shaderProgramme, "textureUniform2");
+	GLuint textureUniform3 = glGetUniformLocation(shaderProgramme, "textureUniform3");
+	GLuint timeUniform = glGetUniformLocation(shaderProgramme, "time");
 
 	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
-	ALight* alight = ALuaHelper::loadLightFromTable("light", &luaHandler);
 
 	ACamera& acamera = arenderer.getCamera();
+	ALuaHelper::setupCameraPosition("cameraPosition", &acamera, &luaHandler);
 	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
 	glm::mat4 view = acamera.getView();
 	glm::mat4 viewProjectionMatrix = projection * view;
-	glm::mat4 skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
-	glm::mat4 skyView = glm::mat4(1.0);
 
-	glm::vec3 lightPosition = alight->getPosition();
-	glm::vec3 lightDirection = alight->getDirection();
-	glm::vec3 lightUp = alight->getUp();
-	glm::vec4 lightColor = alight->getColor();
-	float lightIntensity = alight->getIntensity();
-	bool lightDirectional = alight->getDirectional();
+	ATextureData atextureData1(600, 600);
+	ATextureData atextureData2(600, 600);
+	ATextureData atextureData3(600, 600);
+	PerlinNoise::generatePerlinNoise(atextureData1.width, atextureData1.height, 16, 16, atextureData1.data);
+	PerlinNoise::generatePerlinNoise(atextureData2.width, atextureData2.height,  8,  8, atextureData2.data);
+	PerlinNoise::generatePerlinNoise(atextureData3.width, atextureData3.height,  4,  4, atextureData3.data);
 
-	ATextureData atextureData(600, 600);
-	PerlinNoise::generatePerlinNoise(atextureData.width, atextureData.height, 10, 10, atextureData.data);
-
-	ATextureHolder atexture(atextureData);
+	ATextureHolder atexture1(atextureData1);
+	ATextureHolder atexture2(atextureData2);
+	ATextureHolder atexture3(atextureData3);
 	do
 	{
 		projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 		view = acamera.getView();
 		viewProjectionMatrix = projection * view;
-		skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
 		
 		arenderer.startFrame();
 
@@ -111,27 +92,25 @@ int main(void)
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glUseProgram(shaderProgramme);
 
-
 		glUniformMatrix4fv(vpMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
-		glUniform3f(lightPositionUniform, lightPosition.x, lightPosition.y, lightPosition.z);
-		glUniform3f(lightDirectionUniform, lightDirection.x, lightDirection.y, lightDirection.z);
-		glUniform4f(lightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-		glUniform1f(lightIntensityUniform, lightIntensity);
-		glUniform1i(lightDirectionalUniform, lightDirectional);
-
-		glActiveTexture(GL_TEXTURE1);
-		atexture.bindTexture();
-		glUniform1i(textureUniform, 1);
+		glUniform1f(timeUniform, arenderer.getAccumulator());
+		
+		atexture1.bindTexture(1);
+		glUniform1i(textureUniform1, 1);
+		atexture2.bindTexture(2);
+		glUniform1i(textureUniform2, 2);
+		atexture3.bindTexture(3);
+		glUniform1i(textureUniform3, 3);
+		
 		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
-		atexture.unbindTexture();
-
-		// askybox.render(skyViewProjectionMatrix);
 
 		arenderer.finishFrame();
+		atexture1.unbindTexture(3);
+		atexture1.unbindTexture(2);
+		atexture1.unbindTexture(1);
 	}
 	while(arenderer.isRunning());
 
 	glfwTerminate();
-	delete alight;
 	return 0;
 }

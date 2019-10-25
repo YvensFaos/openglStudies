@@ -13,13 +13,47 @@ vertexShader = [[
     uniform mat4 model;
     uniform mat4 viewProjection;
 
+    uniform sampler2D textureUniform1;
+    uniform sampler2D textureUniform2;
+    uniform sampler2D textureUniform3;
+
+    uniform float time;
+
+    const float THRESHOULD = 0.025;
+
+    const float DETAILS = 0.10;
+    const float ELEVATN = 0.13;
+    const float TERRAIN = 0.65;
+
+    float height(vec2 position) {
+        vec4 value1 = DETAILS * texture(textureUniform1, position);
+        vec4 value2 = ELEVATN * texture(textureUniform2, position);
+        vec4 value3 = TERRAIN * texture(textureUniform3, position);
+        vec4 uvP = value1 + value2 + value3;
+
+        return uvP.x;
+    }
+
     void main()
     {
-        vectorOut.vposition = vec3(model * vec4(vertex, 1.0));
-        vectorOut.vnormal = mat3(transpose(inverse(model))) * normal;
-        vectorOut.vuv = uv;
-        vec4 vecOut = vec4(vectorOut.vposition, 1.0);
+        float realHeight = height(uv);
 
+        float hL = height(uv - vec2(THRESHOULD, 0.0));
+        float hR = height(uv + vec2(THRESHOULD, 0.0));
+        float hD = height(uv - vec2(0.0, THRESHOULD));
+        float hU = height(uv + vec2(0.0, THRESHOULD));
+        
+        vec3 hposition = vertex;
+        hposition.y = realHeight;
+        
+        vec3 cnormal = vec3(hL - hR, hD - hU, 0.6);
+        cnormal = normalize(cnormal);
+        
+        vectorOut.vposition = vec3(model * vec4(hposition, 1.0));
+        vectorOut.vnormal = mat3(transpose(inverse(model))) * cnormal;
+        vectorOut.vuv = uv;
+
+        vec4 vecOut = vec4(vectorOut.vposition, 1.0);
         gl_Position = viewProjection * vecOut;
     }  
 ]]
@@ -27,51 +61,28 @@ vertexShader = [[
 fragmentShader = [[
     #version 400
 
-    struct Light {
-        vec3 position;
-        vec3 direction;
-        vec4 color;
-        float intensity;
-        bool directional;
-    };
-
     in vectorOut {
         vec3 vposition;
         vec3 vnormal;
         vec2 vuv;
     } vectorIn;
 
-    float lightConstant = 1.0f;
-    float lightLinear = 0.09f;
-    float lightQuadratic = 0.032f;
-    float maximumIntensity = 100.0f;
-
-    uniform sampler2D textureUniform;
-    uniform Light sceneLight;
     out vec4 frag_colour;
 
     void main()
     {          
-        vec3 norm = normalize(vectorIn.vnormal);
-        float distance = length(sceneLight.position - vectorIn.vposition);
-
-        float attenuationIntensity = sceneLight.intensity / maximumIntensity;
-        lightConstant = 1.0f    / attenuationIntensity;
-        lightLinear = 0.09f     / attenuationIntensity;
-        lightQuadratic = 0.032f / attenuationIntensity;
-
-        float attenuation = 1.0 / (lightConstant + lightLinear * distance + lightQuadratic * (distance * distance));
-        float diff = max(dot(norm, sceneLight.direction), 0.0);
-        
-        vec4 value = texture(textureUniform, vectorIn.vuv);
-        vec3 diffuse =  attenuation * diff * sceneLight.color.xyz * vec3(value);
-
-        frag_colour = vec4(vec3(value), 1.0); //vec4(diffuse, sceneLight.color.w) + 
+        vec4 color = vec4(vectorIn.vnormal, 0.0); // + vec4(vectorIn.vuv, 0.0, 0.0);
+        color.a = 1.0;
+        frag_colour = color;
     }
 ]]
 
 models = {}
-models[1] = {file = "../3DModels/brick.obj", pos = { 0.0,  0.0, 3.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,  0.0, 0.0}}
+models[1] = {file = "../3DModels/plane100x100.obj", pos = { 0.0,  0.0, 3.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,  0.0, 0.0}}
 
-lightIntensity = 100
-light = {pos = { 0.0, 4.0, 0.0}, dir = {0.0, 0.0, -1.0}, up = {0.0, 1.0, 0.0}, col = {227 / 255, 118 / 255, 252 / 255, 1.0}, intensity = lightIntensity, specularPower = 256.0, directional = true}
+cameraPosition = {
+    pos   = {-0.047, 2.920, 5.758},
+    dir   = {-0.000, -0.681, -0.732},
+    up    = {-0.000, 0.732, -0.681},
+    right = {1.000, 0.000, -0.000}
+}
