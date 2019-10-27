@@ -44,10 +44,10 @@ int main(void)
 	LuaHandler luaHandler;
 	luaHandler.openFile("config.lua");
 	
-  GLuint vs =  AShader::generateShader(luaHandler.getGlobalString("vertexShader"), GL_VERTEX_SHADER);
+  	GLuint vs =  AShader::generateShader(luaHandler.getGlobalString("vertexShader"), GL_VERTEX_SHADER);
 	GLuint fs =  AShader::generateShader(luaHandler.getGlobalString("fragmentShader"), GL_FRAGMENT_SHADER);
 
-  GLuint shaderProgramme = AShader::generateProgram(vs, fs);
+  	GLuint shaderProgramme = AShader::generateProgram(vs, fs);
 
 	GLuint modelMatrixUniform = glGetUniformLocation(shaderProgramme, "model");
 	GLuint vpMatrixUniform = glGetUniformLocation(shaderProgramme, "viewProjection");
@@ -62,7 +62,7 @@ int main(void)
 	ARenderQuad edgeQuad(luaHandler.getGlobalString("edgeFragmentShader"));
 
 	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
-	ALight* alight = ALuaHelper::loadLightFromTable("light", &luaHandler);
+	ALight alight = ALuaHelper::loadLightFromTable("light", luaHandler);
 
 	ACamera& acamera = arenderer.getCamera();
 	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
@@ -71,12 +71,12 @@ int main(void)
 	glm::mat4 view = acamera.getView();
 	glm::mat4 viewProjectionMatrix = projection * view;
 
-	glm::vec3 lightPosition = alight->getPosition();
-	glm::vec3 lightDirection = alight->getDirection();
-	glm::vec3 lightUp = alight->getUp();
-	glm::vec4 lightColor = alight->getColor();
-	float lightIntensity = alight->getIntensity();
-	bool lightDirectional = alight->getDirectional();
+	glm::vec3 lightPosition = 	alight.getPosition();
+	glm::vec3 lightDirection = 	alight.getDirection();
+	glm::vec3 lightUp = 		alight.getUp();
+	glm::vec4 lightColor = 		alight.getColor();
+	float lightIntensity = 		alight.getIntensity();
+	bool lightDirectional = 	alight.getDirectional();
 
 	AFramebuffer edgeBuffer(width * 2, height * 2);
 	

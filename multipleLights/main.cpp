@@ -74,7 +74,7 @@ int main(void)
 	GLuint lightPMatrixUniform = glGetUniformLocation(lightProgramme, "projection");
 	GLuint lightLightColorUniform = glGetUniformLocation(lightProgramme, "lightColor");
 
-	std::vector<ALight*> lights = ALuaHelper::loadLightsFromTable("lights", &luaHandler);
+	std::vector<ALight> lights = ALuaHelper::loadLightsFromTable("lights", luaHandler);
 	const int lightsSize = lights.size();
 	std::vector<ALightUniform> directionalLightUniforms;
 	std::vector<ALightUniform> pointLightUniforms;
@@ -94,7 +94,7 @@ int main(void)
 
 	ALight* pointLightPointer;
 	for(unsigned int i = 0; i < lightsSize; i++) {
-		lightPointer = lights[i];
+		lightPointer = &lights[i];
 		isDirectional = lightPointer->getDirectional();
 
 		sprintf(uniformName, "%s[%d].", isDirectional ? 
@@ -123,7 +123,7 @@ int main(void)
 		else
 		{
 			pointLightUniforms.push_back(ALightUniform(lightPositionUniform, lightDirectionUniform, lightColorUniform, lightIntensityUniform, lightDirectionalUniform));
-			pointLightPointer = lights[i];
+			pointLightPointer = &lights[i];
 		}
 	}
 
@@ -177,7 +177,7 @@ int main(void)
 		directionalLightCount = 0;
 		pointLightCount = 0;
 		for(unsigned int i = 0; i < lightsSize; i++) {
-			lightPointer = lights[i];
+			lightPointer = &lights[i];
 			isDirectional = lightPointer->getDirectional();
 
 			if(isDirectional) {
@@ -215,7 +215,7 @@ int main(void)
 			glUniform4f(lightLightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 			lightObject->renderModels(lightModelMatrixUniform, lightProgramme);
 
-			ALuaHelper::updateLight(&luaHandler, pointLightPointer, "updateLight", arenderer.getDeltaTime());
+			ALuaHelper::updateLight(luaHandler, *pointLightPointer, "updateLight", arenderer.getDeltaTime());
 			lightObject->setPosition(pointLightPointer->getPosition());
 		}
 

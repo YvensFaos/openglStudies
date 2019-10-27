@@ -63,7 +63,7 @@ struct ALightUniform {
         ALightUniform(GLuint lightPositionUniform, GLuint lightDirectionUniform, GLuint lightColorUniform, GLuint lightIntensityUniform, GLuint lightDirectionalUniform) :
         lightPositionUniform(lightPositionUniform),  lightDirectionUniform(lightDirectionUniform), lightColorUniform(lightColorUniform), lightIntensityUniform(lightIntensityUniform), lightDirectionalUniform(lightDirectionalUniform) 
         { }
-        ~ALightUniform(void) {}
+        
         ALightUniform(const ALightUniform& copyFrom) {
             this->lightPositionUniform = copyFrom.lightPositionUniform;
             this->lightDirectionUniform = copyFrom.lightDirectionUniform;
@@ -71,15 +71,19 @@ struct ALightUniform {
             this->lightIntensityUniform = copyFrom.lightIntensityUniform;
             this->lightDirectionalUniform = copyFrom.lightDirectionalUniform;
         }
+        ~ALightUniform(void) {}
 
-        void operator=(const ALightUniform& copyFrom) {
-            this->lightPositionUniform = copyFrom.lightPositionUniform;
-            this->lightDirectionUniform = copyFrom.lightDirectionUniform;
-            this->lightColorUniform = copyFrom.lightColorUniform;
-            this->lightIntensityUniform = copyFrom.lightIntensityUniform;
-            this->lightDirectionalUniform = copyFrom.lightDirectionalUniform;
+        ALightUniform& operator=(const ALightUniform& copyFrom) {
+            if(this != &copyFrom) {
+                this->lightPositionUniform = copyFrom.lightPositionUniform;
+                this->lightDirectionUniform = copyFrom.lightDirectionUniform;
+                this->lightColorUniform = copyFrom.lightColorUniform;
+                this->lightIntensityUniform = copyFrom.lightIntensityUniform;
+                this->lightDirectionalUniform = copyFrom.lightDirectionalUniform;
+            }
+            return *this;
         }
 
     public:
-        static ALightUniform loadALightUniformFromProgramme(GLuint shaderProgramme, GLuint lightIndex, ALight* alight);
+        static ALightUniform loadALightUniformFromProgramme(GLuint shaderProgramme, GLuint lightIndex, ALight& alight);
 };

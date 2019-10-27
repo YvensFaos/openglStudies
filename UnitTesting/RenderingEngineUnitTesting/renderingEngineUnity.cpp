@@ -13,34 +13,32 @@ TEST_CASE("Single Light reading.") {
     LuaHandler handler;
     handler.openFile("testLua.lua");
 
-    ALight* alight = ALuaHelper::loadLightFromTable("light", &handler);
+    ALight alight = ALuaHelper::loadLightFromTable("light", handler);
 
-    glm::vec3 position = alight->getPosition();
+    glm::vec3 position = alight.getPosition();
     CHECK(position.x == 0.0f);
     CHECK(position.y == 2.0f);
     CHECK(position.z == 0.0f);
 
-    glm::vec3 direction = alight->getDirection();
+    glm::vec3 direction = alight.getDirection();
     CHECK(direction.x ==  0.0f);
     CHECK(direction.y ==  0.0f);
     CHECK(direction.z == -1.0f);
 
-    glm::vec3 up = alight->getUp();
+    glm::vec3 up = alight.getUp();
     CHECK(up.x == 0.0f);
     CHECK(up.y == 1.0f);
     CHECK(up.z == 0.0f);
 
-    glm::vec4 color = alight->getColor();
+    glm::vec4 color = alight.getColor();
     CHECK(color.r == 0.9686f);
     CHECK(color.g == 0.8156f);
     CHECK(color.b == 0.2117f);
     CHECK(color.a == 1.0000f);
 
-    CHECK(alight->getIntensity() == 80.0f);
-    CHECK(alight->getSpecularPower() == 0.0f);
-    CHECK(alight->getDirectional());
-
-    delete alight;
+    CHECK(alight.getIntensity() == 80.0f);
+    CHECK(alight.getSpecularPower() == 0.0f);
+    CHECK(alight.getDirectional());
 }
 
 TEST_CASE("Simple Ambient Light reading.") {
@@ -202,12 +200,12 @@ TEST_CASE("List of Lights reading.") {
     LuaHandler handler;
     handler.openFile("testLua.lua");
 
-    std::vector<ALight*> lights = ALuaHelper::loadLightsFromTable("lights", &handler);
+    std::vector<ALight> lights = ALuaHelper::loadLightsFromTable("lights", handler);
     ALight* alight;
 
     CHECK(lights.size() == 2);
 
-    alight = lights[0];
+    alight = &lights[0];
     {
         glm::vec3 position = alight->getPosition();
         CHECK(position.x == 0.0f);
@@ -230,9 +228,8 @@ TEST_CASE("List of Lights reading.") {
         CHECK(alight->getSpecularPower() == 0.0f);
         CHECK(alight->getDirectional());
     }
-    delete alight;
 
-    alight = lights[1];
+    alight = &lights[1];
     {
         glm::vec3 position = alight->getPosition();
         CHECK(position.x == 0.0f);
@@ -255,7 +252,6 @@ TEST_CASE("List of Lights reading.") {
         CHECK(alight->getSpecularPower() == 32.0f);
         CHECK(!alight->getDirectional());
     }
-    delete alight;
 }
 
 TEST_CASE("Geometric Operations with Objects.") {

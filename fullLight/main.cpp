@@ -35,18 +35,18 @@
 
 #include <stb_image.h>
 
-glm::vec3 moveLight(LuaHandler* luaHandler, ALight* light, float deltaTime)
+glm::vec3 moveLight(LuaHandler& luaHandler, ALight& light, float deltaTime)
 {
-	luaHandler->getFunction("move");
-	luaHandler->pushNumber(light->getPosition().x);
-	luaHandler->pushNumber(light->getPosition().y);
-	luaHandler->pushNumber(light->getPosition().z);
-	luaHandler->pushNumber(deltaTime);
-	luaHandler->callFunctionFromStack(4, 3);
+	luaHandler.getFunction("move");
+	luaHandler.pushNumber(light.getPosition().x);
+	luaHandler.pushNumber(light.getPosition().y);
+	luaHandler.pushNumber(light.getPosition().z);
+	luaHandler.pushNumber(deltaTime);
+	luaHandler.callFunctionFromStack(4, 3);
 	glm::vec3 newPosition;
-	newPosition.z = luaHandler->popNumber();
-	newPosition.y = luaHandler->popNumber();
-	newPosition.x = luaHandler->popNumber();
+	newPosition.z = luaHandler.popNumber();
+	newPosition.y = luaHandler.popNumber();
+	newPosition.x = luaHandler.popNumber();
 	return newPosition;
 }
 
@@ -101,7 +101,7 @@ int main(void)
 
 	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
 	AModel* lightObject = ALuaHelper::loadModelFromTable("lightObject", &luaHandler);
-	ALight* alight = ALuaHelper::loadLightFromTable("light", &luaHandler);
+	ALight alight = ALuaHelper::loadLightFromTable("light", luaHandler);
 
 	ACamera& acamera = arenderer.getCamera();
 	ALuaHelper::setupCameraPosition("cameraPosition", &acamera, &luaHandler);
@@ -112,12 +112,12 @@ int main(void)
 	glm::mat4 viewProjectionMatrix = projection * view;
 	glm::mat4 skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
 
-	glm::vec3 lightPosition = alight->getPosition();
-	glm::vec3 lightDirection = alight->getDirection();
-	glm::vec3 lightUp = alight->getUp();
-	glm::vec4 lightColor = alight->getColor();
-	float lightIntensity = alight->getIntensity();
-	bool lightDirectional = alight->getDirectional();
+	glm::vec3 lightPosition = 	alight.getPosition();
+	glm::vec3 lightDirection = 	alight.getDirection();
+	glm::vec3 lightUp = 		alight.getUp();
+	glm::vec4 lightColor = 		alight.getColor();
+	float lightIntensity = 		alight.getIntensity();
+	bool lightDirectional = 	alight.getDirectional();
 
 	lightObject->setPosition(lightPosition);
 
@@ -145,14 +145,14 @@ int main(void)
 		glUniform4f(ambientColorUniform, ambientLightColor.x, ambientLightColor.y, ambientLightColor.z, ambientLightColor.w);
 		glUniform1f(ambientIntensityUniform, ambientLightIntensity);
 
-		lightPosition = alight->getPosition();
+		lightPosition = alight.getPosition();
 		glUniform3f(vlightPositionUniform, lightPosition.x, lightPosition.y, lightPosition.z);
 		glUniform3f(lightPositionUniform, lightPosition.x, lightPosition.y, lightPosition.z);
 		glUniform3f(lightDirectionUniform, lightDirection.x, lightDirection.y, lightDirection.z);
 		glUniform4f(lightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		glUniform1f(lightIntensityUniform, lightIntensity);
 		glUniform1i(lightDirectionalUniform, lightDirectional);
-		glUniform1f(lightSpecularPowerUniform, alight->getSpecularPower());
+		glUniform1f(lightSpecularPowerUniform, alight.getSpecularPower());
 		
 		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
 
@@ -171,8 +171,8 @@ int main(void)
 
 		arenderer.finishFrame();
 
-		lightPosition = moveLight(&luaHandler, alight, arenderer.getDeltaTime());
-		alight->setPosition(lightPosition);
+		lightPosition = moveLight(luaHandler, alight, arenderer.getDeltaTime());
+		alight.setPosition(lightPosition);
 		lightObject->setPosition(lightPosition);
 	}
 	while(arenderer.isRunning());

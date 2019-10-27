@@ -8,13 +8,13 @@
 ///ALightObject is the union of a ALight and AMesh.
 class ALightObject {
     private:
-        ALight* alight;
+        ALight& alight;
+        AModel alightModel;
         ALightUniform alightUniforms;
-        AModel* alightModel;
 
         GLuint shaderProgramme;
         GLuint lightIndex;
-
+    private:
         static std::string defaultVertexShader;
         static std::string defaultGeometryShader;
         static std::string defaultFragmentShader;
@@ -33,9 +33,8 @@ class ALightObject {
         static GLuint lightModelMatrixUniform;
         static GLuint lightVPMatrixUniform;
         static GLuint lightLightColorUniform;
-
     public:
-        ALightObject(ALight* alight, GLuint shaderProgramme, GLuint lightIndex);
+        ALightObject(ALight& alight, GLuint shaderProgramme, GLuint lightIndex);
         ~ALightObject(void);
 
         void renderLightObject(glm::mat4 viewProjection);
@@ -43,7 +42,7 @@ class ALightObject {
 
         const ALight& getLight(void) const;
     public:
-        static std::vector<ALightObject*> GenerateALightObjectsFromLights(GLuint programme, std::vector<ALight*> lights);
+        static std::vector<ALightObject> GenerateALightObjectsFromLights(GLuint programme, std::vector<ALight>& lights);
     private:
         static void GenerateALightObjectDefaultProgramme(void);
         static bool CheckLightObjectsProgramme(void);

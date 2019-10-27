@@ -34,7 +34,7 @@ void AAmbientLight::setIntensity(const float intensity) {
 
 //##### A LIGHT UNIFORM
 
-ALightUniform ALightUniform::loadALightUniformFromProgramme(GLuint shaderProgramme, GLuint lightIndex, ALight* alight) {
+ALightUniform ALightUniform::loadALightUniformFromProgramme(GLuint shaderProgramme, GLuint lightIndex, ALight& alight) {
     GLuint    lightPositionUniform = -1;
 	GLuint   lightDirectionUniform = -1;
 	GLuint       lightColorUniform = -1;
@@ -42,7 +42,7 @@ ALightUniform ALightUniform::loadALightUniformFromProgramme(GLuint shaderProgram
 	GLuint lightDirectionalUniform = -1;
 
 	char uniformName[64];
-	bool isDirectional = alight->getDirectional();
+	bool isDirectional = alight.getDirectional();
     sprintf(uniformName, "%s[%d].", isDirectional ? "directionalLights" : "pointLights", lightIndex);
 	std::string buffer;
 
@@ -62,8 +62,8 @@ ALight::ALight(glm::vec3 position, glm::vec3 direction, glm::vec4 color, float i
 { }
 
 ALight::ALight(const ALight& anotherLight) 
- : position(anotherLight.getPosition()), direction(anotherLight.getDirection()), color(anotherLight.getColor()),
-   intensity(anotherLight.getIntensity()), directional(anotherLight.getDirectional()), up(anotherLight.getUp())
+ : position(anotherLight.getPosition()), direction(anotherLight.getDirection()), up(anotherLight.getUp()), color(anotherLight.getColor()),
+   intensity(anotherLight.getIntensity()), specularPower(anotherLight.getSpecularPower()), directional(anotherLight.getDirectional())
 { }
 
 ALight::~ALight(void) { }

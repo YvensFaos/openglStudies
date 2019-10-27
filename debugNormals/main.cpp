@@ -78,7 +78,7 @@ int main(void)
 	GLuint ndNormalColorUniform = glGetUniformLocation(normalDebugProgramme, "normalColor");
 
 	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
-	ALight* alight = ALuaHelper::loadLightFromTable("light", &luaHandler);
+	ALight alight = ALuaHelper::loadLightFromTable("light", luaHandler);
 
 	ACamera& acamera = arenderer.getCamera();
 	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
@@ -89,12 +89,12 @@ int main(void)
 	glm::mat4 skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
 	glm::mat4 skyView = glm::mat4(1.0);
 
-	glm::vec3 lightPosition = alight->getPosition();
-	glm::vec3 lightDirection = alight->getDirection();
-	glm::vec3 lightUp = alight->getUp();
-	glm::vec4 lightColor = alight->getColor();
-	float lightIntensity = alight->getIntensity();
-	bool lightDirectional = alight->getDirectional();
+	glm::vec3 lightPosition = alight.getPosition();
+	glm::vec3 lightDirection = alight.getDirection();
+	glm::vec3 lightUp = alight.getUp();
+	glm::vec4 lightColor = alight.getColor();
+	float lightIntensity = alight.getIntensity();
+	bool lightDirectional = alight.getDirectional();
 
 	glm::vec4 normalColor = ALuaHelper::readVec4FromTable("normalColor", &luaHandler);
 	

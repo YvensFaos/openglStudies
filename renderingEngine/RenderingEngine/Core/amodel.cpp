@@ -12,6 +12,12 @@ AModel::AModel(std::string path) : modelMatrix(glm::mat4(1.0))
     loadModel(path); 
 }
 
+AModel::AModel(const AModel& copyFrom) {
+    this->modelMatrix = copyFrom.getModelMatrix();
+    this->meshes = copyFrom.getMeshes();
+    this->directory = copyFrom.getDirectory();
+}
+
 void AModel::loadModel(std::string path)
 {
     Assimp::Importer importer;
@@ -22,8 +28,8 @@ void AModel::loadModel(std::string path)
         return;
     }
 
-    directory = path.substr(0, path.find_last_of('/'));
-    printf("Loading object: %s\r\nDirectory: %s\r\n", path.c_str(), directory.c_str());
+    this->directory = path.substr(0, path.find_last_of('/'));
+    printf("Loading object: %s\r\nDirectory: %s\r\n", path.c_str(), this->directory.c_str());
     glm::mat4 parentMat4 = AModel::aiMatrix4x4ToGlm(&scene->mRootNode->mTransformation);
     processNode(scene->mRootNode, scene, parentMat4);
 }
@@ -225,6 +231,11 @@ const std::vector<AMesh>& AModel::getMeshes(void) const
     return this->meshes;
 }
 
+std::string AModel::getDirectory(void) const 
+{
+    return this->directory;
+}
+
 void AModel::translate(glm::vec3 translateTo) 
 {
     this->modelMatrix = glm::translate(this->modelMatrix, translateTo);
@@ -294,4 +305,13 @@ void AModel::renderModelsInList(std::vector<AModel*>* list, GLuint modelMatrixUn
 const AMesh& AModel::getMeshAt(int index) const 
 {
     return this->meshes[index];
+}
+
+AModel& AModel::operator=(const AModel& copyFrom) {
+    if(this != &copyFrom) {
+        this->modelMatrix = copyFrom.getModelMatrix();
+        this->meshes = copyFrom.getMeshes();
+        this->directory = copyFrom.getDirectory();
+    }
+    return *this;
 }

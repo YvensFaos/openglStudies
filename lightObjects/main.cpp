@@ -67,19 +67,17 @@ int main(void)
 	glm::mat4 view = acamera.getView();
 	glm::mat4 viewProjectionMatrix = projection * view;
 
-	std::vector<ALight*> lights = ALuaHelper::loadLightsFromTable("lights", &luaHandler);
+	std::vector<ALight> lights = ALuaHelper::loadLightsFromTable("lights", luaHandler);
 	auto lightsBegin = lights.begin();
 	auto lightsEnd = lights.end();
-	ALight* lightPointer;
-	std::vector<ALightObject*> lightObjects = ALightObject::GenerateALightObjectsFromLights(objectsProgramme, lights);
-	auto begin = lightObjects.begin();
-	auto end = lightObjects.end();
+
+	std::vector<ALightObject> lightObjects = ALightObject::GenerateALightObjectsFromLights(objectsProgramme, lights);
 	GLuint directionalLightCount = 0;
 	GLuint pointLightCount = 0;
 
-	std::for_each(lightsBegin, lightsEnd, [&directionalLightCount, &pointLightCount](ALight* alight)
+	for (unsigned int i = 0; i < lights.size(); i++)
 	{
-		if(alight->getDirectional())
+		if(lights[i].getDirectional())
 		{
 			directionalLightCount++;
 		}
@@ -87,19 +85,9 @@ int main(void)
 		{
 			pointLightCount++;
 		}
-	});
-
-	AModel* alightModel = new AModel(luaHandler.getGlobalString("lightModel"));
-    alightModel->scale(glm::vec3(0.1, 0.1, 0.1));
+	}
 
 	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
-	ALightUniform* alightUniformPointer;
-	glm::vec3 lightPosition;
-	glm::vec3 lightDirection;
-	glm::vec3 lightUp;
-	glm::vec4 lightColor;
-	float lightIntensity;
-	bool lightDirectional;
 
 	glActiveTexture(GL_TEXTURE0);
 	do
@@ -112,15 +100,12 @@ int main(void)
 
 		glViewport(0, 0, width * 2, height * 2);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClearColor(0.02f, 0.04f, 0.25f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		auto begin = lightObjects.begin();
-		auto end = lightObjects.end();
-		std::for_each(begin, end, [viewProjectionMatrix](ALightObject* alightObject)
-        {
-			alightObject->renderLightObject(viewProjectionMatrix);
-        });
+		for (unsigned int i = 0; i < lightObjects.size(); i++)
+		{
+			lightObjects[i].renderLightObject(viewProjectionMatrix);
+		}
 		
 		glUseProgram(objectsProgramme);
 		glUniformMatrix4fv(objectsVMatrixUniform, 1, GL_FALSE, glm::value_ptr(view));
@@ -128,13 +113,12 @@ int main(void)
 		glUniform1i(objectsNumberPointLightsUniform, pointLightCount);
 		glUniform1i(objectsNumberDirectionLightsUniform, directionalLightCount);
 
-		std::for_each(begin, end, [](ALightObject* alightObject)
-        {
-			alightObject->setupUniforms();
-        });
+		for (unsigned int i = 0; i < lightObjects.size(); i++)
+		{
+			lightObjects[i].setupUniforms();
+		}
 
 		AModel::renderModelsInList(&models, objectsModelMatrixUniform, objectsProgramme);
-		// alightModel->setPosition(pointLightPointer->getPosition());
 
 		arenderer.finishFrame();
 	}

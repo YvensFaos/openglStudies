@@ -12,6 +12,20 @@ AMesh::AMesh(const AMesh& anotherMesh) : VAO(anotherMesh.getVAO()), VBO(anotherM
     vertices(anotherMesh.getVertices()), indices(anotherMesh.getIndices()), textures(anotherMesh.getTextures())
 { }
 
+AMesh& AMesh::operator=(const AMesh& anotherMesh) 
+{
+    if(this != &anotherMesh) {
+        this->VAO = anotherMesh.getVAO();
+        this->VBO = anotherMesh.getVBO();
+        this->EBO = anotherMesh.getEBO();
+        this->vertices = anotherMesh.getVertices();
+        this->indices = anotherMesh.getIndices();
+        this->textures = anotherMesh.getTextures();
+    }
+
+    return *this;
+}
+
 void AMesh::setupMesh()
 {
     glGenVertexArrays(1, &VAO);

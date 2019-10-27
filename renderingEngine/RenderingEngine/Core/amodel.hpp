@@ -20,6 +20,8 @@ class AModel
 
     public:
         AModel(std::string path);
+        AModel(const AModel& copyFrom);
+
         void draw(GLuint programme, GLenum mode = GL_TRIANGLES) const;
         void renderModels(GLuint modelMatrixUniform, GLuint programme, GLenum mode = GL_TRIANGLES) const;
         const std::vector<AMesh>& getMeshes(void) const;
@@ -31,8 +33,12 @@ class AModel
         
         glm::mat4 getModelMatrix(void) const;
         glm::vec4 getPosition(void) const;
+        std::string getDirectory(void) const;
+        
         void setPosition(glm::vec3 position);
         ABoundingBox getBoundingBox(void) const;
+
+        AModel& operator=(const AModel& copyFrom);
     private:
         void loadModel(std::string path);
         void processNode(aiNode *node, const aiScene *scene, const glm::mat4 parentMat4);

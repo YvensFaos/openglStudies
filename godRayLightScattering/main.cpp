@@ -95,7 +95,7 @@ int main(void)
 
 	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
 	AModel* lightObject = ALuaHelper::loadModelFromTable("lightObject", &luaHandler);
-	ALight* alight = ALuaHelper::loadLightFromTable("light", &luaHandler);
+	ALight alight = ALuaHelper::loadLightFromTable("light", luaHandler);
 
 	ACamera& acamera = arenderer.getCamera();
 	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
@@ -112,12 +112,12 @@ int main(void)
 	inScene.x = (inScene.x / inScene.w);
 	inScene.y = (inScene.y / inScene.w);
 
-	glm::vec3 lightPosition = alight->getPosition();
-	glm::vec3 lightDirection = alight->getDirection();
-	glm::vec3 lightUp = alight->getUp();
-	glm::vec4 lightColor = alight->getColor();
-	float lightIntensity = alight->getIntensity();
-	bool lightDirectional = alight->getDirectional();
+	glm::vec3 lightPosition = 	alight.getPosition();
+	glm::vec3 lightDirection = 	alight.getDirection();
+	glm::vec3 lightUp = 		alight.getUp();
+	glm::vec4 lightColor = 		alight.getColor();
+	float lightIntensity = 		alight.getIntensity();
+	bool lightDirectional = 	alight.getDirectional();
 
 	AFramebuffer aframebuffer      (width, height);
 	AFramebuffer anotherFramebuffer(width, height);

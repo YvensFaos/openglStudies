@@ -92,6 +92,58 @@ GLuint ALightObject::directionVPMatrixUniform = -1;
 GLuint ALightObject::directionLightColorUniform = -1;
 GLuint ALightObject::directionDirectionUniform = -1;
 
+ALightObject::ALightObject(ALight& alight, GLuint shaderProgramme, GLuint lightIndex) 
+    : alight(alight), alightModel("../3DModels/tetrahedron.obj"), shaderProgramme(shaderProgramme), lightIndex(lightIndex),
+    alightUniforms(ALightUniform::loadALightUniformFromProgramme(shaderProgramme, lightIndex, alight))
+{
+    ALightObject::GenerateALightObjectDefaultProgramme();
+    this->alightModel.scale(glm::vec3(0.1, 0.1, 0.1));
+}
+
+ALightObject::~ALightObject(void) 
+{ }
+
+void ALightObject::renderLightObject(glm::mat4 viewProjection)
+{
+    alightModel.setPosition(alight.getPosition());
+
+    glUseProgram(ALightObject::directionObjectsProgramme);
+    glUniformMatrix4fv(ALightObject::directionVPMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjection));
+    glm::vec3 lightDirection = alight.getDirection();
+    glUniform4f(ALightObject::directionLightColorUniform, 0.2f, 0.2f, 0.2f, 1.0f);
+    glUniform3f(ALightObject::directionDirectionUniform, lightDirection.x, lightDirection.y, lightDirection.z);
+    alightModel.renderModels(ALightObject::directionModelMatrixUniform, ALightObject::directionObjectsProgramme);
+
+    glUseProgram(ALightObject::lightObjectsProgramme);
+    glUniformMatrix4fv(ALightObject::lightVPMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjection));
+    glm::vec4 lightColor = alight.getColor();
+    glUniform4f(ALightObject::lightLightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+    alightModel.renderModels(ALightObject::lightModelMatrixUniform, ALightObject::lightObjectsProgramme);
+}
+
+const ALight& ALightObject::getLight(void) const
+{
+    return this->alight;
+}
+
+void ALightObject::setupUniforms(void)
+{
+    glm::vec3 lightPosition = alight.getPosition();
+    glm::vec3 lightDirection = alight.getDirection();
+    glm::vec3 lightUp = alight.getUp();
+    glm::vec4 lightColor = alight.getColor();
+    float lightIntensity = alight.getIntensity();
+    bool isDirectional = alight.getDirectional();
+
+    glUniform3f(alightUniforms.lightPositionUniform, lightPosition.x, lightPosition.y, lightPosition.z);
+    glUniform3f(alightUniforms.lightDirectionUniform, lightDirection.x, lightDirection.y, lightDirection.z);
+    glUniform4f(alightUniforms.lightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+    glUniform1f(alightUniforms.lightIntensityUniform, lightIntensity);
+    glUniform1i(alightUniforms.lightDirectionalUniform, isDirectional);
+}
+
+// Static methods
+
 bool ALightObject::CheckLightObjectsProgramme(void) 
 {
     return ALightObject::lightObjectsProgramme == -1;
@@ -122,80 +174,24 @@ void ALightObject::GenerateALightObjectDefaultProgramme(void)
     }
 }
 
-ALightObject::ALightObject(ALight* alight, GLuint shaderProgramme, GLuint lightIndex) 
-    : alight(alight), shaderProgramme(shaderProgramme), lightIndex(lightIndex),
-    alightUniforms(ALightUniform::loadALightUniformFromProgramme(shaderProgramme, lightIndex, alight))
+std::vector<ALightObject> ALightObject::GenerateALightObjectsFromLights(GLuint programme, std::vector<ALight>& lights)
 {
-    ALightObject::GenerateALightObjectDefaultProgramme();
-
-    this->alightModel = new AModel("../3DModels/tetrahedron.obj");
-    this->alightModel->scale(glm::vec3(0.1, 0.1, 0.1));
-}
-
-ALightObject::~ALightObject(void) 
-{ 
-    delete this->alightModel;
-}
-
-void ALightObject::renderLightObject(glm::mat4 viewProjection)
-{
-    alightModel->setPosition(alight->getPosition());
-
-    glUseProgram(ALightObject::directionObjectsProgramme);
-    glUniformMatrix4fv(ALightObject::directionVPMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjection));
-    glm::vec3 lightDirection = alight->getDirection();
-    glUniform4f(ALightObject::directionLightColorUniform, 0.2f, 0.2f, 0.2f, 1.0f);
-    glUniform3f(ALightObject::directionDirectionUniform, lightDirection.x, lightDirection.y, lightDirection.z);
-    alightModel->renderModels(ALightObject::directionModelMatrixUniform, ALightObject::directionObjectsProgramme);
-
-    glUseProgram(ALightObject::lightObjectsProgramme);
-    glUniformMatrix4fv(ALightObject::lightVPMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjection));
-    glm::vec4 lightColor = alight->getColor();
-    glUniform4f(ALightObject::lightLightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-    alightModel->renderModels(ALightObject::lightModelMatrixUniform, ALightObject::lightObjectsProgramme);
-}
-
-std::vector<ALightObject*> ALightObject::GenerateALightObjectsFromLights(GLuint programme, std::vector<ALight*> lights)
-{
-    std::vector<ALightObject*> lightObjects;
+    std::vector<ALightObject> lightObjects;
     GLuint directionalLightCount = 0;
     GLuint pointLightCount = 0;
 
-    ALight* lightPointer;
     bool isDirectional;
     for(unsigned int i = 0; i < lights.size(); i++) 
     {
-        lightPointer = lights[i];
-        if(lightPointer->getDirectional()) 
+        if(lights[i].getDirectional()) 
         {
-            lightObjects.push_back(new ALightObject(lightPointer, programme, directionalLightCount++));
+            lightObjects.push_back(ALightObject(lights[i], programme, directionalLightCount++));
         }
         else 
         {
-            lightObjects.push_back(new ALightObject(lightPointer, programme, pointLightCount++));
+            lightObjects.push_back(ALightObject(lights[i], programme, pointLightCount++));
         }
     }
 
     return lightObjects;
-}
-
-const ALight& ALightObject::getLight(void) const
-{
-    return const_cast<const ALight&>(*this->alight);
-}
-
-void ALightObject::setupUniforms(void)
-{
-    glm::vec3 lightPosition = alight->getPosition();
-    glm::vec3 lightDirection = alight->getDirection();
-    glm::vec3 lightUp = alight->getUp();
-    glm::vec4 lightColor = alight->getColor();
-    float lightIntensity = alight->getIntensity();
-    bool isDirectional = alight->getDirectional();
-
-    glUniform3f(alightUniforms.lightPositionUniform, lightPosition.x, lightPosition.y, lightPosition.z);
-    glUniform3f(alightUniforms.lightDirectionUniform, lightDirection.x, lightDirection.y, lightDirection.z);
-    glUniform4f(alightUniforms.lightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-    glUniform1f(alightUniforms.lightIntensityUniform, lightIntensity);
-    glUniform1i(alightUniforms.lightDirectionalUniform, isDirectional);
 }

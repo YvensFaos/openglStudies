@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
 
 	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
 	AModel* plane = ALuaHelper::loadModelFromTable("plane", &luaHandler);
-	ALight* alight = ALuaHelper::loadLightFromTable("light", &luaHandler);
+	ALight alight = ALuaHelper::loadLightFromTable("light", luaHandler);
 
 	ACamera& acamera = arenderer.getCamera();
 	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, 0.1f, 1000.0f);
@@ -109,12 +109,12 @@ int main(int argc, char* argv[])
 	glm::mat4 viewProjectionMatrix = projection * view;
 	glm::mat4 skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
 
-	glm::vec3 lightPosition = alight->getPosition();
-	glm::vec3 lightDirection = alight->getDirection();
-	glm::vec3 lightUp = alight->getUp();
-	glm::vec4 lightColor = alight->getColor();
-	float lightIntensity = alight->getIntensity();
-	bool lightDirectional = alight->getDirectional();
+	glm::vec3 lightPosition = 	alight.getPosition();
+	glm::vec3 lightDirection = 	alight.getDirection();
+	glm::vec3 lightUp = 		alight.getUp();
+	glm::vec4 lightColor = 		alight.getColor();
+	float lightIntensity = 		alight.getIntensity();
+	bool lightDirectional = 	alight.getDirectional();
 
 	near_plane = luaHandler.getGlobalNumber("nearPlane");
 	far_plane = luaHandler.getGlobalNumber("farPlane");
@@ -127,14 +127,14 @@ int main(int argc, char* argv[])
 	{
 		if(!paused) 
 		{
-			ALuaHelper::updateLight(&luaHandler, alight, "updateLight", arenderer.getDeltaTime());
+			ALuaHelper::updateLight(luaHandler, alight, "updateLight", arenderer.getDeltaTime());
 		}
 
-		lightPosition = alight->getPosition();
-		lightDirection = alight->getDirection();
-		lightUp = alight->getUp();
-		lightColor = alight->getColor();
-		lightIntensity = alight->getIntensity();
+		lightPosition = 	alight.getPosition();
+		lightDirection = 	alight.getDirection();
+		lightUp = 			alight.getUp();
+		lightColor = 		alight.getColor();
+		lightIntensity = 	alight.getIntensity();
 
 		glm::mat4 lightProjection = glm::ortho(-projectionDimension, projectionDimension, -projectionDimension, projectionDimension, near_plane, far_plane);
 		lightView = glm::lookAt(lightPosition, lightPosition + lightDirection, lightUp);
