@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GL/glew.h>
+#include <string>
 
 struct ATextureData {
     GLuint width;
@@ -19,10 +20,11 @@ struct ATextureData {
 class ATextureHolder {
     private:
         GLuint textureID;
-        const GLuint textureWidth;
-        const GLuint textureHeight;
+        GLuint textureWidth;
+        GLuint textureHeight;
 
     public:
+        ATextureHolder(const std::string texturePath);
         ATextureHolder(const GLuint textureWidth, const GLuint textureHeight);
         ATextureHolder(const ATextureData& data);
         ~ATextureHolder(void);

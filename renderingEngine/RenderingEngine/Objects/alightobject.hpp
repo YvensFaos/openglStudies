@@ -34,7 +34,7 @@ class ALightObject {
         static GLuint lightVPMatrixUniform;
         static GLuint lightLightColorUniform;
     public:
-        ALightObject(ALight& alight, GLuint shaderProgramme, GLuint lightIndex);
+        ALightObject(ALight& alight, GLuint shaderProgramme, GLuint lightIndex = 0);
         ~ALightObject(void);
 
         void renderLightObject(glm::mat4 viewProjection);

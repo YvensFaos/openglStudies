@@ -53,10 +53,13 @@ int main(void)
 
 	GLuint modelMatrixUniform = glGetUniformLocation(shaderProgramme, "model");
 	GLuint vpMatrixUniform = glGetUniformLocation(shaderProgramme, "viewProjection");
+	GLuint textureUniform0 = glGetUniformLocation(shaderProgramme, "textureUniform0");
 	GLuint textureUniform1 = glGetUniformLocation(shaderProgramme, "textureUniform1");
 	GLuint textureUniform2 = glGetUniformLocation(shaderProgramme, "textureUniform2");
 	GLuint textureUniform3 = glGetUniformLocation(shaderProgramme, "textureUniform3");
-	GLuint timeUniform = glGetUniformLocation(shaderProgramme, "time");
+
+	GLuint objectsNumberPointLightsUniform = glGetUniformLocation(shaderProgramme, "numberPointLights");
+	GLuint objectsNumberDirectionLightsUniform = glGetUniformLocation(shaderProgramme, "numberDirectionLights");
 
 	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
 
@@ -64,6 +67,9 @@ int main(void)
 	ALuaHelper::setupCameraPosition("cameraPosition", &acamera, &luaHandler);
 	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
+
+	ALight alight = ALuaHelper::loadLightFromTable("light", luaHandler);
+	ALightObject alightObject(alight, shaderProgramme);
 
 	glm::mat4 view = acamera.getView();
 	glm::mat4 viewProjectionMatrix = projection * view;
@@ -75,6 +81,7 @@ int main(void)
 	PerlinNoise::generatePerlinNoise(atextureData2.width, atextureData2.height,  8,  8, atextureData2.data);
 	PerlinNoise::generatePerlinNoise(atextureData3.width, atextureData3.height,  4,  4, atextureData3.data);
 
+	ATextureHolder mountains("../3DModels/rocky_512.jpg");
 	ATextureHolder atexture1(atextureData1);
 	ATextureHolder atexture2(atextureData2);
 	ATextureHolder atexture3(atextureData3);
@@ -90,24 +97,33 @@ int main(void)
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glClearColor(0.4f, 0.04f, 0.25f, 0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		alightObject.renderLightObject(viewProjectionMatrix);
+
 		glUseProgram(shaderProgramme);
 
 		glUniformMatrix4fv(vpMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
-		glUniform1f(timeUniform, arenderer.getAccumulator());
+		glUniform1i(objectsNumberPointLightsUniform, 0);
+		glUniform1i(objectsNumberDirectionLightsUniform, 1);
 		
+		mountains.bindTexture(0);
+		glUniform1i(textureUniform0, 0);
 		atexture1.bindTexture(1);
 		glUniform1i(textureUniform1, 1);
 		atexture2.bindTexture(2);
 		glUniform1i(textureUniform2, 2);
 		atexture3.bindTexture(3);
 		glUniform1i(textureUniform3, 3);
+
+		alightObject.setupUniforms();
 		
 		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
 
 		arenderer.finishFrame();
-		atexture1.unbindTexture(3);
-		atexture1.unbindTexture(2);
+		atexture3.unbindTexture(3);
+		atexture2.unbindTexture(2);
 		atexture1.unbindTexture(1);
+		mountains.unbindTexture(0);
 	}
 	while(arenderer.isRunning());
 
