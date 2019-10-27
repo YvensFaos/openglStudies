@@ -31,10 +31,9 @@
 #include <RenderingEngine/Utils/amacrohelper.hpp>
 #include <RenderingEngine/Utils/arenderquad.hpp>
 #include <RenderingEngine/Utils/aluahelper.hpp>
+#include <RenderingEngine/Objects/apointcloud.hpp>
 
 #include <stb_image.h>
-
-#include "apointcloud.hpp"
 
 int main(void)
 {
