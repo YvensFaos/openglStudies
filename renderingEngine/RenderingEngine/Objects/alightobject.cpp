@@ -18,6 +18,7 @@ std::string ALightObject::defaultVertexShader =
     "   uniform mat4 viewProjection;\n"
     "   void main()\n"
     "   {\n"
+    "       vectorOut.lposition = viewProjection * model * vec4(vertex, 1.0);\n"            
     "       gl_Position = viewProjection * model * vec4(vertex, 1.0);\n"
     "   }\n";
 
@@ -108,17 +109,21 @@ void ALightObject::renderLightObject(glm::mat4 viewProjection)
     alightModel.setPosition(alight.getPosition());
 
     glUseProgram(ALightObject::directionObjectsProgramme);
-    glUniformMatrix4fv(ALightObject::directionVPMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjection));
-    glm::vec3 lightDirection = alight.getDirection();
-    glUniform4f(ALightObject::directionLightColorUniform, 0.2f, 0.2f, 0.2f, 1.0f);
-    glUniform3f(ALightObject::directionDirectionUniform, lightDirection.x, lightDirection.y, lightDirection.z);
-    alightModel.renderModels(ALightObject::directionModelMatrixUniform, ALightObject::directionObjectsProgramme);
-
+    {
+        glUniformMatrix4fv(ALightObject::directionVPMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjection));
+        glm::vec4 lightColor = alight.getColor();
+        glUniform4f(ALightObject::directionLightColorUniform, 0.8f, 0.8f, 0.8f, 1.0f);
+        glm::vec3 lightDirection = alight.getDirection();
+        glUniform3f(ALightObject::directionDirectionUniform, lightDirection.x, lightDirection.y, lightDirection.z);
+        alightModel.renderModels(ALightObject::directionModelMatrixUniform, ALightObject::directionObjectsProgramme);
+    }
     glUseProgram(ALightObject::lightObjectsProgramme);
-    glUniformMatrix4fv(ALightObject::lightVPMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjection));
-    glm::vec4 lightColor = alight.getColor();
-    glUniform4f(ALightObject::lightLightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-    alightModel.renderModels(ALightObject::lightModelMatrixUniform, ALightObject::lightObjectsProgramme);
+    {
+        glUniformMatrix4fv(ALightObject::lightVPMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjection));
+        glm::vec4 lightColor = alight.getColor();
+        glUniform4f(ALightObject::lightLightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+        alightModel.renderModels(ALightObject::lightModelMatrixUniform, ALightObject::lightObjectsProgramme);
+    }
 }
 
 const ALight& ALightObject::getLight(void) const
@@ -158,19 +163,17 @@ void ALightObject::GenerateALightObjectDefaultProgramme(void)
         ALightObject::directionObjectsGeometryShader = AShader::generateShader(ALightObject::defaultGeometryShader, GL_GEOMETRY_SHADER);
         
         ALightObject::directionObjectsProgramme = AShader::generateProgram(ALightObject::lightObjectsVertexShader, ALightObject::directionObjectsGeometryShader, ALightObject::lightObjectsFragmentShader);
-        ALightObject::lightObjectsProgramme = AShader::generateProgram(ALightObject::lightObjectsVertexShader, ALightObject::lightObjectsFragmentShader);
 	    
         ALightObject::directionModelMatrixUniform = glGetUniformLocation(ALightObject::directionObjectsProgramme, "model");
 	    ALightObject::directionVPMatrixUniform = glGetUniformLocation(ALightObject::directionObjectsProgramme, "viewProjection");
 	    ALightObject::directionLightColorUniform = glGetUniformLocation(ALightObject::directionObjectsProgramme, "lightColor");
 	    ALightObject::directionDirectionUniform = glGetUniformLocation(ALightObject::directionObjectsProgramme, "lightDirection");
+
+        ALightObject::lightObjectsProgramme = AShader::generateProgram(ALightObject::lightObjectsVertexShader, ALightObject::lightObjectsFragmentShader);
         
         ALightObject::lightModelMatrixUniform = glGetUniformLocation(ALightObject::lightObjectsProgramme, "model");
 	    ALightObject::lightVPMatrixUniform = glGetUniformLocation(ALightObject::lightObjectsProgramme, "viewProjection");
 	    ALightObject::lightLightColorUniform = glGetUniformLocation(ALightObject::lightObjectsProgramme, "lightColor");
-
-        printf("%d %d %d %d\r\n", ALightObject::lightObjectsProgramme, ALightObject::lightModelMatrixUniform, ALightObject::lightVPMatrixUniform, ALightObject::lightLightColorUniform);
-        printf("%d %d %d %d %d\r\n", ALightObject::directionObjectsProgramme, ALightObject::directionModelMatrixUniform, ALightObject::directionVPMatrixUniform, ALightObject::directionLightColorUniform, ALightObject::directionDirectionUniform);
     }
 }
 
