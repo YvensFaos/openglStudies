@@ -145,7 +145,12 @@ fragmentShader = [[
         }
         vec4 resultantLight = directionalLightResultant + pointLightResultant + texture(textureUniform0, vectorIn.vuv);
         resultantLight.a = 1.0;
-        frag_colour = resultantLight;
+
+        if(gl_FrontFacing) {
+            frag_colour = resultantLight;
+        } else {
+            frag_colour = vec4(0.05, 0.05, 0.05, 1.0);
+        }
     }
 ]]
 

@@ -42,6 +42,7 @@ int main(void)
 	int height = 600;
 	ARenderer arenderer(width, height, "Terrain Generator Scene");	
 	arenderer.changeClearColor(glm::vec4(0.02f, 0.02f, 0.02f, 0.0f));
+	arenderer.setCullFaces(false);
 
 	LuaHandler luaHandler;
 	luaHandler.openFile("config.lua");

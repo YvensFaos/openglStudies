@@ -130,6 +130,15 @@ void ARenderer::initialize(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
+void ARenderer::setCullFaces(bool activate) 
+{
+	if(activate) {
+		glEnable(GL_CULL_FACE);
+	} else {
+		glDisable(GL_CULL_FACE);
+	}
+}
+
 void ARenderer::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     shiftModPower = 1.0f;

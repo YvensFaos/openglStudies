@@ -45,6 +45,7 @@ class ARenderer
         float getDeltaTime(void) const;
         double getAccumulator(void) const;
         bool isRunning(void) const;
+        void setCullFaces(bool activate);
     private:
         static void staticKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
         static void staticMouseCallback(GLFWwindow* window, double xpos, double ypos);
