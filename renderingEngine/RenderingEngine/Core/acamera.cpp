@@ -80,6 +80,22 @@ void ACamera::RotateWithMouse(float horizontalAngle, float verticalAngle)
     this->cameraUp = glm::cross(this->cameraRight, this->cameraDirection);
 }
 
+void ACamera::CalculateRotationFromDirection(const glm::vec3 direction) 
+{
+    float verticalAngle = glm::degrees(asin(direction.y));
+    int sign = (direction.x < 0.0 || direction.z < 0.0) ? -1 : 1;
+    float horizontalAngle = sign * glm::degrees(acos((direction.x) / cos(glm::radians(verticalAngle))));
+
+    this->horizontalAngle = horizontalAngle;
+    this->verticalAngle = verticalAngle;
+}
+
+void ACamera::setMouseAngle(const glm::vec2 value)
+{
+    this->horizontalAngle = value.x;
+    this->verticalAngle = value.y;
+}
+
 void ACamera::Zoom(float zoom)
 {
     this->zoom += zoom;
@@ -129,4 +145,8 @@ void ACamera::setRight(const glm::vec3 value)
     this->cameraRight.x = value.x;
     this->cameraRight.y = value.y;
     this->cameraRight.z = value.z;
+}
+
+const glm::vec2 ACamera::getAngles(void) const {
+    return glm::vec2(this->horizontalAngle, this->verticalAngle);
 }

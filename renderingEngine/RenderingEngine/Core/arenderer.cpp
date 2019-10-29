@@ -190,8 +190,9 @@ void ARenderer::keyCallback(GLFWwindow* window, int key, int scancode, int actio
 		printf("pos   = {%3.3f, %3.3f, %3.3f},\n", acamera->getPos().x, acamera->getPos().y, acamera->getPos().z);
 		printf("dir   = {%3.3f, %3.3f, %3.3f},\n", acamera->getDir().x, acamera->getDir().y, acamera->getDir().z);
 		printf("up    = {%3.3f, %3.3f, %3.3f},\n", acamera->getUp().x, acamera->getUp().y, acamera->getUp().z);
-		printf("right = {%3.3f, %3.3f, %3.3f}\n", acamera->getRight().x, acamera->getRight().y, acamera->getRight().z);
-		printf("---------------\n");
+		printf("right = {%3.3f, %3.3f, %3.3f},\n", acamera->getRight().x, acamera->getRight().y, acamera->getRight().z);
+		printf("angle = {%3.3f, %3.3f}\n", acamera->getAngles().x, acamera->getAngles().y);
+		printf("---------------\n\n");
 	}
 }
 

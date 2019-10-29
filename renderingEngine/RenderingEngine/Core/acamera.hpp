@@ -26,6 +26,7 @@ class ACamera {
         void MoveSideway(float step);
         void MoveUp(float step);
         void RotateWithMouse(float horizontalAngle, float verticalAngle);
+        void CalculateRotationFromDirection(const glm::vec3 direction);
         void Zoom(float zoom);
 
         glm::mat4 getView(void) const;
@@ -36,9 +37,11 @@ class ACamera {
         float getZoom(void) const;
         float getNear(void) const;
         float getFar(void) const;
+        const glm::vec2 getAngles(void) const;
 
         void setPos  (const glm::vec3 value);
         void setDir  (const glm::vec3 value);
         void setUp   (const glm::vec3 value);
         void setRight(const glm::vec3 value);
+        void setMouseAngle(const glm::vec2 value);
 };

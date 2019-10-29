@@ -194,10 +194,11 @@ ALight& ALuaHelper::updateLight(LuaHandler& luaHandler, ALight& alight, std::str
 void ALuaHelper::setupCameraPosition(std::string cameraTable, ACamera* acamera , LuaHandler* luaHandler)
 {
     luaHandler->loadTable(cameraTable.c_str());
-    glm::vec3 positionValue(0,0,0);
-    glm::vec3 directionValue(0,0,1);
-	glm::vec3 upValue(0,1,0);
-	glm::vec3 rightValue(1,0,0);
+    glm::vec3 positionValue(0.0f, 0.0f, 0.0f);
+    glm::vec3 directionValue(0.0f, 0.0f, 1.0f);
+	glm::vec3 upValue(0.0f, 1.0f, 0.0f);
+	glm::vec3 rightValue(1.0f, 0.0f, 0.0f);
+    glm::vec2 mouseAngle(0.0f, 0.0f);
     
     luaHandler->getTableFromTable("pos");
 	positionValue.x = luaHandler->getNumberFromTable(1);
@@ -227,6 +228,15 @@ void ALuaHelper::setupCameraPosition(std::string cameraTable, ACamera* acamera ,
         directionValue.y = luaHandler->getNumberFromTable(2);
         directionValue.z = luaHandler->getNumberFromTable(3);
         luaHandler->popTable();
+    }
+    if(luaHandler->getTableFromTable("angle"))
+    {
+        mouseAngle.x = luaHandler->getNumberFromTable(1);
+        mouseAngle.y = luaHandler->getNumberFromTable(2);
+        luaHandler->popTable();
+        acamera->setMouseAngle(mouseAngle);
+    } else {
+        acamera->CalculateRotationFromDirection(directionValue);
     }
 	luaHandler->popTable();
 
