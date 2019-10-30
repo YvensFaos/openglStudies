@@ -9,6 +9,7 @@ class AModel;
 class ALight;
 class AAmbientLight;
 class ACamera;
+class AFog;
 
 class ALuaHelper {
     public:
@@ -35,6 +36,9 @@ class ALuaHelper {
 
         ///Load a AAmbientLight from a table, popping it out of the stack after it finises reading it.
         static AAmbientLight* loadAmbientLightFromTable(std::string identifier, LuaHandler* luaHandler);
+
+        ///Load a AFog from a table, popping it out of the stack after it finishes reading it.
+        static AFog loadFogFromTable(std::string identifier, LuaHandler& luaHandler);
 
         ///Load a glm::vec4 from 4 consecutive values in a table by the identifier name.
         static glm::vec4 readVec4FromTable(std::string identifier, LuaHandler* luaHandler);

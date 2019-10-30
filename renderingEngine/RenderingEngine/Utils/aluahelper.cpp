@@ -3,6 +3,7 @@
 #include "../Core/amodel.hpp"
 #include "../Core/alight.hpp"
 #include "../Core/acamera.hpp"
+#include "../Objects/afog.hpp"
 #include "luahandler.hpp"
 
 std::vector<AModel*> ALuaHelper::loadModelsFromTable(std::string identifier, LuaHandler* luaHandler) 
@@ -265,6 +266,25 @@ AAmbientLight* ALuaHelper::loadAmbientLightFromTable(std::string identifier, Lua
     AAmbientLight* aambientlight = new AAmbientLight(lightColorValue, lightIntensityValue);
     
     return aambientlight;
+}
+
+AFog ALuaHelper::loadFogFromTable(std::string identifier, LuaHandler& luaHandler) 
+{
+    luaHandler.loadTable(identifier);
+    float maxDist = luaHandler.getNumberFromTable("maxDist");
+    float minDist = luaHandler.getNumberFromTable("minDist");
+
+    glm::vec4 color;
+    luaHandler.getTableFromTable("color");
+    color.x = luaHandler.getNumberFromTable(1);
+	color.y = luaHandler.getNumberFromTable(2);
+	color.z = luaHandler.getNumberFromTable(3);
+	color.w = luaHandler.getNumberFromTable(4);
+	luaHandler.popTable();
+
+    luaHandler.popTable();
+    
+    return AFog(maxDist, minDist, color);
 }
 
 glm::vec4 ALuaHelper::readVec4FromTable(std::string identifier, LuaHandler* luaHandler)
