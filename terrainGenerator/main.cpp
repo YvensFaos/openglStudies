@@ -117,7 +117,6 @@ int main(void)
 		glUniform1i(textureUniform3, 3);
 
 		alightObject.setupUniforms();
-		
 		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
 
 		arenderer.finishFrame();

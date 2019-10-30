@@ -71,3 +71,11 @@ models[1] = {file = "../3DModels/monkey.fbx", pos = { 0.0,  0.0, 3.0}, sca = {1.
 
 lightIntensity = 100
 light = {pos = { 0.0, 4.0, 0.0}, dir = {0.0, 0.0, -1.0}, up = {0.0, 1.0, 0.0}, col = {227 / 255, 118 / 255, 252 / 255, 1.0}, intensity = lightIntensity, specularPower = 256.0, directional = true}
+
+cameraPosition = {
+    pos   = {0.000, 0.000, 10.000},
+    dir   = {-0.000, 0.000, -1.000},
+    up    = {0.000, 1.000, 0.000},
+    right = {1.000, 0.000, -0.000},
+    angle = {-90.000, 0.000}
+}
