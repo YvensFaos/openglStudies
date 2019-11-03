@@ -164,7 +164,7 @@ int main(void)
 	glfwWindowHint(GLFW_SAMPLES, 4);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	int width = 800;
@@ -193,7 +193,7 @@ int main(void)
 	glFrontFace(GL_CCW);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glClearColor(0.02f, 0.04f, 0.25f, 0.0f);
+	glClearColor(0.03f, 0.03f, 0.03f, 0.0f);
 
 	lua_State *lua = luaL_newstate();
 	luaL_openlibs(lua);
@@ -302,9 +302,12 @@ int main(void)
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTextureID);
 		glUniform1i(modelSkyboxUniform, 0);
-		std::for_each(model.getMeshes()->begin(), model.getMeshes()->end(), [shaderProgramme](AMesh &mesh){ 
-			mesh.Draw(shaderProgramme);
-		});
+
+		for (unsigned int i = 0; i < model.getMeshes()->size(); i++)
+		{
+			model.getMeshes()->at(i).Draw(shaderProgramme);
+		}
+		
 		glBindVertexArray(0);
 
 		glDepthFunc(GL_LEQUAL); 
