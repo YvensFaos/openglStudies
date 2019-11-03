@@ -51,7 +51,7 @@ ARenderQuad::ARenderQuad(std::string vertexShaderText, std::string fragmentShade
 
 ARenderQuad::~ARenderQuad(void)
 {
-
+    glDeleteProgram(programme);
 }
 
 void ARenderQuad::render(GLuint texture, bool setupProgramme) const 
