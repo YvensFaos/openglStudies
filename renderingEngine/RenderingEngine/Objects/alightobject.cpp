@@ -138,12 +138,14 @@ void ALightObject::setupUniforms(void)
     glm::vec3 lightUp = alight.getUp();
     glm::vec4 lightColor = alight.getColor();
     float lightIntensity = alight.getIntensity();
+    float lightSpecular = alight.getSpecularPower();
     bool isDirectional = alight.getDirectional();
 
     glUniform3f(alightUniforms.lightPositionUniform, lightPosition.x, lightPosition.y, lightPosition.z);
     glUniform3f(alightUniforms.lightDirectionUniform, lightDirection.x, lightDirection.y, lightDirection.z);
     glUniform4f(alightUniforms.lightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
     glUniform1f(alightUniforms.lightIntensityUniform, lightIntensity);
+    glUniform1f(alightUniforms.lightSpecularUniform, lightSpecular);
     glUniform1i(alightUniforms.lightDirectionalUniform, isDirectional);
 }
 
@@ -184,7 +186,8 @@ std::vector<ALightObject> ALightObject::GenerateALightObjectsFromLights(GLuint p
     GLuint pointLightCount = 0;
 
     bool isDirectional;
-    for(unsigned int i = 0; i < lights.size(); i++) 
+    unsigned int i = 0;
+    for(i = 0; i < lights.size(); i++) 
     {
         if(lights[i].getDirectional()) 
         {

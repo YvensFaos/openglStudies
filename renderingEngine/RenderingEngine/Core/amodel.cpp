@@ -13,6 +13,7 @@ AModel::AModel(std::string path) : modelMatrix(glm::mat4(1.0))
 }
 
 AModel::AModel(const AModel& copyFrom) {
+    printf("AModel is being copied.\n");
     this->modelMatrix = copyFrom.getModelMatrix();
     this->meshes = copyFrom.getMeshes();
     this->directory = copyFrom.getDirectory();

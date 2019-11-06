@@ -57,11 +57,12 @@ struct ALightUniform {
         GLuint   lightDirectionUniform;
         GLuint       lightColorUniform;
         GLuint   lightIntensityUniform;
+        GLuint    lightSpecularUniform;
         GLuint lightDirectionalUniform;
 
     public:
-        ALightUniform(GLuint lightPositionUniform, GLuint lightDirectionUniform, GLuint lightColorUniform, GLuint lightIntensityUniform, GLuint lightDirectionalUniform) :
-        lightPositionUniform(lightPositionUniform),  lightDirectionUniform(lightDirectionUniform), lightColorUniform(lightColorUniform), lightIntensityUniform(lightIntensityUniform), lightDirectionalUniform(lightDirectionalUniform) 
+        ALightUniform(GLuint lightPositionUniform, GLuint lightDirectionUniform, GLuint lightColorUniform, GLuint lightIntensityUniform, GLuint lightDirectionalUniform, GLuint lightSpecularUniform) :
+        lightPositionUniform(lightPositionUniform),  lightDirectionUniform(lightDirectionUniform), lightColorUniform(lightColorUniform), lightIntensityUniform(lightIntensityUniform), lightDirectionalUniform(lightDirectionalUniform), lightSpecularUniform(lightSpecularUniform)
         { }
         
         ALightUniform(const ALightUniform& copyFrom) {
@@ -70,6 +71,7 @@ struct ALightUniform {
             this->lightColorUniform = copyFrom.lightColorUniform;
             this->lightIntensityUniform = copyFrom.lightIntensityUniform;
             this->lightDirectionalUniform = copyFrom.lightDirectionalUniform;
+            this->lightSpecularUniform = copyFrom.lightSpecularUniform;
         }
         ~ALightUniform(void) {}
 
@@ -80,6 +82,7 @@ struct ALightUniform {
                 this->lightColorUniform = copyFrom.lightColorUniform;
                 this->lightIntensityUniform = copyFrom.lightIntensityUniform;
                 this->lightDirectionalUniform = copyFrom.lightDirectionalUniform;
+                this->lightSpecularUniform = copyFrom.lightSpecularUniform;
             }
             return *this;
         }

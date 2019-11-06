@@ -40,6 +40,7 @@ ALightUniform ALightUniform::loadALightUniformFromProgramme(GLuint shaderProgram
 	GLuint       lightColorUniform = -1;
 	GLuint   lightIntensityUniform = -1;
 	GLuint lightDirectionalUniform = -1;
+    GLuint    lightSpecularUniform = -1;
 
 	char uniformName[64];
 	bool isDirectional = alight.getDirectional();
@@ -51,8 +52,9 @@ ALightUniform ALightUniform::loadALightUniformFromProgramme(GLuint shaderProgram
     READ_UNIFORM(buffer, uniformName, lightColorUniform, shaderProgramme, "color");
     READ_UNIFORM(buffer, uniformName, lightIntensityUniform, shaderProgramme, "intensity");
     READ_UNIFORM(buffer, uniformName, lightDirectionalUniform, shaderProgramme, "directional");
+    READ_UNIFORM(buffer, uniformName, lightSpecularUniform, shaderProgramme, "specularPower");
 
-    return ALightUniform(lightPositionUniform, lightDirectionUniform, lightColorUniform, lightIntensityUniform, lightDirectionalUniform);
+    return ALightUniform(lightPositionUniform, lightDirectionUniform, lightColorUniform, lightIntensityUniform, lightDirectionalUniform, lightSpecularUniform);
 }
 
 //##### A LIGHT
