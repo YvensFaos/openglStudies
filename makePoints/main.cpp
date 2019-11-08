@@ -70,7 +70,7 @@ int main(void)
 	GLuint   lightIntensityUniform = glGetUniformLocation(shaderProgramme, "sceneLight.intensity");
 	GLuint lightDirectionalUniform = glGetUniformLocation(shaderProgramme, "sceneLight.directional");
 
-	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
+	std::vector<AModel> models = ALuaHelper::loadModelsFromTable("models", luaHandler);
 	ALight alight = ALuaHelper::loadLightFromTable("light", luaHandler);
 
 	ACamera& acamera = arenderer.getCamera();
@@ -113,7 +113,7 @@ int main(void)
 		glUniform1f(lightIntensityUniform, lightIntensity);
 		glUniform1i(lightDirectionalUniform, lightDirectional);
 		glUniform1i(densityUniform, density);
-		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
+		AModel::renderModelsInList(models, modelMatrixUniform, shaderProgramme);
 
 		askybox.render(skyViewProjectionMatrix);
 

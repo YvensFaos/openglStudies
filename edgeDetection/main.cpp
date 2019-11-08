@@ -61,7 +61,7 @@ int main(void)
 
 	ARenderQuad edgeQuad(luaHandler.getGlobalString("edgeFragmentShader"));
 
-	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
+	std::vector<AModel> models = ALuaHelper::loadModelsFromTable("models", luaHandler);
 	ALight alight = ALuaHelper::loadLightFromTable("light", luaHandler);
 
 	ACamera& acamera = arenderer.getCamera();
@@ -81,9 +81,6 @@ int main(void)
 	AFramebuffer edgeBuffer(width * 2, height * 2);
 	
 	glActiveTexture(GL_TEXTURE0);
-	std::vector<AModel*>::iterator amodelIterator;
-	const std::vector<AMesh>* pointer;
-
 	glDepthFunc(GL_LESS);
 	do
 	{
@@ -103,7 +100,7 @@ int main(void)
 		glUniform4f(lightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		glUniform1f(lightIntensityUniform, lightIntensity);
 		glUniform1i(lightDirectionalUniform, lightDirectional);
-		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
+		AModel::renderModelsInList(models, modelMatrixUniform, shaderProgramme);
 
 		edgeBuffer.unbindBuffer();
 		glDisable(GL_DEPTH_TEST);
@@ -114,10 +111,10 @@ int main(void)
 
 		arenderer.finishFrame();
 
-		for(amodelIterator = models.begin() ; amodelIterator != models.end() ; ++amodelIterator)
-	{
-			(*amodelIterator)->rotate(glm::vec3(0.0f, 1.0f, 0.0f));
-	}
+		for(auto amodelIterator = models.begin() ; amodelIterator != models.end() ; ++amodelIterator)
+		{
+			(*amodelIterator).rotate(glm::vec3(0.0f, 1.0f, 0.0f));
+		}
 	}
 	while(arenderer.isRunning());
 

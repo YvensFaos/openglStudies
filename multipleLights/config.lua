@@ -132,7 +132,7 @@ cameraPosition = {
     right = {0.910, -0.000, 0.414 }}
 
 models = {}
-models[1] = {file = "../3DModels/monkey.obj", pos = { 0.0,  0.0, 3.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0, 0.0, 0.0}}
+models[1] = {file = "../3DModels/nonormalmonkey.obj", pos = { 0.0,  0.0, 3.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0, 0.0, 0.0}}
 
 posInitial = 5.0
 lightObject = {file = "../3DModels/tsphere.fbx", pos = {0.0,  0.0, posInitial}, sca = {0.1, 0.1, 0.1}, rot = {0.0,  0.0, 0.0}}

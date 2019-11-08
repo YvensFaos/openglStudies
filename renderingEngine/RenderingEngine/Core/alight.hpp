@@ -63,7 +63,7 @@ struct ALightUniform {
         GLuint lightDirectionalUniform;
 
     public:
-        ALightUniform(GLuint lightPositionUniform, GLuint lightDirectionUniform, GLuint lightColorUniform, GLuint lightIntensityUniform, GLuint lightDirectionalUniform, GLuint lightSpecularUniform) :
+        ALightUniform(GLuint lightPositionUniform, GLuint lightDirectionUniform, GLuint lightColorUniform, GLuint lightIntensityUniform, GLuint lightDirectionalUniform, GLuint lightSpecularUniform = -1) :
         lightPositionUniform(lightPositionUniform),  lightDirectionUniform(lightDirectionUniform), lightColorUniform(lightColorUniform), lightIntensityUniform(lightIntensityUniform), lightDirectionalUniform(lightDirectionalUniform), lightSpecularUniform(lightSpecularUniform)
         { }
         

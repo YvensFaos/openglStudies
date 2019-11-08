@@ -47,8 +47,8 @@ int main(void)
 	LuaHandler luaHandler;
 	luaHandler.openFile("config.lua");
 	
-  	GLuint vs =  AShader::generateShader(luaHandler.getGlobalString("vertexShader"), GL_VERTEX_SHADER);
-	GLuint fs =  AShader::generateShader(luaHandler.getGlobalString("multiLightFragmentShader"), GL_FRAGMENT_SHADER);
+  	GLuint vs = AShader::generateShader(luaHandler.getGlobalString("vertexShader"), GL_VERTEX_SHADER);
+	GLuint fs = AShader::generateShader(luaHandler.getGlobalString("multiLightFragmentShader"), GL_FRAGMENT_SHADER);
 
   	GLuint shaderProgramme = AShader::generateProgram(vs, fs);
 
@@ -81,10 +81,10 @@ int main(void)
 		pointLightsPositionUniforms[i] = glGetUniformLocation(shaderProgramme, buffer);
 	}
 
-	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
+	std::vector<AModel> models = ALuaHelper::loadModelsFromTable("models", luaHandler);
 
 	ACamera& acamera = arenderer.getCamera();
-	ALuaHelper::setupCameraPosition("cameraPosition", &acamera, &luaHandler);
+	ALuaHelper::setupCameraPosition("cameraPosition", acamera, luaHandler);
 	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
@@ -144,7 +144,7 @@ int main(void)
 				glUniform3f(pointLightsPositionUniforms[i], pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z);
 			}
 
-			AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
+			AModel::renderModelsInList(models, modelMatrixUniform, shaderProgramme);
 		highresFramebuffer.unbindBuffer();
 
 		glActiveTexture(GL_TEXTURE0);
@@ -169,6 +169,6 @@ int main(void)
 	while(arenderer.isRunning());
 
 	glfwTerminate();
-	delete texData;
+	delete[] texData;
 	return 0;
 }

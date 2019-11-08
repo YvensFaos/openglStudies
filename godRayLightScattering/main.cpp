@@ -93,8 +93,8 @@ int main(void)
 	GLuint lightVpMatrixUniform = glGetUniformLocation(lightboxProgramme, "viewProjection");
 	GLuint lightColorBoxUniform = glGetUniformLocation(lightboxProgramme, "lightColor");
 
-	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
-	AModel* lightObject = ALuaHelper::loadModelFromTable("lightObject", &luaHandler);
+	std::vector<AModel> models = ALuaHelper::loadModelsFromTable("models", luaHandler);
+	AModel lightObject = ALuaHelper::loadModelFromTable("lightObject", luaHandler);
 	ALight alight = ALuaHelper::loadLightFromTable("light", luaHandler);
 
 	ACamera& acamera = arenderer.getCamera();
@@ -105,7 +105,7 @@ int main(void)
 	glm::mat4 viewProjectionMatrix = projection * view;
 	glm::mat4 skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
 
-	glm::vec4 lPos = lightObject->getPosition();
+	glm::vec4 lPos = lightObject.getPosition();
 	glm::vec3 lInitialPosition(lPos);
 
 	glm::vec4 inScene = viewProjectionMatrix * lPos;
@@ -159,9 +159,9 @@ int main(void)
 			glUseProgram(lightboxProgramme);
 			glUniformMatrix4fv(lightVpMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
 			glUniform4f(lightColorBoxUniform, 0.0, 0.0, 0.0, 1.0);
-			AModel::renderModelsInList(&models, lightModelMatrixUniform, lightboxProgramme);
+			AModel::renderModelsInList(models, lightModelMatrixUniform, lightboxProgramme);
 			glUniform4f(lightColorBoxUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-			lightObject->renderModels(lightModelMatrixUniform, lightboxProgramme);
+			lightObject.renderModels(lightModelMatrixUniform, lightboxProgramme);
 			glBindVertexArray(0);
 		aframebuffer.unbindBuffer();
 
@@ -194,12 +194,12 @@ int main(void)
 			glUniform1f(lightIntensityUniform, lightIntensity);
 			glUniform1i(lightDirectionalUniform, lightDirectional);
 
-			AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
+			AModel::renderModelsInList(models, modelMatrixUniform, shaderProgramme);
 
 			glUseProgram(lightboxProgramme);
 			glUniformMatrix4fv(lightVpMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
 			glUniform4f(lightColorBoxUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-			lightObject->renderModels(lightModelMatrixUniform, lightboxProgramme);
+			lightObject.renderModels(lightModelMatrixUniform, lightboxProgramme);
 
 			askybox.render(skyViewProjectionMatrix);
 		anotherFramebuffer.unbindBuffer();
@@ -212,8 +212,8 @@ int main(void)
 
 		arenderer.finishFrame();
 
-		lightObject->setPosition(getCurrentPosition(&luaHandler, arenderer.getAccumulator(), lInitialPosition));
-		lPos = lightObject->getPosition();
+		lightObject.setPosition(getCurrentPosition(&luaHandler, arenderer.getAccumulator(), lInitialPosition));
+		lPos = lightObject.getPosition();
 		inScene = viewProjectionMatrix * lPos;
 		inScene.x = (inScene.x / inScene.w);
 		inScene.y = (inScene.y / inScene.w);

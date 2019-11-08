@@ -127,11 +127,11 @@ int main(void)
 		}
 	}
 
-	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
-	AModel* lightObject = ALuaHelper::loadModelFromTable("lightObject", &luaHandler);
+	std::vector<AModel> models = ALuaHelper::loadModelsFromTable("models", luaHandler);
+	AModel lightObject = ALuaHelper::loadModelFromTable("lightObject", luaHandler);
 
 	ACamera& acamera = arenderer.getCamera();
-	ALuaHelper::setupCameraPosition("cameraPosition", &acamera, &luaHandler);
+	ALuaHelper::setupCameraPosition("cameraPosition", acamera, luaHandler);
 	glm::vec3 cameraPosition = acamera.getPos();
 	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
@@ -199,12 +199,12 @@ int main(void)
 			glUniform1i(alightUniformPointer->lightDirectionalUniform, isDirectional);
 		}
 		
-		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
+		AModel::renderModelsInList(models, modelMatrixUniform, shaderProgramme);
 
 		if(DEBUG) 
 		{
 			normalDebugger.setupForRendering(viewProjectionMatrix);
-			AModel::renderModelsInList(&models, anormalDebuggerModelUniform, anormalDebuggerProgramme);
+			AModel::renderModelsInList(models, anormalDebuggerModelUniform, anormalDebuggerProgramme);
 		}
 
 		if(pointLightPointer) {
@@ -213,10 +213,10 @@ int main(void)
 			glUniformMatrix4fv(lightPMatrixUniform, 1, GL_FALSE, glm::value_ptr(projection));
 			lightColor = pointLightPointer->getColor();
 			glUniform4f(lightLightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-			lightObject->renderModels(lightModelMatrixUniform, lightProgramme);
+			lightObject.renderModels(lightModelMatrixUniform, lightProgramme);
 
 			ALuaHelper::updateLight(luaHandler, *pointLightPointer, "updateLight", arenderer.getDeltaTime());
-			lightObject->setPosition(pointLightPointer->getPosition());
+			lightObject.setPosition(pointLightPointer->getPosition());
 		}
 
 		askybox.render(skyViewProjectionMatrix);

@@ -97,8 +97,8 @@ int main(int argc, char* argv[])
 	GLfloat shadowHeight = 1024;
 	ADepthbuffer adepthBuffer(shadowWidth, shadowHeight);
 
-	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
-	AModel* plane = ALuaHelper::loadModelFromTable("plane", &luaHandler);
+	std::vector<AModel> models = ALuaHelper::loadModelsFromTable("models", luaHandler);
+	AModel plane = ALuaHelper::loadModelFromTable("plane", luaHandler);
 	ALight alight = ALuaHelper::loadLightFromTable("light", luaHandler);
 
 	ACamera& acamera = arenderer.getCamera();
@@ -153,11 +153,11 @@ int main(int argc, char* argv[])
 
 		glUseProgram(shadowProgramme);
 		glUniformMatrix4fv (shadowLightMatrixUniform, 1, GL_FALSE, glm::value_ptr(lightMatrix));
-		AModel::renderModelsInList(&models, shadowModelMatrixUniform, shadowProgramme);
+		AModel::renderModelsInList(models, shadowModelMatrixUniform, shadowProgramme);
 		glBindVertexArray(0);
 
-		glUniformMatrix4fv (shadowModelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane->getModelMatrix()));
-		plane->draw(shadowProgramme);
+		glUniformMatrix4fv (shadowModelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane.getModelMatrix()));
+		plane.draw(shadowProgramme);
 		glBindVertexArray(0);
 #pragma endregion
 
@@ -190,11 +190,11 @@ int main(int argc, char* argv[])
 
 		glBindTexture(GL_TEXTURE_2D, adepthBuffer.getFramebufferTexture());
 		glUniform1i(shadowMapUniform, 0);
-		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
+		AModel::renderModelsInList(models, modelMatrixUniform, shaderProgramme);
 
 		glBindVertexArray(0);
-		glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane->getModelMatrix()));
-		plane->draw(shadowProgramme);
+		glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane.getModelMatrix()));
+		plane.draw(shadowProgramme);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 #pragma endregion
@@ -217,11 +217,11 @@ int main(int argc, char* argv[])
 
 		glBindTexture(GL_TEXTURE_2D, adepthBuffer.getFramebufferTexture());
 		glUniform1i(shadowMapUniform, 0);
-		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
+		AModel::renderModelsInList(models, modelMatrixUniform, shaderProgramme);
 
 		glBindVertexArray(0);
-		glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane->getModelMatrix()));
-		plane->draw(shaderProgramme);
+		glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(plane.getModelMatrix()));
+		plane.draw(shaderProgramme);
 		glBindVertexArray(0);
 		glBindTexture(GL_TEXTURE_2D, 0);
 

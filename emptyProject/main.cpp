@@ -68,26 +68,18 @@ int main(void)
 	GLuint   lightIntensityUniform = glGetUniformLocation(shaderProgramme, "sceneLight.intensity");
 	GLuint lightDirectionalUniform = glGetUniformLocation(shaderProgramme, "sceneLight.directional");
 
-	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
+	std::vector<AModel> models = ALuaHelper::loadModelsFromTable("models", luaHandler);
 	ALight alight = ALuaHelper::loadLightFromTable("light", luaHandler);
 
 	ACamera& acamera = arenderer.getCamera();
-	ALuaHelper::setupCameraPosition("cameraPosition", &acamera, &luaHandler);
+	ALuaHelper::setupCameraPosition("cameraPosition", acamera, luaHandler);
 	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
 	glm::mat4 view = acamera.getView();
 	glm::mat4 viewProjectionMatrix = projection * view;
 	glm::mat4 skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
-	glm::mat4 skyView = glm::mat4(1.0);
 
-	glm::vec3 lightPosition = alight.getPosition();
-	glm::vec3 lightDirection = alight.getDirection();
-	glm::vec3 lightUp = alight.getUp();
-	glm::vec4 lightColor = alight.getColor();
-	float lightIntensity = alight.getIntensity();
-	bool lightDirectional = alight.getDirectional();
-	
 	glActiveTexture(GL_TEXTURE0);
 	do
 	{
@@ -105,12 +97,8 @@ int main(void)
 		glUseProgram(shaderProgramme);
 
 		glUniformMatrix4fv(vpMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
-		glUniform3f(lightPositionUniform, lightPosition.x, lightPosition.y, lightPosition.z);
-		glUniform3f(lightDirectionUniform, lightDirection.x, lightDirection.y, lightDirection.z);
-		glUniform4f(lightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-		glUniform1f(lightIntensityUniform, lightIntensity);
-		glUniform1i(lightDirectionalUniform, lightDirectional);
-		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
+		alight.setupUniforms(lightPositionUniform, lightDirectionUniform, lightColorUniform, lightIntensityUniform, lightDirectionalUniform);
+		AModel::renderModelsInList(models, modelMatrixUniform, shaderProgramme);
 
 		askybox.render(skyViewProjectionMatrix);
 

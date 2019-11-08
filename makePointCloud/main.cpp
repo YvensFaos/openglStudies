@@ -63,14 +63,14 @@ int main(void)
 	GLuint vpSimpleMatrixUniform = glGetUniformLocation(simpleShaderProgramme, "viewProjection");
 	GLuint colorSimpleUniform = glGetUniformLocation(simpleShaderProgramme, "color");
 
-	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
+	std::vector<AModel> models = ALuaHelper::loadModelsFromTable("models", luaHandler);
 	float raysPerUnit = luaHandler.getGlobalNumber("raysPerUnit");
 	float pointsPerUnit = luaHandler.getGlobalNumber("pointsPerUnit");
-	APointCloud apointcloud(models[0]->getMeshAt(0), raysPerUnit, pointsPerUnit);
+	APointCloud apointcloud(models[0].getMeshAt(0), raysPerUnit, pointsPerUnit);
 	const AMesh& apointCloudMesh = apointcloud.getMesh();
 
 	ACamera& acamera = arenderer.getCamera();
-	ALuaHelper::setupCameraPosition("cameraPosition", &acamera, &luaHandler);
+	ALuaHelper::setupCameraPosition("cameraPosition", acamera, luaHandler);
 	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 

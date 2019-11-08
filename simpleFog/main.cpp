@@ -66,11 +66,11 @@ int main(void)
 	GLuint sceneFogMinDistUniform = glGetUniformLocation(shaderProgramme, "sceneFog.minDist");
 	GLuint   sceneFogColorUniform = glGetUniformLocation(shaderProgramme, "sceneFog.color");
 
-	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
+	std::vector<AModel> models = ALuaHelper::loadModelsFromTable("models", luaHandler);
 	ALight alight = ALuaHelper::loadLightFromTable("light", luaHandler);
 
 	ACamera& acamera = arenderer.getCamera();
-	ALuaHelper::setupCameraPosition("cameraPosition", &acamera, &luaHandler);
+	ALuaHelper::setupCameraPosition("cameraPosition", acamera, luaHandler);
 	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
@@ -115,7 +115,7 @@ int main(void)
 		glUniform1f(sceneFogMinDistUniform, afog.minDist);
 		glUniform4f(sceneFogColorUniform, fogColor.x, fogColor.y, fogColor.z, fogColor.w);
 
-		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
+		AModel::renderModelsInList(models, modelMatrixUniform, shaderProgramme);
 
 		arenderer.finishFrame();
 	}

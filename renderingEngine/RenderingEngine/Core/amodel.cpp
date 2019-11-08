@@ -287,13 +287,12 @@ ABoundingBox AModel::getBoundingBox(void) const {
     return ABoundingBox(min, max);
 }
 
-void AModel::renderModelsInList(std::vector<AModel*>* list, GLuint modelMatrixUniform, GLuint programme, GLenum mode)
+void AModel::renderModelsInList(std::vector<AModel>& list, GLuint modelMatrixUniform, GLuint programme, GLenum mode)
 {
-    std::vector<AModel*>::iterator amodelIterator;
-    for(amodelIterator = list->begin(); amodelIterator != list->end(); ++amodelIterator)
+    for(auto amodelIterator = list.begin(); amodelIterator != list.end(); ++amodelIterator)
     {
-        const std::vector<AMesh>& pointer = (*amodelIterator)->getMeshes();
-        auto modelMatrix = (*amodelIterator)->getModelMatrix();
+        const std::vector<AMesh>& pointer = (*amodelIterator).getMeshes();
+        auto modelMatrix = (*amodelIterator).getModelMatrix();
         for(unsigned int i = 0; i < pointer.size(); i++)
         {
             glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));

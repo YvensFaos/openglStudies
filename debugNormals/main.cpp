@@ -77,7 +77,7 @@ int main(void)
 	GLuint ndVPMatrixUniform = glGetUniformLocation(normalDebugProgramme, "viewProjection");
 	GLuint ndNormalColorUniform = glGetUniformLocation(normalDebugProgramme, "normalColor");
 
-	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
+	std::vector<AModel> models = ALuaHelper::loadModelsFromTable("models", luaHandler);
 	ALight alight = ALuaHelper::loadLightFromTable("light", luaHandler);
 
 	ACamera& acamera = arenderer.getCamera();
@@ -96,7 +96,7 @@ int main(void)
 	float lightIntensity = alight.getIntensity();
 	bool lightDirectional = alight.getDirectional();
 
-	glm::vec4 normalColor = ALuaHelper::readVec4FromTable("normalColor", &luaHandler);
+	glm::vec4 normalColor = ALuaHelper::readVec4FromTable("normalColor", luaHandler);
 	
 	glActiveTexture(GL_TEXTURE0);
 	do
@@ -120,12 +120,12 @@ int main(void)
 		glUniform4f(lightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		glUniform1f(lightIntensityUniform, lightIntensity);
 		glUniform1i(lightDirectionalUniform, lightDirectional);
-		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
+		AModel::renderModelsInList(models, modelMatrixUniform, shaderProgramme);
 
 		glUseProgram(normalDebugProgramme);
 		glUniformMatrix4fv(ndVPMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
 		glUniform4f(ndNormalColorUniform, normalColor.x, normalColor.y, normalColor.z, normalColor.w);
-		AModel::renderModelsInList(&models, ndModelUniform, normalDebugProgramme);
+		AModel::renderModelsInList(models, ndModelUniform, normalDebugProgramme);
 
 		askybox.render(skyViewProjectionMatrix);
 

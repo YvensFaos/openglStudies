@@ -99,12 +99,12 @@ int main(void)
 	GLuint coloredVpMatrixUniform = glGetUniformLocation(lightProgramme, "viewProjection");
 	GLuint coloredLightUniform = glGetUniformLocation(lightProgramme, "lightColor");
 
-	std::vector<AModel*> models = ALuaHelper::loadModelsFromTable("models", &luaHandler);
-	AModel* lightObject = ALuaHelper::loadModelFromTable("lightObject", &luaHandler);
+	std::vector<AModel> models = ALuaHelper::loadModelsFromTable("models", luaHandler);
+	AModel lightObject = ALuaHelper::loadModelFromTable("lightObject", luaHandler);
 	ALight alight = ALuaHelper::loadLightFromTable("light", luaHandler);
 
 	ACamera& acamera = arenderer.getCamera();
-	ALuaHelper::setupCameraPosition("cameraPosition", &acamera, &luaHandler);
+	ALuaHelper::setupCameraPosition("cameraPosition", acamera, luaHandler);
 	glm::vec3 cameraPosition = acamera.getPos();
 	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 
@@ -119,11 +119,11 @@ int main(void)
 	float lightIntensity = 		alight.getIntensity();
 	bool lightDirectional = 	alight.getDirectional();
 
-	lightObject->setPosition(lightPosition);
+	lightObject.setPosition(lightPosition);
 
-	AAmbientLight* aambientLight = ALuaHelper::loadAmbientLightFromTable("ambient", &luaHandler);
-	glm::vec4 ambientLightColor = aambientLight->getColor();
-	float ambientLightIntensity = aambientLight->getIntensity();
+	AAmbientLight aambientLight = ALuaHelper::loadAmbientLightFromTable("ambient", luaHandler);
+	glm::vec4 ambientLightColor = aambientLight.getColor();
+	float ambientLightIntensity = aambientLight.getIntensity();
 
 	ANormalDebugger normalDebugger;
 	GLuint anormalDebuggerModelUniform = normalDebugger.getModelUniformLocation();
@@ -154,18 +154,18 @@ int main(void)
 		glUniform1i(lightDirectionalUniform, lightDirectional);
 		glUniform1f(lightSpecularPowerUniform, alight.getSpecularPower());
 		
-		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
+		AModel::renderModelsInList(models, modelMatrixUniform, shaderProgramme);
 
 		if(DEBUG)
 		{
 			normalDebugger.setupForRendering(viewProjectionMatrix);
-			AModel::renderModelsInList(&models, anormalDebuggerModelUniform, anormalDebuggerProgramme);
+			AModel::renderModelsInList(models, anormalDebuggerModelUniform, anormalDebuggerProgramme);
 		}
 
 		glUseProgram(lightProgramme);
 		glUniformMatrix4fv(coloredVpMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
 		glUniform4f(coloredLightUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-		lightObject->renderModels(coloredModelMatrixUniform, lightProgramme);
+		lightObject.renderModels(coloredModelMatrixUniform, lightProgramme);
 
 		askybox.render(skyViewProjectionMatrix);
 
@@ -173,7 +173,7 @@ int main(void)
 
 		lightPosition = moveLight(luaHandler, alight, arenderer.getDeltaTime());
 		alight.setPosition(lightPosition);
-		lightObject->setPosition(lightPosition);
+		lightObject.setPosition(lightPosition);
 	}
 	while(arenderer.isRunning());
 

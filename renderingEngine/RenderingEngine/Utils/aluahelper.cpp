@@ -6,59 +6,59 @@
 #include "../Objects/afog.hpp"
 #include "luahandler.hpp"
 
-std::vector<AModel*> ALuaHelper::loadModelsFromTable(std::string identifier, LuaHandler* luaHandler) 
+std::vector<AModel> ALuaHelper::loadModelsFromTable(std::string identifier, LuaHandler& luaHandler) 
 {
-    luaHandler->loadTable(identifier);
-    GLuint tableSize = luaHandler->getLength();
-    std::vector<AModel*> models;
+    luaHandler.loadTable(identifier);
+    GLuint tableSize = luaHandler.getLength();
+    std::vector<AModel> models;
 
     for(int i = 1; i <= tableSize; i++)
 	{
-        luaHandler->getTableFromTable(i);
-        models.emplace_back(ALuaHelper::loadModel(luaHandler, true));
+        luaHandler.getTableFromTable(i);
+        models.push_back(ALuaHelper::loadModel(luaHandler, true));
     }
-    luaHandler->popTable();
+    luaHandler.popTable();
 
     return models;
 }
 
-AModel* ALuaHelper::loadModelFromTable(std::string identifier, LuaHandler* luaHandler)
+AModel ALuaHelper::loadModelFromTable(std::string identifier, LuaHandler& luaHandler)
 {
-    luaHandler->loadTable(identifier);
+    luaHandler.loadTable(identifier);
     return ALuaHelper::loadModel(luaHandler, true);
 }
 
-AModel* ALuaHelper::loadModel(LuaHandler* luaHandler, bool popTable) 
+AModel ALuaHelper::loadModel(LuaHandler& luaHandler, bool popTable) 
 {
-    AModel* model = new AModel(luaHandler->getStringFromTable("file"));
+    AModel model(luaHandler.getStringFromTable("file"));
 
-    luaHandler->getTableFromTable("pos");
+    luaHandler.getTableFromTable("pos");
     glm::vec3 translateTo;
-    translateTo.x = luaHandler->getNumberFromTable(1);
-    translateTo.y = luaHandler->getNumberFromTable(2);
-    translateTo.z = luaHandler->getNumberFromTable(3);
-    model->translate(translateTo);
-    luaHandler->popTable();
+    translateTo.x = luaHandler.getNumberFromTable(1);
+    translateTo.y = luaHandler.getNumberFromTable(2);
+    translateTo.z = luaHandler.getNumberFromTable(3);
+    model.translate(translateTo);
+    luaHandler.popTable();
 
-    luaHandler->getTableFromTable("rot");
+    luaHandler.getTableFromTable("rot");
 	glm::vec3 rotateTo;
-    rotateTo.x = luaHandler->getNumberFromTable(1);
-    rotateTo.y = luaHandler->getNumberFromTable(2);
-    rotateTo.z = luaHandler->getNumberFromTable(3);
-    model->rotate(rotateTo);
-    luaHandler->popTable();
+    rotateTo.x = luaHandler.getNumberFromTable(1);
+    rotateTo.y = luaHandler.getNumberFromTable(2);
+    rotateTo.z = luaHandler.getNumberFromTable(3);
+    model.rotate(rotateTo);
+    luaHandler.popTable();
 
-    luaHandler->getTableFromTable("sca");
+    luaHandler.getTableFromTable("sca");
 	glm::vec3 scaleTo;
-    scaleTo.x = luaHandler->getNumberFromTable(1);
-    scaleTo.y = luaHandler->getNumberFromTable(2);
-    scaleTo.z = luaHandler->getNumberFromTable(3);
-    model->scale(scaleTo);
-    luaHandler->popTable();
+    scaleTo.x = luaHandler.getNumberFromTable(1);
+    scaleTo.y = luaHandler.getNumberFromTable(2);
+    scaleTo.z = luaHandler.getNumberFromTable(3);
+    model.scale(scaleTo);
+    luaHandler.popTable();
 
     if(popTable) 
     {
-        luaHandler->popTable();
+        luaHandler.popTable();
     }
 
     return model;
@@ -192,80 +192,78 @@ ALight& ALuaHelper::updateLight(LuaHandler& luaHandler, ALight& alight, std::str
     return alight;
 }
 
-void ALuaHelper::setupCameraPosition(std::string cameraTable, ACamera* acamera , LuaHandler* luaHandler)
+void ALuaHelper::setupCameraPosition(std::string cameraTable, ACamera& acamera , LuaHandler& luaHandler)
 {
-    luaHandler->loadTable(cameraTable.c_str());
+    luaHandler.loadTable(cameraTable.c_str());
     glm::vec3 positionValue(0.0f, 0.0f, 0.0f);
     glm::vec3 directionValue(0.0f, 0.0f, 1.0f);
 	glm::vec3 upValue(0.0f, 1.0f, 0.0f);
 	glm::vec3 rightValue(1.0f, 0.0f, 0.0f);
     glm::vec2 mouseAngle(0.0f, 0.0f);
     
-    luaHandler->getTableFromTable("pos");
-	positionValue.x = luaHandler->getNumberFromTable(1);
-	positionValue.y = luaHandler->getNumberFromTable(2);
-	positionValue.z = luaHandler->getNumberFromTable(3);
-    luaHandler->popTable();
+    luaHandler.getTableFromTable("pos");
+	positionValue.x = luaHandler.getNumberFromTable(1);
+	positionValue.y = luaHandler.getNumberFromTable(2);
+	positionValue.z = luaHandler.getNumberFromTable(3);
+    luaHandler.popTable();
 
-    if(luaHandler->getTableFromTable("up"))
+    if(luaHandler.getTableFromTable("up"))
     {
-        upValue.x = luaHandler->getNumberFromTable(1);
-        upValue.y = luaHandler->getNumberFromTable(2);
-        upValue.z = luaHandler->getNumberFromTable(3);
-        luaHandler->popTable();
+        upValue.x = luaHandler.getNumberFromTable(1);
+        upValue.y = luaHandler.getNumberFromTable(2);
+        upValue.z = luaHandler.getNumberFromTable(3);
+        luaHandler.popTable();
     }
 
-    if(luaHandler->getTableFromTable("right"))
+    if(luaHandler.getTableFromTable("right"))
     {
-        rightValue.x = luaHandler->getNumberFromTable(1);
-        rightValue.y = luaHandler->getNumberFromTable(2);
-        rightValue.z = luaHandler->getNumberFromTable(3);
-        luaHandler->popTable();
+        rightValue.x = luaHandler.getNumberFromTable(1);
+        rightValue.y = luaHandler.getNumberFromTable(2);
+        rightValue.z = luaHandler.getNumberFromTable(3);
+        luaHandler.popTable();
     }
 
-    if(luaHandler->getTableFromTable("dir"))
+    if(luaHandler.getTableFromTable("dir"))
     {
-        directionValue.x = luaHandler->getNumberFromTable(1);
-        directionValue.y = luaHandler->getNumberFromTable(2);
-        directionValue.z = luaHandler->getNumberFromTable(3);
-        luaHandler->popTable();
+        directionValue.x = luaHandler.getNumberFromTable(1);
+        directionValue.y = luaHandler.getNumberFromTable(2);
+        directionValue.z = luaHandler.getNumberFromTable(3);
+        luaHandler.popTable();
     }
-    if(luaHandler->getTableFromTable("angle"))
+    if(luaHandler.getTableFromTable("angle"))
     {
-        mouseAngle.x = luaHandler->getNumberFromTable(1);
-        mouseAngle.y = luaHandler->getNumberFromTable(2);
-        luaHandler->popTable();
-        acamera->setMouseAngle(mouseAngle);
+        mouseAngle.x = luaHandler.getNumberFromTable(1);
+        mouseAngle.y = luaHandler.getNumberFromTable(2);
+        luaHandler.popTable();
+        acamera.setMouseAngle(mouseAngle);
     } else {
-        acamera->CalculateRotationFromDirection(directionValue);
+        acamera.CalculateRotationFromDirection(directionValue);
     }
-	luaHandler->popTable();
+	luaHandler.popTable();
 
-    acamera->setPos(positionValue);
-    acamera->setDir(directionValue);
-    acamera->setRight(rightValue);
-    acamera->setUp(upValue);
+    acamera.setPos(positionValue);
+    acamera.setDir(directionValue);
+    acamera.setRight(rightValue);
+    acamera.setUp(upValue);
 }
 
-AAmbientLight* ALuaHelper::loadAmbientLightFromTable(std::string identifier, LuaHandler* luaHandler)
+AAmbientLight ALuaHelper::loadAmbientLightFromTable(std::string identifier, LuaHandler& luaHandler)
 {
-    luaHandler->loadTable(identifier);
+    luaHandler.loadTable(identifier);
     glm::vec4 lightColorValue;
 	float lightIntensityValue;
 
-    luaHandler->getTableFromTable("col");
-	lightColorValue.x = luaHandler->getNumberFromTable(1);
-	lightColorValue.y = luaHandler->getNumberFromTable(2);
-	lightColorValue.z = luaHandler->getNumberFromTable(3);
-	lightColorValue.w = luaHandler->getNumberFromTable(4);
-	luaHandler->popTable();
+    luaHandler.getTableFromTable("col");
+	lightColorValue.x = luaHandler.getNumberFromTable(1);
+	lightColorValue.y = luaHandler.getNumberFromTable(2);
+	lightColorValue.z = luaHandler.getNumberFromTable(3);
+	lightColorValue.w = luaHandler.getNumberFromTable(4);
+	luaHandler.popTable();
 
-	lightIntensityValue = luaHandler->getNumberFromTable("intensity");
-    luaHandler->popTable();
+	lightIntensityValue = luaHandler.getNumberFromTable("intensity");
+    luaHandler.popTable();
 
-    AAmbientLight* aambientlight = new AAmbientLight(lightColorValue, lightIntensityValue);
-    
-    return aambientlight;
+    return AAmbientLight(lightColorValue, lightIntensityValue);
 }
 
 AFog ALuaHelper::loadFogFromTable(std::string identifier, LuaHandler& luaHandler) 
@@ -287,14 +285,14 @@ AFog ALuaHelper::loadFogFromTable(std::string identifier, LuaHandler& luaHandler
     return AFog(maxDist, minDist, color);
 }
 
-glm::vec4 ALuaHelper::readVec4FromTable(std::string identifier, LuaHandler* luaHandler)
+glm::vec4 ALuaHelper::readVec4FromTable(std::string identifier, LuaHandler& luaHandler)
 {
-    luaHandler->loadTable(identifier.c_str());
+    luaHandler.loadTable(identifier.c_str());
     glm::vec4 value(0,0,0,0);
-    value.x = luaHandler->getNumberFromTable(1);
-	value.y = luaHandler->getNumberFromTable(2);
-	value.z = luaHandler->getNumberFromTable(3);
-    value.w = luaHandler->getNumberFromTable(4);
-    luaHandler->popTable();
+    value.x = luaHandler.getNumberFromTable(1);
+	value.y = luaHandler.getNumberFromTable(2);
+	value.z = luaHandler.getNumberFromTable(3);
+    value.w = luaHandler.getNumberFromTable(4);
+    luaHandler.popTable();
     return value;
 }
