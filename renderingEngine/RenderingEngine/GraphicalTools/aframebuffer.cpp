@@ -5,7 +5,7 @@
 AFramebuffer::AFramebuffer(void) 
 { }
 
-AFramebuffer::AFramebuffer(GLfloat width, GLfloat height) : width(width), height(height)
+AFramebuffer::AFramebuffer(GLfloat width, GLfloat height, GLint internalFormat, GLint format) : width(width), height(height)
 {
     FBO = 0;
     glGenFramebuffers(1, &FBO);
@@ -15,7 +15,7 @@ AFramebuffer::AFramebuffer(GLfloat width, GLfloat height) : width(width), height
     glGenTextures(1, &framebufferTexture);
     glBindTexture(GL_TEXTURE_2D, framebufferTexture);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, 0);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

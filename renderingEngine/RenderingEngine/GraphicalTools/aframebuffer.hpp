@@ -13,7 +13,7 @@ class AFramebuffer {
     protected:
         AFramebuffer(void);
     public:
-        AFramebuffer(GLfloat width, GLfloat height);
+        AFramebuffer(GLfloat width, GLfloat height, GLint internalFormat = GL_RGB, GLint format = GL_RGB);
         ~AFramebuffer(void);
 
         GLuint getFBO(void) const;
