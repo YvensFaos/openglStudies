@@ -19,6 +19,7 @@
 #include <string>
 #include <algorithm>
 #include <vector>
+#include <functional>
 #include <luahandler.hpp>
 
 #include <RenderingEngine/Core/arenderer.hpp>
@@ -91,6 +92,23 @@ int main(void)
 	glm::mat4 viewProjectionMatrix = projection * view;
 
 	glm::vec3 cameraPosition = acamera.getPos();
+
+	AFramebuffer highresFramebuffer(width * 2, height * 2, GL_RGB32F);
+	ARenderQuad renderQuad(luaHandler.getGlobalString("hdrShader"));
+
+	float sum = 0.0f;
+	float lum = 0.0f;
+	float logAve = 0.0f;
+	unsigned int size = width * height * 4;
+	GLfloat *texData = new GLfloat[size * 3];
+
+	std::function<float(float, float, float)> calculateLuminance = [](float r, float g, float b) -> float {
+		return 0.299 * r + 0.587 * g + 0.114 * b;
+	};
+
+	GLuint logAveUniform = glGetUniformLocation(renderQuad.getProgramme(), "logAve");
+	GLuint exposureUniform = glGetUniformLocation(renderQuad.getProgramme(), "exposure");
+	float exposure = luaHandler.getGlobalNumber("exposure");
 	
 	glActiveTexture(GL_TEXTURE0);
 	do
@@ -102,36 +120,55 @@ int main(void)
 		
 		arenderer.startFrame();
 
-		glViewport(0, 0, width * 2, height * 2);
+		highresFramebuffer.bindBuffer();
+			glViewport(0, 0, width * 2, height * 2);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			
+			for (unsigned int i = 0; i < lightObjects.size(); i++)
+			{
+				lightObjects[i].renderLightObject(viewProjectionMatrix);
+			}
+			
+			glUseProgram(shaderProgramme);
+			glUniformMatrix4fv(objectsVMatrixUniform, 1, GL_FALSE, glm::value_ptr(view));
+			glUniformMatrix4fv(objectsPMatrixUniform, 1, GL_FALSE, glm::value_ptr(projection));
+			glUniform3f(objectsViewPositionUniform, cameraPosition.x, cameraPosition.y, cameraPosition.z);
+			glUniform1i(objectsNumberPointLightsUniform, pointLightCount);
+
+			for (unsigned int i = 0; i < lightObjects.size(); i++)
+			{
+				lightObjects[i].setupUniforms();
+			}
+			for (unsigned int i = 0; i < pointLightCount; i++)
+			{
+				glUniform3f(pointLightsPositionUniforms[i], pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z);
+			}
+
+			AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
+		highresFramebuffer.unbindBuffer();
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, highresFramebuffer.getFramebufferTexture()); 
+		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGB, GL_FLOAT, texData);
+		sum = 0.0f;
+		for(unsigned int i = 0; i < size; i += 3) {
+			lum = calculateLuminance(texData[i+0], texData[i+1], texData[i+2]);
+			sum += logf(lum + 0.00001f); 
+		}
+		logAve = expf(sum / size);
+
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		for (unsigned int i = 0; i < lightObjects.size(); i++)
-		{
-			lightObjects[i].renderLightObject(viewProjectionMatrix);
-		}
-		
-		glUseProgram(shaderProgramme);
-		glUniformMatrix4fv(objectsVMatrixUniform, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(objectsPMatrixUniform, 1, GL_FALSE, glm::value_ptr(projection));
-		glUniform3f(objectsViewPositionUniform, cameraPosition.x, cameraPosition.y, cameraPosition.z);
-		glUniform1i(objectsNumberPointLightsUniform, pointLightCount);
-
-		for (unsigned int i = 0; i < lightObjects.size(); i++)
-		{
-			lightObjects[i].setupUniforms();
-		}
-		for (unsigned int i = 0; i < pointLightCount; i++)
-		{
-			glUniform3f(pointLightsPositionUniforms[i], pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z);
-		}
-
-		AModel::renderModelsInList(&models, modelMatrixUniform, shaderProgramme);
+		glViewport(0, 0, width * 2, height * 2);
+		glUseProgram(renderQuad.getProgramme());
+		glUniform1f(logAveUniform, logAve);
+		glUniform1f(exposureUniform, exposure);
+		renderQuad.render(highresFramebuffer.getFramebufferTexture(), false);
 
 		arenderer.finishFrame();
 	}
 	while(arenderer.isRunning());
 
 	glfwTerminate();
+	delete texData;
 	return 0;
 }
