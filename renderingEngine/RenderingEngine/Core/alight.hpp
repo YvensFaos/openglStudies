@@ -48,6 +48,8 @@ class ALight {
         void setIntensity(const float intensity);
         void setSpecularPower(const float specularPower);
 
+        void setupUniforms(GLuint lightPositionUniform, GLuint lightDirectionUniform, GLuint lightColorUniform, GLuint lightIntensityUniform, GLuint lightDirectionalUniform, GLuint lightSpecularUniform = -1);
+
         ALight& operator=(const ALight& anotherLight);
 };
 

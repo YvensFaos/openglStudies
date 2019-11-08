@@ -133,20 +133,7 @@ const ALight& ALightObject::getLight(void) const
 
 void ALightObject::setupUniforms(void)
 {
-    glm::vec3 lightPosition = alight.getPosition();
-    glm::vec3 lightDirection = alight.getDirection();
-    glm::vec3 lightUp = alight.getUp();
-    glm::vec4 lightColor = alight.getColor();
-    float lightIntensity = alight.getIntensity();
-    float lightSpecular = alight.getSpecularPower();
-    bool isDirectional = alight.getDirectional();
-
-    glUniform3f(alightUniforms.lightPositionUniform, lightPosition.x, lightPosition.y, lightPosition.z);
-    glUniform3f(alightUniforms.lightDirectionUniform, lightDirection.x, lightDirection.y, lightDirection.z);
-    glUniform4f(alightUniforms.lightColorUniform, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-    glUniform1f(alightUniforms.lightIntensityUniform, lightIntensity);
-    glUniform1f(alightUniforms.lightSpecularUniform, lightSpecular);
-    glUniform1i(alightUniforms.lightDirectionalUniform, isDirectional);
+    this->alight.setupUniforms(alightUniforms.lightPositionUniform, alightUniforms.lightDirectionUniform, alightUniforms.lightColorUniform, alightUniforms.lightIntensityUniform, alightUniforms.lightDirectionalUniform, alightUniforms.lightSpecularUniform);
 }
 
 // Static methods

@@ -70,6 +70,15 @@ ALight::ALight(const ALight& anotherLight)
 
 ALight::~ALight(void) { }
 
+void ALight::setupUniforms(GLuint lightPositionUniform, GLuint lightDirectionUniform, GLuint lightColorUniform, GLuint lightIntensityUniform, GLuint lightDirectionalUniform, GLuint lightSpecularUniform) {
+    glUniform3f(lightPositionUniform, position.x, position.y, position.z);
+    glUniform3f(lightDirectionUniform, direction.x, direction.y, direction.z);
+    glUniform4f(lightColorUniform, color.x, color.y, color.z, color.w);
+    glUniform1f(lightIntensityUniform, intensity);
+    glUniform1i(lightDirectionalUniform, directional);
+    glUniform1f(lightSpecularUniform, specularPower);
+}
+
 glm::vec3 ALight::getPosition(void) const {
     return this->position;
 }
