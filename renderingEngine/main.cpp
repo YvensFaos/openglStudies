@@ -35,10 +35,11 @@
 #include "RenderingEngine/Utils/amacrohelper.hpp"
 #include "RenderingEngine/Utils/arenderquad.hpp"
 #include "RenderingEngine/Utils/aluahelper.hpp"
+#include "RenderingEngine/Utils/akeybind.hpp"
 
 glm::mat4 skyView = glm::mat4(1.0);
 float savedAcc = 0.0f;
-bool paused = false;
+
 float near_plane;
 float far_plane;
 float projectionDimension;
@@ -48,6 +49,8 @@ int height = 600;
 
 int main(int argc, char* argv[])
 {
+	bool paused = false;
+
 	ARenderer arenderer(width, height, "Rendering Engine Demo Scene");	
 	arenderer.changeClearColor(glm::vec4(0.02f, 0.04f, 0.25f, 0.0f));
 
@@ -123,6 +126,12 @@ int main(int argc, char* argv[])
 	glm::mat4 lightView = glm::lookAt(lightPosition, lightPosition + lightDirection, lightUp);
 	glm::mat4 lightMatrix = lightProjection * lightView;
 
+	arenderer.addKeybind(AKeyBind(GLFW_KEY_SPACE, [&paused](int action, int mods) {
+		if(action == GLFW_PRESS || action == GLFW_REPEAT) {
+			paused = !paused;
+		}
+	}));
+	
 	do
 	{
 		if(!paused) 

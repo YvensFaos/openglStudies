@@ -139,8 +139,20 @@ void ARenderer::setCullFaces(bool activate)
 	}
 }
 
+void ARenderer::addKeybind(AKeyBind akeyBind) 
+{
+	this->keysMap.try_emplace(akeyBind.getKey(), akeyBind);
+}
+
 void ARenderer::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
+	for(auto it = this->keysMap.cbegin(); it != this->keysMap.cend(); it++) {
+		if (key == (*it).first)
+		{
+			(*it).second.execute(action, mods);
+		}
+	}
+
     shiftModPower = 1.0f;
 	if (mods == GLFW_MOD_SHIFT)
 	{

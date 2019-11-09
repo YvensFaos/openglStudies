@@ -2,6 +2,9 @@
 
 #include <glm/glm.hpp>
 #include <string>
+#include <map>
+
+#include "../Utils/akeybind.hpp"
 
 class GLFWwindow;
 class ACamera;
@@ -31,6 +34,8 @@ class ARenderer
         char titleBuffer[196];
         glm::vec4 clearColor;
         ACamera* acamera;
+
+        std::map<int, AKeyBind> keysMap;
     public:
         ARenderer(float width, float height, std::string title);
         ~ARenderer(void);
@@ -46,6 +51,7 @@ class ARenderer
         double getAccumulator(void) const;
         bool isRunning(void) const;
         void setCullFaces(bool activate);
+        void addKeybind(AKeyBind akeyBind);
     private:
         static void staticKeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
         static void staticMouseCallback(GLFWwindow* window, double xpos, double ypos);
