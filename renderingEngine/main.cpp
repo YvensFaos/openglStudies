@@ -131,7 +131,6 @@ int main(int argc, char* argv[])
 			paused = !paused;
 		}
 	}));
-	
 	do
 	{
 		if(!paused) 
