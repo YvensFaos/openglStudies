@@ -109,8 +109,6 @@ multiLightFragmentShader = [[
     {          
         vec3 norm = normalize(transpose(inverse(mat3(modelMatrix))) * vectorIn.vnormal);
 
-        //vec3 norm = normalize(vectorIn.vnormal);
-
         vec4 pointLightResultant = vec4(0.0);
         int clampedNumberOfPoint = min(numberPointLights, 10);
         vec3 viewDir = normalize(vectorIn.tangentViewPos - vectorIn.tangentFragPos);
@@ -189,7 +187,14 @@ hdrShader = [[
             xyz.z = (L * (1 - xyY.x - xyY.y)) / xyY.y;
         }
 
-        frag_colour = vec4(xyz2rgb(xyz), 1.0);
+        vec3 original = xyz2rgb(xyz);
+        float luminance = 0.2126 * original.r + 0.7152 * original.g + 0.0722 * original.b;
+
+        if(luminance < 300.02) {
+            frag_colour = vec4(original, 1.0);
+        } else {
+            frag_colour = vec4(0.0);
+        }
     }
 ]]
 
@@ -215,50 +220,46 @@ thresholdShader = [[
     {
         vec4 original = texture(textureUniform, vuv);
         float luminance = 0.2126 * original.r + 0.7152 * original.g + 0.0722 * original.b;
-        vec4 color = vec4(0.0, 0.0, 0.0, 0.0);
-        if(luminance > threshold) {
-            color = texture(textureUniform, vuv);
-        }
-
-        frag_colour = color;
+        frag_colour = luminance * original;
     }
 ]]
+
+gaussianWeight = 10
 
 gaussianHeader = [[
     #version 400
     in vec2 vuv;
 
-    const float PixOffset[5] = float[](0.0,1.0,2.0,3.0,4.0);
-    const float factor = 0.00125;
+    const int GAUSSIAN_WEIGHT = ]] .. gaussianWeight .. [[;
+    const float factor = 1.0f;
     
     uniform sampler2D textureUniform;
-    uniform float gaussianWeight[5];
+    uniform float gaussianWeight[ ]] .. gaussianWeight .. [[ ];
 
     out vec4 frag_colour;
+
+    void main() {
+        vec2 step = vec2(1.0f) / textureSize(textureUniform, 0); //vec2(1.0f / 600.0f, 1.0f / 800.0f);//
 ]]
 
 gaussianBlur1 = gaussianHeader .. [[
-    void main() {
-        vec4 xPass = texture(textureUniform, vuv) * gaussianWeight[0];
-        for(int i = 1; i < 5; i++) {
-            xPass += texture(textureUniform, vuv + vec2(factor *  PixOffset[i], 0)) * gaussianWeight[i];
-            xPass += texture(textureUniform, vuv + vec2(factor * -PixOffset[i], 0)) * gaussianWeight[i];
+        vec3 xPass = texture(textureUniform, vuv).rgb * gaussianWeight[0];
+
+        for(int i = 1; i < GAUSSIAN_WEIGHT; i++) {
+            xPass += texture(textureUniform, vuv + vec2(factor * +i * step.x, 0.0f)).rgb * gaussianWeight[i];
+            xPass += texture(textureUniform, vuv - vec2(factor * +i * step.x, 0.0f)).rgb * gaussianWeight[i];
         }
-        vec4 col = xPass;
-        col.a = 1.0;
-        frag_colour = col;
+        frag_colour = vec4(xPass, 1.0);
     }
 ]]
 
 gaussianBlur2 = gaussianHeader .. [[
-    void main() {
-        vec4 yPass = texture(textureUniform, vuv) * gaussianWeight[0];
-        for(int i = 1; i < 5; i++) {
-            yPass += texture(textureUniform, vuv + vec2(0, factor *  PixOffset[i])) * gaussianWeight[i];
-            yPass += texture(textureUniform, vuv + vec2(0, factor * -PixOffset[i])) * gaussianWeight[i];
+        vec3 yPass = texture(textureUniform, vuv).rgb * gaussianWeight[0];
+        for(int i = 1; i < GAUSSIAN_WEIGHT; i++) {
+            yPass += texture(textureUniform, vuv + vec2(0.0f, factor * +i * step.y)).rgb * gaussianWeight[i];
+            yPass += texture(textureUniform, vuv - vec2(0.0f, factor * +i * step.y)).rgb * gaussianWeight[i];
         }
-        vec4 col = yPass;
-        frag_colour = col;
+        frag_colour = vec4(yPass, 1.0);
     }
 ]]
 
@@ -269,26 +270,34 @@ combineShader = [[
 
     uniform sampler2D textureUniform1;
     uniform sampler2D textureUniform2;
+    uniform float bloomFactor = 1.0f;
 
     out vec4 frag_colour;
 
     void main() {
-        vec4 color = 0.05 * texture(textureUniform1, vuv) + texture(textureUniform2, vuv);
-        color.a = 1.0;
-        frag_colour = color;
+        const float gamma = 2.2;
+        const float exposure = -0.54;
+
+        vec3 hdrColor = texture(textureUniform2, vuv).rgb;
+        vec3 bloomColor = texture(textureUniform1, vuv).rgb;
+        frag_colour = vec4(hdrColor + bloomFactor * bloomColor, 1.0);
     }
 ]]
 
-downsample = 0.5
+bloomFactor = 0.9
 
-normalGamma = 1.1
-normalExposure = -0.6
+initialMask = 255
+gaussianBlurPasses = 6
 
-highGamma = 0.5
-highExposure = -0.71
+downsample = 4.0
 
-threshold = 1.39
-sigma = 64.0
+normalGamma = 0.8
+normalExposure = -0.65
+
+highGamma = 1.3
+highExposure = -0.55
+
+sigma = 2.0
 
 models = {}
 models[1] = {file = "../3DModels/nonormalmonkey.obj", pos = { 0.0,  0.0, 3.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,   0.0, 0.0}}
@@ -329,7 +338,7 @@ lights = {
         directional = false
     },
     {
-        pos = { 0.0, 0.5, 6.0}, 
+        pos = { 0.0, 0.5, 4.0}, 
         dir = {0.0, 0.0, 1.0}, 
         up = {0.0, 1.0, 0.0}, 
         col = {20 / 255, 215 / 255, 215 / 255, 1.0}, 
@@ -340,11 +349,31 @@ lights = {
 } 
 
 cameraPosition = {
-    pos   = {2.965, 4.807, 9.235},
-    dir   = {-0.247, -0.455, -0.855},
-    up    = {-0.126, 0.890, -0.437},
-    right = {0.961, 0.000, -0.278},
-    angle = {-106.120, -27.088}
+    pos   = {2.481, 1.915, 10.361},
+    dir   = {-0.348, -0.207, -0.915},
+    up    = {-0.073, 0.978, -0.193},
+    right = {0.935, 0.000, -0.355},
+    angle = {-110.806, -11.928}
+    -- pos   = {-10.590, 3.997, 21.858},
+    -- dir   = {0.636, 0.065, -0.769},
+    -- up    = {-0.041, 0.998, 0.050},
+    -- right = {0.771, -0.000, 0.637},
+    -- angle = {-50.439, 3.734}
+    -- pos   = {0.763, 0.829, 6.221},
+    -- dir   = {-0.235, -0.211, -0.949},
+    -- up    = {-0.051, 0.977, -0.205},
+    -- right = {0.971, 0.000, -0.240},
+    -- angle = {-103.913, -12.181}
+    -- pos   = {2.655, 1.979, 12.746},
+    -- dir   = {-0.178, -0.124, -0.976},
+    -- up    = {-0.022, 0.992, -0.122},
+    -- right = {0.984, 0.000, -0.179},
+    -- angle = {-100.311, -7.140}
+    -- pos   = {-7.316, 2.398, 12.478},
+    -- dir   = {0.498, -0.152, -0.854},
+    -- up    = {0.077, 0.988, -0.131},
+    -- right = {0.864, -0.000, 0.504},
+    -- angle = {-59.752, -8.754}
     -- pos   = {-13.097, 9.210, 9.666},
     -- dir   = {0.729, -0.464, -0.503},
     -- up    = {0.382, 0.886, -0.263},
