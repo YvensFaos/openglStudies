@@ -45,52 +45,48 @@ TEST_CASE("Simple Ambient Light reading.") {
     LuaHandler handler;
     handler.openFile("testLua.lua");
 
-    AAmbientLight* aambientLight = ALuaHelper::loadAmbientLightFromTable("ambient", &handler);
+    AAmbientLight aambientLight = ALuaHelper::loadAmbientLightFromTable("ambient", handler);
 
-    glm::vec4 color = aambientLight->getColor();
+    glm::vec4 color = aambientLight.getColor();
     CHECK(color.r == 1.0000f);
     CHECK(color.g == 1.0000f);
     CHECK(color.b == 1.0000f);
     CHECK(color.a == 1.0000f);
 
-    CHECK(aambientLight->getIntensity() == 0.05f);
-
-    delete aambientLight;
+    CHECK(aambientLight.getIntensity() == 0.05f);
 }
 
 TEST_CASE("Simple Camera position setup.") {
     LuaHandler handler;
     handler.openFile("testLua.lua");
 
-    ACamera* acamera = new ACamera();
+    ACamera acamera;
 
-    glm::vec3 position = acamera->getPos();
+    glm::vec3 position = acamera.getPos();
     CHECK(position.x == 0.0f);
     CHECK(position.y == 0.0f);
     CHECK(position.z == 0.0f);
 
-    ALuaHelper::setupCameraPosition("cameraPosition", acamera, &handler);
-    position = acamera->getPos();
+    ALuaHelper::setupCameraPosition("cameraPosition", acamera, handler);
+    position = acamera.getPos();
     CHECK(position.x == 1.0f);
     CHECK(position.y == 8.5f);
     CHECK(position.z ==17.0f);
 
-    glm::vec3 direction = acamera->getDir();
+    glm::vec3 direction = acamera.getDir();
     CHECK(direction.x == 0.0f);
     CHECK(direction.y == 0.0f);
     CHECK(direction.z ==-1.0f);
 
-    glm::vec3 up = acamera->getUp();
+    glm::vec3 up = acamera.getUp();
     CHECK(up.x == 0.0f);
     CHECK(up.y == 0.9f);
     CHECK(up.z == 0.1f);
 
-    glm::vec3 right = acamera->getRight();
+    glm::vec3 right = acamera.getRight();
     CHECK(right.x == 0.8f);
     CHECK(right.y == 0.2f);
     CHECK(right.z == 0.0f);
-
-    delete acamera;
 }
 
 TEST_CASE("Simple Camera movement test.") {
