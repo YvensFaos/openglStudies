@@ -94,20 +94,29 @@ int main(void)
 	glm::vec3 cameraPosition = acamera.getPos();	
 
 	AFramebuffer highresFramebuffer(width * 2, height * 2, GL_RGB32F);
+	highresFramebuffer.setBufferShowFlag(0x02);
 	ARenderQuad renderQuad(luaHandler.getGlobalString("hdrShader"));
 
 	ARenderQuad hdrGammaQuad(luaHandler.getGlobalString("hdrGammaCorrection"));	
 	AFramebuffer normalExposureBuffer(width * 2, height * 2, GL_RGB32F);
+	normalExposureBuffer.setBufferShowFlag(0x04);
 	
 	float downsample = luaHandler.getGlobalNumber("downsample");
 
 	AFramebuffer   highExposureBuffer(width / downsample, height / downsample, GL_RGB32F);
+	highExposureBuffer.setBufferShowFlag(0x08);
+
 	AFramebuffer thresholdBuffer(width / downsample, height / downsample, GL_RGB32F);
 	ARenderQuad thresholdRenderQuad(luaHandler.getGlobalString("thresholdShader"));
+	thresholdBuffer.setBufferShowFlag(0x10);
+
 	AFramebuffer blur1Framebuffer(width / downsample, height / downsample, GL_RGB16F, GL_RGB, GL_FLOAT);
 	ARenderQuad blur1RenderQuad(luaHandler.getGlobalString("gaussianBlur1"));
+	blur1Framebuffer.setBufferShowFlag(0x20);
+
 	AFramebuffer blur2Framebuffer(width / downsample, height / downsample, GL_RGB16F, GL_RGB, GL_FLOAT);
 	ARenderQuad blur2RenderQuad(luaHandler.getGlobalString("gaussianBlur2"));
+	blur2Framebuffer.setBufferShowFlag(0x40);
 
 	GLuint samplers[2];
     glGenSamplers(2, samplers);
@@ -184,105 +193,38 @@ int main(void)
 
 	std::vector<GLuint> texturesVector = {normalExposureBuffer.getFramebufferTexture(), blur2Framebuffer.getFramebufferTexture()};
 
-	arenderer.addKeybind(AKeyBind(GLFW_KEY_G, [&normalGamma](int action, int mods) { 
-		if(mods == GLFW_MOD_SHIFT) {
-			if(action == GLFW_PRESS || action == GLFW_REPEAT) {
-				normalGamma += 0.1f;
-			}
-		} else {
-			if(action == GLFW_PRESS || action == GLFW_REPEAT) {
-				normalGamma -= 0.1f;
-			}
-		}
+	arenderer.addKeybind(APressKeyBind(GLFW_KEY_G, [&normalGamma](int action, int mods) { 
+		if(mods == GLFW_MOD_SHIFT) { normalGamma += 0.1f; } else { normalGamma -= 0.1f; }
 		printf(" normalGamma > %f\n", normalGamma);
-	}));
+	}, GLFW_PRESS | GLFW_REPEAT));
 
-	arenderer.addKeybind(AKeyBind(GLFW_KEY_H, [&highGamma](int action, int mods) { 
-		if(mods == GLFW_MOD_SHIFT) {
-			if(action == GLFW_PRESS || action == GLFW_REPEAT) {
-				highGamma += 0.1f;
-			}
-		} else {
-			if(action == GLFW_PRESS || action == GLFW_REPEAT) {
-				highGamma -= 0.1f;
-			}
-		}
+	arenderer.addKeybind(APressKeyBind(GLFW_KEY_H, [&highGamma](int action, int mods) { 
+		if(mods == GLFW_MOD_SHIFT) { highGamma += 0.1f; } else { highGamma -= 0.1f; }
 		printf(" highGamma > %f\n", highGamma);
-	}));
+	}, GLFW_PRESS | GLFW_REPEAT));
 
-	arenderer.addKeybind(AKeyBind(GLFW_KEY_B, [&highExposure](int action, int mods) { 
-		if(mods == GLFW_MOD_SHIFT) {
-			if(action == GLFW_PRESS || action == GLFW_REPEAT) {
-				highExposure += 0.01f;
-			}
-		} else {
-			if(action == GLFW_PRESS || action == GLFW_REPEAT) {
-				highExposure -= 0.01f;
-			}
-		}
+	arenderer.addKeybind(APressKeyBind(GLFW_KEY_B, [&highExposure](int action, int mods) { 
+		if(mods == GLFW_MOD_SHIFT) { highExposure += 0.1f; } else { highExposure -= 0.1f; }
 		printf(" highExposure > %f\n", highExposure);
-	}));
+	}, GLFW_PRESS | GLFW_REPEAT));
 
-	arenderer.addKeybind(AKeyBind(GLFW_KEY_N, [&normalExposure](int action, int mods) { 
-		if(mods == GLFW_MOD_SHIFT) {
-			if(action == GLFW_PRESS || action == GLFW_REPEAT) {
-				normalExposure += 0.01f;
-			}
-		} else {
-			if(action == GLFW_PRESS || action == GLFW_REPEAT) {
-				normalExposure -= 0.01f;
-			}
-		}
+	arenderer.addKeybind(APressKeyBind(GLFW_KEY_N, [&normalExposure](int action, int mods) { 
+		if(mods == GLFW_MOD_SHIFT) { normalExposure += 0.1f; } else { normalExposure -= 0.1f; }
 		printf(" normalExposure > %f\n", normalExposure);
-	}));
+	}, GLFW_PRESS | GLFW_REPEAT));
 
 	unsigned int showBuffer = luaHandler.getGlobalInteger("initialMask"); //0x01 | 0x02 | 0x04 | 0x08 | 0x10 | 0x20 | 0x40 | 0x80;
 
 	arenderer.addKeybind(AKeyBind(GLFW_KEY_0, [&showBuffer](int action, int mods) { 
 		printf("Print Current flag: %d\n", showBuffer);
 	}));
-	arenderer.addKeybind(AKeyBind(GLFW_KEY_1, [&showBuffer](int action, int mods) { 
-		if(action == GLFW_PRESS) {
-			if(mods == GLFW_MOD_SHIFT) { showBuffer ^= 0x01; } else { showBuffer |= 0x01; }
-		}
-		printf("Current flag: %d\n", showBuffer);
-	}));
-	arenderer.addKeybind(AKeyBind(GLFW_KEY_2, [&showBuffer](int action, int mods) { 
-		if(action == GLFW_PRESS) {
-			if(mods == GLFW_MOD_SHIFT) { showBuffer ^= 0x02; } else { showBuffer |= 0x02; }
-		}
-		printf("Current flag: %d\n", showBuffer);
-	}));
-	arenderer.addKeybind(AKeyBind(GLFW_KEY_3, [&showBuffer](int action, int mods) { 
-		if(action == GLFW_PRESS) {
-			if(mods == GLFW_MOD_SHIFT) { showBuffer ^= 0x04; } else { showBuffer |= 0x04; }
-		}
-		printf("Current flag: %d\n", showBuffer);
-	}));
-	arenderer.addKeybind(AKeyBind(GLFW_KEY_4, [&showBuffer](int action, int mods) { 
-		if(action == GLFW_PRESS) {
-			if(mods == GLFW_MOD_SHIFT) { showBuffer ^= 0x08; } else { showBuffer |= 0x08; }
-		}
-		printf("Current flag: %d\n", showBuffer);
-	}));
-	arenderer.addKeybind(AKeyBind(GLFW_KEY_5, [&showBuffer](int action, int mods) { 
-		if(action == GLFW_PRESS) {
-			if(mods == GLFW_MOD_SHIFT) { showBuffer ^= 0x10; } else { showBuffer |= 0x10; }
-		}
-		printf("Current flag: %d\n", showBuffer);
-	}));
-	arenderer.addKeybind(AKeyBind(GLFW_KEY_6, [&showBuffer](int action, int mods) { 
-		if(action == GLFW_PRESS) {
-			if(mods == GLFW_MOD_SHIFT) { showBuffer ^= 0x20; } else { showBuffer |= 0x20; }
-		}
-		printf("Current flag: %d\n", showBuffer);
-	}));
-	arenderer.addKeybind(AKeyBind(GLFW_KEY_7, [&showBuffer](int action, int mods) { 
-		if(action == GLFW_PRESS) {
-			if(mods == GLFW_MOD_SHIFT) { showBuffer ^= 0x40; } else { showBuffer |= 0x40; }
-		}
-		printf("Current flag: %d\n", showBuffer);
-	}));
+	arenderer.addKeybind(AFlagTogglerKeyBind(GLFW_KEY_1, showBuffer, 0x01));
+	arenderer.addKeybind(AFlagTogglerKeyBind(GLFW_KEY_2, showBuffer, 0x02));
+	arenderer.addKeybind(AFlagTogglerKeyBind(GLFW_KEY_3, showBuffer, 0x04));
+	arenderer.addKeybind(AFlagTogglerKeyBind(GLFW_KEY_4, showBuffer, 0x08));
+	arenderer.addKeybind(AFlagTogglerKeyBind(GLFW_KEY_5, showBuffer, 0x10));
+	arenderer.addKeybind(AFlagTogglerKeyBind(GLFW_KEY_6, showBuffer, 0x20));
+	arenderer.addKeybind(AFlagTogglerKeyBind(GLFW_KEY_7, showBuffer, 0x40));
 	
 	unsigned int gaussianBlurPasses = luaHandler.getGlobalInteger("gaussianBlurPasses");
 
@@ -299,7 +241,7 @@ int main(void)
 
 		glEnable(GL_DEPTH_TEST);
 
-		if(showBuffer & 0x02) highresFramebuffer.bindBuffer();
+		highresFramebuffer.bindBuffer(showBuffer);
 			glViewport(0, 0, width * 2, height * 2);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			for (unsigned int i = 0; i < lightObjects.size(); i++)
@@ -320,11 +262,11 @@ int main(void)
 				glUniform3f(pointLightsPositionUniforms[i], pointLightPositions[i].x, pointLightPositions[i].y, pointLightPositions[i].z);
 			}
 			AModel::renderModelsInList(models, modelMatrixUniform, shaderProgramme);
-		if(showBuffer & 0x02) highresFramebuffer.unbindBuffer();
+		highresFramebuffer.unbindBuffer();
 
 		glDisable(GL_DEPTH_TEST);
 
-		if(showBuffer & 0x04) normalExposureBuffer.bindBuffer();
+		normalExposureBuffer.bindBuffer(showBuffer);
 			glViewport(0, 0, width * 2, height * 2);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glUseProgram(hdrGammaQuad.getProgramme());
@@ -333,9 +275,9 @@ int main(void)
 			glUniform1f(gammaUniform, normalGamma);
 			glUniform1f(hdrExposureUniform, normalExposure);
 			hdrGammaQuad.render(highresFramebuffer.getFramebufferTexture(), false);
-		if(showBuffer & 0x04) normalExposureBuffer.unbindBuffer();
+		normalExposureBuffer.unbindBuffer();
 
-		if(showBuffer & 0x08) highExposureBuffer.bindBuffer();
+		highExposureBuffer.bindBuffer(showBuffer);
 			glViewport(0, 0, width / downsample, height / downsample);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glUseProgram(hdrGammaQuad.getProgramme());
@@ -344,20 +286,20 @@ int main(void)
 			glUniform1f(gammaUniform, highGamma);
 			glUniform1f(hdrExposureUniform, highExposure);
 			hdrGammaQuad.render(highresFramebuffer.getFramebufferTexture(), false);
-		if(showBuffer & 0x08) highExposureBuffer.unbindBuffer();
+		highExposureBuffer.unbindBuffer();
 
-		if(showBuffer & 0x10) thresholdBuffer.bindBuffer();
+		thresholdBuffer.bindBuffer(showBuffer);
 			glViewport(0, 0, width / downsample, height / downsample);
 			glClear(GL_COLOR_BUFFER_BIT);
 			glUseProgram(thresholdRenderQuad.getProgramme());
 			glBindSampler(0, linearSampler);
 			glBindSampler(1, linearSampler);
 			thresholdRenderQuad.render(highExposureBuffer.getFramebufferTexture(), false);
-		if(showBuffer & 0x10) thresholdBuffer.unbindBuffer();		
+		thresholdBuffer.unbindBuffer();		
 
 		for(unsigned int i = 0; i < gaussianBlurPasses; i++) {
 			
-			if(showBuffer & 0x20) blur1Framebuffer.bindBuffer();
+			blur1Framebuffer.bindBuffer(showBuffer);
 				glViewport(0, 0, width / downsample, height / downsample);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glUseProgram(blur1RenderQuad.getProgramme());
@@ -374,9 +316,9 @@ int main(void)
 					blur1RenderQuad.render(blur2Framebuffer.getFramebufferTexture(), false);
 				}
 
-			if(showBuffer & 0x20) blur1Framebuffer.unbindBuffer();
+			blur1Framebuffer.unbindBuffer();
 
-			if(showBuffer & 0x40) blur2Framebuffer.bindBuffer();
+			blur2Framebuffer.bindBuffer(showBuffer);
 				glViewport(0, 0, width / downsample, height / downsample);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glUseProgram(blur2RenderQuad.getProgramme());
@@ -388,7 +330,7 @@ int main(void)
 				}
 
 				blur2RenderQuad.render(blur1Framebuffer.getFramebufferTexture(), false);
-			if(showBuffer & 0x40) blur2Framebuffer.unbindBuffer();
+			 blur2Framebuffer.unbindBuffer();
 		}
 
 		if(showBuffer & 0x01) {

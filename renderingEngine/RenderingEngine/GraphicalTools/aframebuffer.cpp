@@ -1,9 +1,12 @@
 #include "aframebuffer.hpp"
 
 #include <stdio.h>
+#include <limits>
 
 AFramebuffer::AFramebuffer(void) 
-{ }
+{ 
+    this->bufferShowFlag = std::numeric_limits<GLuint>::max();
+}
 
 AFramebuffer::AFramebuffer(GLfloat width, GLfloat height, GLint internalFormat, GLint format, GLint type) : width(width), height(height)
 {
@@ -32,11 +35,13 @@ AFramebuffer::AFramebuffer(GLfloat width, GLfloat height, GLint internalFormat, 
         printf("Error creating FrameBuffer!\n");
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    this->bufferShowFlag = std::numeric_limits<GLuint>::max();
 }
 
 AFramebuffer::~AFramebuffer(void)
 {
-
+    glDeleteFramebuffers(1, &FBO);
 }
 
 GLuint AFramebuffer::getFBO(void) const
@@ -59,9 +64,15 @@ GLfloat AFramebuffer::getHeight(void) const
     return height;
 }
 
-void AFramebuffer::bindBuffer(void) const 
-{
+void AFramebuffer::bindBuffer(void) const {
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+}
+
+void AFramebuffer::bindBuffer(GLuint showFlag) const 
+{
+    if(showFlag & this->bufferShowFlag) {
+        glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+    }
 }
 
 void AFramebuffer::setViewport(void) const
@@ -82,6 +93,14 @@ void AFramebuffer::generateRenderbuffer(void)
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
 }
+
+void AFramebuffer::setBufferShowFlag(GLuint bufferShowFlag) 
+{
+    this->bufferShowFlag = bufferShowFlag;
+}
+
+
+//////////
 
 ADepthbuffer::ADepthbuffer(GLfloat width, GLfloat height) : AFramebuffer()
 {

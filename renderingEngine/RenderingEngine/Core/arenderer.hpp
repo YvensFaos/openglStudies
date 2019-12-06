@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <map>
+#include <functional>
 
 #include "../Utils/akeybind.hpp"
 
@@ -35,7 +36,7 @@ class ARenderer
         glm::vec4 clearColor;
         ACamera* acamera;
 
-        std::map<int, AKeyBind> keysMap;
+        std::map<int, std::unique_ptr<AKeyBind>> keysMap;
     public:
         ARenderer(float width, float height, std::string title);
         ~ARenderer(void);

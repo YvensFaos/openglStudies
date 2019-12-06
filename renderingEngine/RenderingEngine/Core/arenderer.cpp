@@ -141,7 +141,7 @@ void ARenderer::setCullFaces(bool activate)
 
 void ARenderer::addKeybind(AKeyBind akeyBind) 
 {
-	this->keysMap.try_emplace(akeyBind.getKey(), akeyBind);
+	this->keysMap.try_emplace(akeyBind.getKey(), std::make_unique<AKeyBind>(akeyBind));
 }
 
 void ARenderer::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -149,7 +149,7 @@ void ARenderer::keyCallback(GLFWwindow* window, int key, int scancode, int actio
 	for(auto it = this->keysMap.cbegin(); it != this->keysMap.cend(); it++) {
 		if (key == (*it).first)
 		{
-			(*it).second.execute(action, mods);
+			(*it).second->execute(action, mods);
 		}
 	}
 

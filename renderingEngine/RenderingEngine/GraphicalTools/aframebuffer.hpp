@@ -10,6 +10,8 @@ class AFramebuffer {
         GLuint FBO;
         GLuint RBO;
         GLuint framebufferTexture;
+
+        GLuint bufferShowFlag;
     protected:
         AFramebuffer(void);
     public:
@@ -22,8 +24,11 @@ class AFramebuffer {
         GLfloat getHeight(void) const;
 
         void bindBuffer(void) const;
+        void bindBuffer(GLuint showFlag) const;
         void setViewport(void) const;
         void unbindBuffer(void) const;
+
+        void setBufferShowFlag(GLuint bufferShowFlag);
 
     protected:
         void generateRenderbuffer(void);
