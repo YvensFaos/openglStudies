@@ -16,6 +16,8 @@ class AAmbientLight {
         float getIntensity(void) const;
         void setColor(const glm::vec4 color);
         void setIntensity(const float intensity);
+
+        void setupUniforms(const GLuint ambientLightColorUniform, const GLuint ambientLightIntensityUniform) const;
 };
 
 class ALight {

@@ -32,6 +32,11 @@ void AAmbientLight::setIntensity(const float intensity) {
     this->intensity = intensity;
 }
 
+void AAmbientLight::setupUniforms(const GLuint ambientLightColorUniform, const GLuint ambientLightIntensityUniform) const {
+    glUniform4f(ambientLightColorUniform, this->color.x, this->color.y, this->color.z, this->color.w);
+    glUniform1f(ambientLightIntensityUniform, this->intensity);
+}
+
 //##### A LIGHT UNIFORM
 
 ALightUniform ALightUniform::loadALightUniformFromProgramme(GLuint shaderProgramme, GLuint lightIndex, ALight& alight) {
