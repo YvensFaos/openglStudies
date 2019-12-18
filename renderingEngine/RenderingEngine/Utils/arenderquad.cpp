@@ -29,10 +29,10 @@ std::string ARenderQuad::defaultFragmentShader =
     "   uniform sampler2D textureUniform;\n"
     "   out vec4 frag_colour;\n"
     "   void main()\n"
-    "   {             "
-    "       vec4 value = texture(textureUniform, vuv);"
-    "       frag_colour = vec4(vec3(value), 1.0);"
-    "   }";
+    "   {\n"
+    "       vec4 value = texture(textureUniform, vuv);\n"
+    "       frag_colour = vec4(vec3(value), 1.0);\n"
+    "   }\n";
 
 ARenderQuad::ARenderQuad(void) 
 {

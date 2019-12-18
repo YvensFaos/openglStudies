@@ -7,27 +7,27 @@
 class LuaHandler;
 
 class ARenderQuad {
-    private:
+    protected:
         GLuint vertexShader;
         GLuint fragmentShader;
         GLuint programme;
-        GLuint quadVAO;
-	    GLuint quadVBO;
 
         GLuint textureUniform;
-        
+        GLuint quadVAO;
+	    GLuint quadVBO;
+    protected:
         static std::string defaultVertexShader;
         static std::string defaultFragmentShader;
     public:
         ARenderQuad(void);
         ARenderQuad(std::string fragmentShaderText);
         ARenderQuad(std::string vertexShaderText, std::string fragmentShaderText);
-        ~ARenderQuad(void);
+        virtual ~ARenderQuad(void);
                 
         void render(GLuint texture, bool setupProgramme = true) const;
         void renderCubemap(GLuint cubemapTexture) const;
         void render(std::vector<GLuint> textures) const;
         GLuint getProgramme(void) const;
-    private:
+    protected:
         void initialize(std::string vertexShaderText, std::string fragmentShaderText);
 };
