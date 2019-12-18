@@ -70,6 +70,17 @@ void ARenderQuad::render(GLuint texture, bool setupProgramme) const
     glBindVertexArray(0);
 }
 
+void ARenderQuad::renderCubemap(GLuint cubemapTexture) const 
+{
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+    glUniform1i(textureUniform, 0);
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    glBindVertexArray(0);
+}
+
 void ARenderQuad::render(std::vector<GLuint> textures) const
 {
     for(size_t i = 0; i < textures.size(); i++)

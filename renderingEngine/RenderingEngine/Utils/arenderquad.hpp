@@ -23,8 +23,9 @@ class ARenderQuad {
         ARenderQuad(std::string fragmentShaderText);
         ARenderQuad(std::string vertexShaderText, std::string fragmentShaderText);
         ~ARenderQuad(void);
-        
+                
         void render(GLuint texture, bool setupProgramme = true) const;
+        void renderCubemap(GLuint cubemapTexture) const;
         void render(std::vector<GLuint> textures) const;
         GLuint getProgramme(void) const;
     private:
