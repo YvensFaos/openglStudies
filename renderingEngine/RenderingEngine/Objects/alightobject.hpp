@@ -5,6 +5,9 @@
 #include "../Core/alight.hpp"
 #include "../Core/amodel.hpp"
 
+class LuaHandler;
+class ARenderer;
+
 ///ALightObject is the union of a ALight and AMesh.
 class ALightObject {
     private:
@@ -14,6 +17,9 @@ class ALightObject {
 
         GLuint shaderProgramme;
         GLuint lightIndex;
+
+        bool hasUpdateFunction;
+        std::string updateFunction;
     private:
         static std::string defaultVertexShader;
         static std::string defaultGeometryShader;
@@ -39,8 +45,11 @@ class ALightObject {
 
         void renderLightObject(glm::mat4 viewProjection);
         void setupUniforms(void);
+        void callUpdateFunction(LuaHandler& handler, const ARenderer& arenderer);
 
         const ALight& getLight(void) const;
+    public:
+        bool setupUpdateFunction(LuaHandler& handler, const std::string functionName);
     public:
         static std::vector<ALightObject> GenerateALightObjectsFromLights(GLuint programme, std::vector<ALight>& lights);
     private:

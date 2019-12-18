@@ -1,6 +1,8 @@
 #include "alightobject.hpp"
 
 #include "../Core/ashader.hpp"
+#include "../Core/arenderer.hpp"
+#include <luahandler.hpp>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -95,10 +97,11 @@ GLuint ALightObject::directionDirectionUniform = -1;
 
 ALightObject::ALightObject(ALight& alight, GLuint shaderProgramme, GLuint lightIndex) 
     : alight(alight), alightModel("../3DModels/tetrahedron.obj"), shaderProgramme(shaderProgramme), lightIndex(lightIndex),
-    alightUniforms(ALightUniform::loadALightUniformFromProgramme(shaderProgramme, lightIndex, alight))
+    alightUniforms(ALightUniform::loadALightUniformFromProgramme(shaderProgramme, lightIndex, alight)), hasUpdateFunction(false)
 {
     ALightObject::GenerateALightObjectDefaultProgramme();
     this->alightModel.scale(glm::vec3(0.1, 0.1, 0.1));
+    this->updateFunction = "";
 }
 
 ALightObject::~ALightObject(void) 
@@ -134,6 +137,76 @@ const ALight& ALightObject::getLight(void) const
 void ALightObject::setupUniforms(void)
 {
     this->alight.setupUniforms(alightUniforms.lightPositionUniform, alightUniforms.lightDirectionUniform, alightUniforms.lightColorUniform, alightUniforms.lightIntensityUniform, alightUniforms.lightDirectionalUniform, alightUniforms.lightSpecularUniform);
+}
+
+void ALightObject::callUpdateFunction(LuaHandler& handler, const ARenderer& arenderer) 
+{
+    if(this->hasUpdateFunction) {
+        handler.getFunction(this->updateFunction);
+        handler.pushNumber(this->alight.getPosition().x);
+        handler.pushNumber(this->alight.getPosition().y);
+        handler.pushNumber(this->alight.getPosition().z);
+
+        handler.pushNumber(this->alight.getDirection().x);
+        handler.pushNumber(this->alight.getDirection().y);
+        handler.pushNumber(this->alight.getDirection().z);
+
+        handler.pushNumber(this->alight.getUp().x);
+        handler.pushNumber(this->alight.getUp().y);
+        handler.pushNumber(this->alight.getUp().z);
+
+        handler.pushNumber(this->alight.getColor().r);
+        handler.pushNumber(this->alight.getColor().g);
+        handler.pushNumber(this->alight.getColor().b);
+        handler.pushNumber(this->alight.getColor().a);
+
+        handler.pushNumber(this->alight.getIntensity());
+        handler.pushNumber(this->alight.getSpecularPower());
+        handler.pushNumber(arenderer.getDeltaTime());
+        handler.pushNumber(arenderer.getAccumulator());
+
+        handler.callFunctionFromStack(17, 15);
+
+        glm::vec3 newValues3;
+        glm::vec4 newValues4;
+
+        this->alight.setSpecularPower(handler.popNumber());
+        this->alight.setIntensity(handler.popNumber());
+
+        newValues4.w = handler.popNumber();
+        newValues4.z = handler.popNumber();
+        newValues4.y = handler.popNumber();
+        newValues4.x = handler.popNumber();
+        this->alight.setColor(newValues4);
+
+        newValues3.z = handler.popNumber();
+        newValues3.y = handler.popNumber();
+        newValues3.x = handler.popNumber();
+        this->alight.setUp(newValues3);
+
+        newValues3.z = handler.popNumber();
+        newValues3.y = handler.popNumber();
+        newValues3.x = handler.popNumber();
+        this->alight.setDirection(newValues3);
+
+        newValues3.z = handler.popNumber();
+        newValues3.y = handler.popNumber();
+        newValues3.x = handler.popNumber();
+        this->alight.setPosition(newValues3);
+	}
+}
+
+bool ALightObject::setupUpdateFunction(LuaHandler& handler, const std::string functionName) 
+{
+    bool functionExists = handler.getFunction(functionName);
+    if(functionExists) {
+        handler.popTop();
+
+        this->hasUpdateFunction = true;
+        this->updateFunction = functionName;
+    }
+
+    return functionExists;
 }
 
 // Static methods
