@@ -83,6 +83,15 @@ fragmentShader = [[
     float lightQuadratic = 0.032f;
     float maximumIntensity = 50.0f;
 
+    vec3 gridSamplingDisk[20] = vec3[]
+    (
+        vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1), 
+        vec3(1, 1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
+        vec3(1, 1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1, 1,  0),
+        vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
+        vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
+    );
+
     uniform samplerCube depthMap;
     uniform AmbientLight sceneAmbientLight;
     uniform Light sceneLight;
@@ -106,11 +115,20 @@ fragmentShader = [[
 
         //Shadow calculation
         vec3 fragToLight = vectorIn.vposition - sceneLight.position; 
-        float closestDepth = texture(depthMap, normalize(fragToLight)).r;
-        closestDepth *= farPlane;
         float currentDepth = length(fragToLight); 
-        float bias = 0.05;
-        float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0; 
+        float shadow = 0.0;
+        float bias = 0.15;
+        int samples = 20;
+        float viewDistance = length(vectorIn.tangentViewPos - vectorIn.tangentFragPos);
+        float diskRadius = (1.0 + (viewDistance / farPlane)) / 55.0;
+        float closestDepth = 0.0f;
+        for(int i = 0; i < samples; ++i)
+        {
+            closestDepth = texture(depthMap, fragToLight + gridSamplingDisk[i] * diskRadius).r;
+            closestDepth *= farPlane;
+            shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
+        }
+        shadow /= float(samples);
 
         vec3 lightDirection = normalize(vectorIn.tangentLightPos - vectorIn.tangentFragPos);
 
@@ -129,7 +147,6 @@ fragmentShader = [[
         
         //Ambient calculation
         vec4 ambientColor = vec4(sceneAmbientLight.intensity * sceneAmbientLight.color.rgb, 1.0);
-
 
         vec4 finalColor = ambientColor + (1.0 - shadow) * (diffuseColor + specularColor);
         finalColor.a = 1.0;
