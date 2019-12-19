@@ -60,6 +60,12 @@ int main(void)
 	ARenderQuad adepthRenderQuad(luaHandler.getGlobalString("depthCubemapFragmentShader"));
 	GLuint renderQuadProgramme = adepthRenderQuad.getProgramme();
 
+	float downsample = luaHandler.getGlobalNumber("downsample");
+
+	AFramebuffer thresholdSceneFramebuffer(width / downsample, height / downsample);
+	thresholdSceneFramebuffer.setBufferShowFlag(0x04);
+	ARenderQuad thresholdSceneRenderQuad(luaHandler.getGlobalString("thresholdShader"));
+
 	ASkybox askybox(std::vector<std::string>{
         "../3DModels/desertsky_ft.tga",
         "../3DModels/desertsky_bc.tga",
@@ -95,6 +101,8 @@ int main(void)
 	GLuint widthUniform = glGetUniformLocation(renderQuadProgramme, "width");
 	GLuint heigthUniform = glGetUniformLocation(renderQuadProgramme, "height");
 
+	GLuint thresholdUniform = glGetUniformLocation(thresholdSceneRenderQuad.getProgramme(), "threshold");
+
 	GLuint shadowMatricesUniforms[6];
 	char uniformName[64];
 	std::string buffer;
@@ -118,18 +126,14 @@ int main(void)
 	float shadowNear =luaHandler.getGlobalNumber("shadowNear");
 	float shadowFar = luaHandler.getGlobalNumber("shadowFar");
 
+	float threshold = luaHandler.getGlobalNumber("threshold");
+
 	ADepthbuffer ashadowCubeMapFramebuffer(width * 2, height * 2);
 	ADepthCubeMap adepthCubemap(ashadowCubeMapFramebuffer, shadowWidth, shadowHeight, GL_FLOAT);
 
 	AFramebuffer shadowedSceneFramebuffer(width * 2, height * 2);
 	shadowedSceneFramebuffer.setBufferShowFlag(0x02);
-	ARenderQuad shadowedSceneRenderQuad;
-
-	float downsample = luaHandler.getGlobalNumber("downsample");
-
-	AFramebuffer thresholdSceneFramebuffer(width / downsample, height / downsample);
-	thresholdSceneFramebuffer.setBufferShowFlag(0x04);
-	ARenderQuad thresholdSceneRenderQuad(luaHandler.getGlobalString("thresholdShader"));
+	ARenderQuad shadowedSceneRenderQuad;	
 
 	float shadowAspect = (float)shadowWidth/(float)shadowHeight;
 	glm::mat4 shadowProj = glm::perspective(glm::radians(luaHandler.getGlobalNumber("shadowFov")), shadowAspect, shadowNear, shadowFar);
@@ -171,6 +175,11 @@ int main(void)
 	arenderer.addKeybind(AFlagTogglerKeyBind(GLFW_KEY_2, showBuffer, 0x02));
 	arenderer.addKeybind(AFlagTogglerKeyBind(GLFW_KEY_3, showBuffer, 0x04));
 	ashadowCubeMapFramebuffer.setBufferShowFlag(0x02);
+
+	arenderer.addKeybind(APressKeyBind(GLFW_KEY_T, [&threshold](int action, int mods) {
+		if(mods == GLFW_MOD_SHIFT) { threshold += 0.01f; } else { threshold -= 0.01f; }
+		printf(" threshold > %f\n", threshold);
+	}));
 
 	glActiveTexture(GL_TEXTURE0);
 	do
@@ -221,7 +230,9 @@ int main(void)
 			glViewport(0, 0, width / downsample, height / downsample);
 			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			thresholdSceneRenderQuad.render(shadowedSceneFramebuffer.getFramebufferTexture());
+			glUseProgram(thresholdSceneRenderQuad.getProgramme());
+			glUniform1f(thresholdUniform, threshold);
+			thresholdSceneRenderQuad.render(shadowedSceneFramebuffer.getFramebufferTexture(), false);
 		thresholdSceneFramebuffer.unbindBuffer();
 
 		agaussianQuad.render(thresholdSceneFramebuffer.getFramebufferTexture());

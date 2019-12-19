@@ -226,15 +226,6 @@ thresholdShader = [[
 
     uniform sampler2D textureUniform;
     uniform float threshold;
-    vec3 rgb2xyz(vec3 c) {
-        float R = ((c.r > 0.04045) ? pow((( c.r + 0.055 ) / 1.055), 2.4) : (c.r / 12.92)) * 100.0;
-        float G = ((c.g > 0.04045) ? pow((( c.g + 0.055 ) / 1.055), 2.4) : (c.g / 12.92)) * 100.0;
-        float B = ((c.b > 0.04045) ? pow((( c.b + 0.055 ) / 1.055), 2.4) : (c.b / 12.92)) * 100.0;
-        float X = R * 0.4124 + G * 0.3576 + B * 0.1805;
-        float Y = R * 0.2126 + G * 0.7152 + B * 0.0722;
-        float Z = R * 0.0193 + G * 0.1192 + B * 0.9505;
-        return vec3(X, Y, Z);
-    }
 
     out vec4 frag_colour;
 
@@ -242,7 +233,15 @@ thresholdShader = [[
     {
         vec4 original = texture(textureUniform, vuv);
         float luminance = 0.2126 * original.r + 0.7152 * original.g + 0.0722 * original.b;
-        frag_colour = luminance * original;
+
+        if(threshold <= 0.0) {
+            frag_colour = luminance * original;
+        }
+        else if(luminance > threshold) {
+            frag_colour = original;
+        } else {
+            frag_colour = vec4(0.0);
+        }
     }
 ]]
 
@@ -283,11 +282,13 @@ shadowHeight = 1024
 shadowNear = 0.1
 shadowFar = 25.0
 
-downsample = 2.0
+downsample = 4.0
 
-gaussianSigma = 2.0
+threshold = 0.6
+
+gaussianSigma = 2.3
 gaussianWeightLength = 10
-gaussianIterations = 5
+gaussianIterations = 3
 
 initialMask = 255
 
