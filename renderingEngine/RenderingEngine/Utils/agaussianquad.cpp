@@ -39,8 +39,8 @@ AGaussianQuad::AGaussianQuad(GLfloat width, GLfloat height, float gaussianSigma,
     std::string fragmentShaderText = AGaussianQuad::gaussianFragmentHeader;
 
     std::string gaussianWeightLengthString = std::to_string(gaussianWeightLength);
-    fragmentShaderText.replace(fragmentShaderText.find("{1}"), gaussianWeightLengthString.length() + 1, gaussianWeightLengthString);
-    fragmentShaderText.replace(fragmentShaderText.find("{2}"), gaussianWeightLengthString.length() + 1, gaussianWeightLengthString);
+    fragmentShaderText.replace(fragmentShaderText.find("{1}"), std::max(gaussianWeightLengthString.length() + 1, static_cast<unsigned long>(3)), gaussianWeightLengthString);
+    fragmentShaderText.replace(fragmentShaderText.find("{2}"), std::max(gaussianWeightLengthString.length() + 1, static_cast<unsigned long>(3)), gaussianWeightLengthString);
     
     std::string fragmentShaderX = std::string(fragmentShaderText).append(AGaussianQuad::gaussianXFragment);
     std::string fragmentShaderY = std::string(fragmentShaderText).append(AGaussianQuad::gaussianYFragment);
@@ -48,7 +48,7 @@ AGaussianQuad::AGaussianQuad(GLfloat width, GLfloat height, float gaussianSigma,
     this->initialize(ARenderQuad::defaultVertexShader, fragmentShaderX);
 
     secondFragmentShader = AShader::generateShader(fragmentShaderY, GL_FRAGMENT_SHADER);
-    secondProgramme = AShader::generateProgram(vertexShader, fragmentShader);
+    secondProgramme = AShader::generateProgram(vertexShader, secondFragmentShader);
 
 	float sigma2 = (gaussianSigma * gaussianSigma);
 	float coeff = 1.0 / glm::two_pi<float>() * sigma2;
@@ -92,7 +92,6 @@ AGaussianQuad::~AGaussianQuad(void) {
     delete[] weightUniformsY;
 }
 
-//Not sure about the constness of this method, since it affects the framebuffers
 void AGaussianQuad::render(GLuint texture) const {
     for(unsigned int i = 0; i < gaussianIterations; i++) {
         framebufferX.bindBuffer();
