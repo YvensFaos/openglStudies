@@ -80,7 +80,7 @@ fragmentShader = [[
             projTexColor = textureProj(projectedTexture,projectedCoords);
         }
 
-        vec4 finalColor = vec4(diffuse, sceneLight.color.w) + projTexColor * 0.5;
+        vec4 finalColor = vec4(diffuse, sceneLight.color.w) + vec4(vec3(0.5 * projTexColor.rgb), 1.0);
         finalColor.a = 1.0;
 
         frag_colour = finalColor;
@@ -91,27 +91,31 @@ textureDirectory = "../3DModels"
 texturePath = "toy_box_normal.png"
 
 models = {}
-models[1] = {file = "../3DModels/nonormalmonkey.obj", pos = { 0.0,  0.0, 3.0}, sca = {1.0, 1.0, 1.0}, rot = {-30.0,  0.0, 0.0}}
+models[1] = {file = "../3DModels/nonormalmonkey.obj", pos = { 0.0,  0.0, 2.0}, sca = {1.0, 1.0, 1.0}, rot = {-20.0,  0.0, 0.0}}
 models[2] = {file = "../3DModels/plane100x100.obj", pos = { 0.0, -1.0, 0.0}, sca = {5.0, 1.0, 5.0}, rot = {15.0, 0.0, 0.0}}
+models[3] = {file = "../3DModels/plane100x100.obj", pos = { 0.0, -2.0, 0.0}, sca = {10.0, 1.0, 10.0}, rot = {5.0, 0.0, 0.0}}
 
 lightIntensity = 200
-light = {pos = { 0.0, 2.0, 0.0}, dir = {0.0, 1.0, 0.0}, up = {0.0, 0.0, 1.0}, col = {200 / 255, 200 / 255, 120 / 255, 1.0}, intensity = lightIntensity, specularPower = 256.0, directional = true}
+light = {
+    pos = { 0.0, 5.0, 0.0}, 
+    dir = {0.0, 1.0, 0.0}, 
+    up = {0.0, 0.0, 1.0}, 
+    col = {200 / 255, 200 / 255, 200 / 255, 1.0}, 
+    intensity = lightIntensity, 
+    specularPower = 256.0, 
+    directional = true
+}
 
-projPos = { 2.0, 0.0, 5.0}
-projAt  = {-2.0,-4.0, 0.0}
-projUp  = { 0.0, 1.0, 0.0}
+projPos = { 0.0, 3.0, -1.0}
+projAt  = { 0.0, 0.0, 0.0}
+projUp  = { 0.0, 0.0, 1.0}
 projSca = { 0.5, 0.5, 0.5}
 projTra = { 0.5, 0.5, 0.5}
     
 cameraPosition = {
-    -- pos   = {2.863, -1.708, 4.256},
-    -- dir   = {-0.388, -0.841, -0.377},
-    -- up    = {-0.603, 0.541, -0.586},
-    -- right = {0.697, 0.000, -0.717},
-    -- angle = {-135.808, -57.249}
-    pos   = {6.566, 3.775, 7.882},
-    dir   = {-0.558, -0.511, -0.654},
-    up    = {-0.332, 0.859, -0.389},
-    right = {0.761, 0.000, -0.649},
-    angle = {-130.452, -30.751}
+    pos   = {4.381, 6.902, 13.455},
+    dir   = {-0.315, -0.633, -0.707},
+    up    = {-0.258, 0.774, -0.578},
+    right = {0.913, 0.000, -0.407},
+    angle = {-114.028, -39.289}
 }

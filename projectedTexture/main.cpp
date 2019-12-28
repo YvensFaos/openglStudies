@@ -50,15 +50,6 @@ int main(void)
 
   	GLuint shaderProgramme = AShader::generateProgram(vs, fs);
 
-	ASkybox askybox(std::vector<std::string>{
-        "../3DModels/desertsky_ft.tga",
-        "../3DModels/desertsky_bc.tga",
-        "../3DModels/desertsky_up.tga",
-        "../3DModels/desertsky_dn.tga",
-        "../3DModels/desertsky_rt.tga",
-        "../3DModels/desertsky_lf.tga"
-    });
-
 	GLuint modelMatrixUniform = glGetUniformLocation(shaderProgramme, "model");
 	GLuint vMatrixUniform = glGetUniformLocation(shaderProgramme, "view");
 	GLuint pMatrixUniform = glGetUniformLocation(shaderProgramme, "projection");
@@ -100,7 +91,6 @@ int main(void)
 
 	glm::mat4 view = acamera.getView();
 	glm::mat4 viewProjectionMatrix = projection * view;
-	glm::mat4 skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
 
 	glActiveTexture(GL_TEXTURE0);
 	do
@@ -108,7 +98,6 @@ int main(void)
 		projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 		view = acamera.getView();
 		viewProjectionMatrix = projection * view;
-		skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
 
 		arenderer.startFrame();
 
@@ -125,8 +114,6 @@ int main(void)
 		glUniformMatrix4fv(projectedMatrixUniform, 1, GL_FALSE, glm::value_ptr(projectedMatrix));
 		alight.setupUniforms(lightPositionUniform, lightDirectionUniform, lightColorUniform, lightIntensityUniform, lightDirectionalUniform);
 		AModel::renderModelsInList(models, modelMatrixUniform, shaderProgramme, GL_TRIANGLES, false);
-
-		askybox.render(skyViewProjectionMatrix);
 
 		arenderer.finishFrame();
 	}
