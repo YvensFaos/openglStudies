@@ -167,7 +167,7 @@ std::vector<ATexture> AModel::loadMaterialTextures(aiMaterial *mat, aiTextureTyp
         mat->GetTexture(type, i, &str);
 
         ATexture texture;
-        texture.id = TextureFromFile(str.C_Str(), directory);
+        texture.id = AModel::TextureFromFile(str.C_Str(), directory);
         texture.type = typeName;
         texture.path = std::string(str.C_Str());
         textures.push_back(texture);
@@ -175,7 +175,7 @@ std::vector<ATexture> AModel::loadMaterialTextures(aiMaterial *mat, aiTextureTyp
     return textures;
 }
 
-unsigned int AModel::TextureFromFile(const char *path, const std::string &directory, bool gamma)
+unsigned int AModel::TextureFromFile(const char *path, const std::string &directory, bool gamma, const GLint minFilter, const GLint magFilter, const GLint textureWrapS, const GLint textureWrapT)
 {
     std::string filename = std::string(path);
     if(!directory.empty()) {
@@ -209,10 +209,10 @@ unsigned int AModel::TextureFromFile(const char *path, const std::string &direct
         glBindTexture(GL_TEXTURE_2D, textureID);
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, textureWrapS);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, textureWrapT);
 
         glBindTexture(GL_TEXTURE_2D, 0);
         stbi_image_free(data);
