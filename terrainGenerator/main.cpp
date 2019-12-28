@@ -29,10 +29,9 @@
 #include <RenderingEngine/Utils/amacrohelper.hpp>
 #include <RenderingEngine/Utils/aluahelper.hpp>
 #include <RenderingEngine/Objects/alightobject.hpp>
+#include <RenderingEngine/Objects/atextureholder.hpp>
 
 #include <perlinFunction.hpp>
-
-#include "atexture.hpp"
 
 #include <stb_image.h>
 
@@ -75,17 +74,25 @@ int main(void)
 	glm::mat4 view = acamera.getView();
 	glm::mat4 viewProjectionMatrix = projection * view;
 
-	ATextureData atextureData1(600, 600);
-	ATextureData atextureData2(600, 600);
-	ATextureData atextureData3(600, 600);
-	PerlinNoise::generatePerlinNoise(atextureData1.width, atextureData1.height, 16, 16, atextureData1.data);
-	PerlinNoise::generatePerlinNoise(atextureData2.width, atextureData2.height,  8,  8, atextureData2.data);
-	PerlinNoise::generatePerlinNoise(atextureData3.width, atextureData3.height,  4,  4, atextureData3.data);
+	uint bwidth = 600;
+	uint bheight = 600;
+	float* buffer = new float[bwidth * bheight * 4];
 
-	ATextureHolder mountains("../3DModels/rocky_512.jpg");
-	ATextureHolder atexture1(atextureData1);
-	ATextureHolder atexture2(atextureData2);
-	ATextureHolder atexture3(atextureData3);
+	PerlinNoise::generatePerlinNoise(bwidth, bheight, 16, 16, buffer);
+	ATextureData atextureData1(bwidth, bheight, buffer);
+	ATextureHolder   atexture1(atextureData1, GL_LINEAR, GL_LINEAR, GL_MIRRORED_REPEAT, GL_MIRRORED_REPEAT);
+
+	PerlinNoise::generatePerlinNoise(bwidth, bheight, 8, 8, buffer);
+	ATextureData atextureData2(bwidth, bheight, buffer);
+	ATextureHolder   atexture2(atextureData2, GL_LINEAR, GL_LINEAR, GL_MIRRORED_REPEAT, GL_MIRRORED_REPEAT);
+
+	PerlinNoise::generatePerlinNoise(bwidth, bheight, 4, 4, buffer);
+	ATextureData atextureData3(bwidth, bheight, buffer);
+	ATextureHolder   atexture3(atextureData3, GL_LINEAR, GL_LINEAR, GL_MIRRORED_REPEAT, GL_MIRRORED_REPEAT);
+
+	delete[] buffer;
+
+	ATextureHolder mountains("rocky_512.jpg", "../3DModels");
 	do
 	{
 		projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
