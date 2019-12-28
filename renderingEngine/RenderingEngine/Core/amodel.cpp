@@ -51,14 +51,14 @@ void AModel::processNode(aiNode *node, const aiScene *scene, const glm::mat4 par
     }
 }
 
-void AModel::draw(GLuint programme, GLenum mode) const
+void AModel::draw(GLuint programme, GLenum mode, bool renderWithTextures) const
 {
     for(unsigned int i = 0; i < meshes.size(); i++) {
-        meshes[i].draw(programme, mode);
+        meshes[i].draw(programme, mode, renderWithTextures);
     }
 }  
 
-void AModel::renderModels(GLuint modelMatrixUniform, GLuint programme, GLenum mode) const
+void AModel::renderModels(GLuint modelMatrixUniform, GLuint programme, GLenum mode, bool renderWithTextures) const
 {
     auto pointer = this->getMeshes();
     auto modelMatrix = this->getModelMatrix();
@@ -66,7 +66,7 @@ void AModel::renderModels(GLuint modelMatrixUniform, GLuint programme, GLenum mo
     glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
     for (size_t i = 0; i < pointer.size(); i++)
     {
-        pointer[i].draw(programme, mode);
+        pointer[i].draw(programme, mode, renderWithTextures);
     }
 }
 
@@ -287,7 +287,7 @@ ABoundingBox AModel::getBoundingBox(void) const {
     return ABoundingBox(min, max);
 }
 
-void AModel::renderModelsInList(std::vector<AModel>& list, GLuint modelMatrixUniform, GLuint programme, GLenum mode)
+void AModel::renderModelsInList(std::vector<AModel>& list, GLuint modelMatrixUniform, GLuint programme, GLenum mode, bool renderWithTextures)
 {
     for(auto amodelIterator = list.begin(); amodelIterator != list.end(); ++amodelIterator)
     {
@@ -296,7 +296,7 @@ void AModel::renderModelsInList(std::vector<AModel>& list, GLuint modelMatrixUni
         for(unsigned int i = 0; i < pointer.size(); i++)
         {
             glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-            pointer[i].draw(programme, mode);
+            pointer[i].draw(programme, mode, renderWithTextures);
         }
     }
 }

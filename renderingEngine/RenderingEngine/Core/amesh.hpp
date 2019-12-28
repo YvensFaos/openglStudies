@@ -33,7 +33,7 @@ class AMesh {
         AMesh(std::vector<AVertex> vertices, std::vector<GLuint> indices, std::vector<ATexture> textures);
         AMesh(const AMesh& anotherMesh);
 
-        void draw(GLuint shader, GLenum mode) const;
+        void draw(GLuint shader, GLenum mode, bool renderWithTextures) const;
         ABoundingBox getBoundingBox(void) const;
 
         const std::vector<AVertex>& getVertices(void) const;

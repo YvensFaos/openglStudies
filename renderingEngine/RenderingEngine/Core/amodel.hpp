@@ -22,8 +22,8 @@ class AModel
         AModel(std::string path);
         AModel(const AModel& copyFrom);
 
-        void draw(GLuint programme, GLenum mode = GL_TRIANGLES) const;
-        void renderModels(GLuint modelMatrixUniform, GLuint programme, GLenum mode = GL_TRIANGLES) const;
+        void draw(GLuint programme, GLenum mode = GL_TRIANGLES, bool renderWithTextures = true) const;
+        void renderModels(GLuint modelMatrixUniform, GLuint programme, GLenum mode = GL_TRIANGLES, bool renderWithTextures = true) const;
         const std::vector<AMesh>& getMeshes(void) const;
         const AMesh& getMeshAt(int index) const;
 
@@ -44,9 +44,9 @@ class AModel
         void processNode(aiNode *node, const aiScene *scene, const glm::mat4 parentMat4);
         AMesh processMesh(aiMesh *mesh, const aiScene *scene, const glm::mat4 transformation);
         std::vector<ATexture> loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName);
-        unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma = false);
 
     public:
         static unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma = false, const GLint minFilter = GL_LINEAR, const GLint magFilter = GL_LINEAR, const GLint textureWrapS = GL_CLAMP_TO_BORDER, const GLint textureWrapT = GL_CLAMP_TO_BORDER);
+        static void renderModelsInList(std::vector<AModel>& list, GLuint modelMatrixUniform, GLuint programme, GLenum mode = GL_TRIANGLES, bool renderWithTextures = true);
         static glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4* from);
 };

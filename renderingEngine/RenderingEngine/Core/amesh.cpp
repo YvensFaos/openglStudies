@@ -85,9 +85,11 @@ void AMesh::bindTextures(GLuint shader) const
     }
 }
 
-void AMesh::draw(GLuint shader, GLenum mode) const 
+void AMesh::draw(GLuint shader, GLenum mode, bool renderWithTextures) const 
 {
-    bindTextures(shader);
+    if(renderWithTextures) {
+        this->bindTextures(shader);
+    }
     glBindVertexArray(VAO);
     glDrawElements(mode, indices.size(), GL_UNSIGNED_INT, 0);
 }  
