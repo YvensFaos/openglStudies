@@ -42,4 +42,6 @@ class ALuaHelper {
 
         ///Load a glm::vec4 from 4 consecutive values in a table by the identifier name.
         static glm::vec4 readVec4FromTable(std::string identifier, LuaHandler& luaHandler);
+        ///Load a glm::vec3 from 3 consecutive values in a table by the identifier name.
+        static glm::vec3 readVec3FromTable(std::string identifier, LuaHandler& luaHandler);
 };

@@ -296,3 +296,14 @@ glm::vec4 ALuaHelper::readVec4FromTable(std::string identifier, LuaHandler& luaH
     luaHandler.popTable();
     return value;
 }
+
+glm::vec3 ALuaHelper::readVec3FromTable(std::string identifier, LuaHandler& luaHandler) 
+{
+    luaHandler.loadTable(identifier.c_str());
+    glm::vec3 value(0,0,0);
+    value.x = luaHandler.getNumberFromTable(1);
+	value.y = luaHandler.getNumberFromTable(2);
+	value.z = luaHandler.getNumberFromTable(3);
+    luaHandler.popTable();
+    return value;
+}
