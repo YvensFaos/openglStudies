@@ -34,6 +34,7 @@ class AMesh {
         AMesh(const AMesh& anotherMesh);
 
         void draw(GLuint shader, GLenum mode, bool renderWithTextures) const;
+        void drawPatches(GLuint shader, bool renderWithTextures) const;
         ABoundingBox getBoundingBox(void) const;
 
         const std::vector<AVertex>& getVertices(void) const;

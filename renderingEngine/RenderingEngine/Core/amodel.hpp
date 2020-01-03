@@ -48,5 +48,6 @@ class AModel
     public:
         static unsigned int TextureFromFile(const char *path, const std::string &directory, bool gamma = false, const GLint minFilter = GL_LINEAR, const GLint magFilter = GL_LINEAR, const GLint textureWrapS = GL_CLAMP_TO_BORDER, const GLint textureWrapT = GL_CLAMP_TO_BORDER);
         static void renderModelsInList(std::vector<AModel>& list, GLuint modelMatrixUniform, GLuint programme, GLenum mode = GL_TRIANGLES, bool renderWithTextures = true);
+        static void renderPatchesModelsInList(std::vector<AModel>& list, GLuint modelMatrixUniform, GLuint programme, bool renderWithTextures = true);
         static glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4* from);
 };

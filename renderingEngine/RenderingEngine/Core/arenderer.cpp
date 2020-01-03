@@ -117,6 +117,10 @@ void ARenderer::initialize(void)
 		return;
 	}
 
+	GLint MaxPatchVertices = 0;
+	glGetIntegerv(GL_MAX_PATCH_VERTICES, &MaxPatchVertices);
+	printf("Max supported patch vertices %d\n", MaxPatchVertices);
+
     glfwSetKeyCallback(window,         ARenderer::staticKeyCallback);
 	glfwSetCursorPosCallback(window,   ARenderer::staticMouseCallback);
 	glfwSetMouseButtonCallback(window, ARenderer::staticMouseButtonCallback);

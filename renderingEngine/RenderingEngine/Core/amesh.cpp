@@ -92,7 +92,16 @@ void AMesh::draw(GLuint shader, GLenum mode, bool renderWithTextures) const
     }
     glBindVertexArray(VAO);
     glDrawElements(mode, indices.size(), GL_UNSIGNED_INT, 0);
-}  
+}
+
+void AMesh::drawPatches(GLuint shader, bool renderWithTextures) const 
+{
+    if(renderWithTextures) {
+        this->bindTextures(shader);
+    }
+    glBindVertexArray(VAO);
+    glDrawElements(GL_PATCHES, indices.size(), GL_UNSIGNED_INT, 0);
+}
 
 ABoundingBox AMesh::getBoundingBox(void) const 
 {

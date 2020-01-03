@@ -301,6 +301,20 @@ void AModel::renderModelsInList(std::vector<AModel>& list, GLuint modelMatrixUni
     }
 }
 
+void AModel::renderPatchesModelsInList(std::vector<AModel>& list, GLuint modelMatrixUniform, GLuint programme, bool renderWithTextures)
+{
+    for(auto amodelIterator = list.begin(); amodelIterator != list.end(); ++amodelIterator)
+    {
+        const std::vector<AMesh>& pointer = (*amodelIterator).getMeshes();
+        auto modelMatrix = (*amodelIterator).getModelMatrix();
+        for(unsigned int i = 0; i < pointer.size(); i++)
+        {
+            glUniformMatrix4fv (modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
+            pointer[i].drawPatches(programme, renderWithTextures);
+        }
+    }
+}
+
 const AMesh& AModel::getMeshAt(int index) const 
 {
     return this->meshes[index];
