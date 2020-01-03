@@ -76,6 +76,9 @@ int main(void)
 	GLuint   lightIntensityUniform = glGetUniformLocation(shaderProgramme, "sceneLight.intensity");
 	GLuint lightDirectionalUniform = glGetUniformLocation(shaderProgramme, "sceneLight.directional");
 	GLuint      eyeWorldPosUniform = glGetUniformLocation(shaderProgramme, "eyeWorldPos");
+	GLuint      minDistanceUniform = glGetUniformLocation(shaderProgramme, "minDistance");
+	GLuint      maxDistanceUniform = glGetUniformLocation(shaderProgramme, "maxDistance");
+	GLuint     maxTessLevelUniform = glGetUniformLocation(shaderProgramme, "maxTessLevel");
 
 	GLuint 		modelMatrixNormalUniform = glGetUniformLocation(normalShaderProgramme, "model");
 	GLuint 		   vpMatrixNormalUniform = glGetUniformLocation(normalShaderProgramme, "viewProjection");
@@ -98,8 +101,11 @@ int main(void)
 	glm::mat4 skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
 	glm::vec3 cameraPosition;
 
+	float minDistance = luaHandler.getGlobalNumber("minDistance");
+	float maxDistance = luaHandler.getGlobalNumber("maxDistance");
+	float maxTessLevel = luaHandler.getGlobalNumber("maxTessLevel");
+
 	bool tesselationOn = true;
-	//int key, std::function<void(int action, int mods)> keyAction
 	arenderer.addKeybind(APressKeyBind(GLFW_KEY_1, 
 		[&tesselationOn](int action, int mods) {
 			tesselationOn = !tesselationOn;
@@ -127,6 +133,9 @@ int main(void)
 			glUseProgram(shaderProgramme);
 			glUniformMatrix4fv(vpMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
 			glUniform3f(eyeWorldPosUniform, cameraPosition.x, cameraPosition.y, cameraPosition.z);
+			glUniform1f(minDistanceUniform, minDistance);
+			glUniform1f(maxDistanceUniform, maxDistance);
+			glUniform1f(maxTessLevelUniform, maxTessLevel);
 			alight.setupUniforms(lightPositionUniform, lightDirectionUniform, lightColorUniform, lightIntensityUniform, lightDirectionalUniform);
 
 			glPatchParameteri(GL_PATCH_VERTICES, 3);

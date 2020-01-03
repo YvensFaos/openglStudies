@@ -94,16 +94,18 @@ vertexShader = [[
     layout (location = 1) in vec3 normal;
     layout (location = 2) in vec2 uv;
 
-    out vec3 vposition;
-    out vec3 vnormal;
-    out vec2 vuv;
+    out vectorOut {
+        vec3 vposition;
+        vec3 vnormal;
+        vec2 vuv;
+    } vectorOut;
 
     uniform mat4 model;
 
     void main() {
-        vposition = vec3(model * vec4(vertex, 1.0));
-        vnormal = mat3(transpose(inverse(model))) * normal;
-        vuv = uv;
+        vectorOut.vposition = vec3(model * vec4(vertex, 1.0));
+        vectorOut.vnormal = mat3(transpose(inverse(model))) * normal;
+        vectorOut.vuv = uv;
     }
 ]]
 
@@ -112,35 +114,41 @@ controlTesselationShader = [[
 
     layout (vertices = 3) out;
 
-    in vec3 vposition[];
-    in vec3 vnormal[];
-    in vec2 vuv[];
+    in vectorOut {
+        vec3 vposition;
+        vec3 vnormal;
+        vec2 vuv;
+    } vectorIn[];
 
-    out vec3 tsposition[];
-    out vec3 tsnormal[];
-    out vec2 tsuv[];
+    out controlOut {
+        vec3 vposition;
+        vec3 vnormal;
+        vec2 vuv;
+    } controlOut[];
+
     out float ttessLevel[];
 
     uniform vec3 eyeWorldPos;
+    uniform float minDistance = 1.0;
+    uniform float maxDistance = 10.0;
+    uniform float maxTessLevel = 10.0;
 
-    float getTesselationLevel(float Distance0, float Distance1)
+    float getTesselationLevel(float distance0, float distance1)
     {
-        float minDistance = 1.0;
-        float maxDistance = 10.0;
-        float d = (Distance0 + Distance1) / 2.0;
+        float d = (distance0 + distance1) / 2.0;
 
-        float level = (1.0 - abs(minDistance - max(minDistance, min(d, (minDistance + maxDistance)))) / maxDistance) * 10.0;
+        float level = (1.0 - abs(minDistance - max(minDistance, min(d, (minDistance + maxDistance)))) / maxDistance) * maxTessLevel;
         return level;
     }
     
     void main() {
-        tsposition[gl_InvocationID] = vposition[gl_InvocationID];
-        tsnormal[gl_InvocationID] = vnormal[gl_InvocationID];
-        tsuv[gl_InvocationID] = vuv[gl_InvocationID];
+        controlOut[gl_InvocationID].vposition = vectorIn[gl_InvocationID].vposition;
+        controlOut[gl_InvocationID].vnormal = vectorIn[gl_InvocationID].vnormal;
+        controlOut[gl_InvocationID].vuv = vectorIn[gl_InvocationID].vuv;
 
-        float eyeToVertexDistance0 = distance(eyeWorldPos, tsposition[0]);
-        float eyeToVertexDistance1 = distance(eyeWorldPos, tsposition[1]);
-        float eyeToVertexDistance2 = distance(eyeWorldPos, tsposition[2]);
+        float eyeToVertexDistance0 = distance(eyeWorldPos, vectorIn[0].vposition);
+        float eyeToVertexDistance1 = distance(eyeWorldPos, vectorIn[1].vposition);
+        float eyeToVertexDistance2 = distance(eyeWorldPos, vectorIn[2].vposition);
 
         gl_TessLevelOuter[0] = max(0.1, getTesselationLevel(eyeToVertexDistance1, eyeToVertexDistance2));
         gl_TessLevelOuter[1] = max(0.1, getTesselationLevel(eyeToVertexDistance2, eyeToVertexDistance0));
@@ -156,14 +164,19 @@ evaluationTesselationShader = [[
 
     layout(triangles, equal_spacing, ccw) in; 
 
-    in vec3 tsposition[];
-    in vec3 tsnormal[];
-    in vec2 tsuv[];
-    in float ttessLevel[];
+    in controlOut {
+        vec3 vposition;
+        vec3 vnormal;
+        vec2 vuv;
+    } controlIn[];
 
-    out vec3 fsposition;
-    out vec3 fsnormal;
-    out vec2 fsuv;
+    out evaluationOut {
+        vec3 vposition;
+        vec3 vnormal;
+        vec2 vuv;
+    } evaluationOut;
+
+    in float ttessLevel[];
     out float fstessLevel;
     
     uniform mat4 viewProjection;
@@ -180,12 +193,12 @@ evaluationTesselationShader = [[
  
     void main()
     { 
-        fsposition = interpolate3D(tsposition[0], tsposition[1], tsposition[2]);
-        fsuv = interpolate2D(tsuv[0], tsuv[1], tsuv[2]);
-        fsnormal = interpolate3D(tsnormal[0], tsnormal[1], tsnormal[2]);
+        evaluationOut.vposition = interpolate3D(controlIn[0].vposition, controlIn[1].vposition, controlIn[2].vposition);
+        evaluationOut.vuv = interpolate2D(controlIn[0].vuv, controlIn[1].vuv, controlIn[2].vuv);
+        evaluationOut.vnormal = interpolate3D(controlIn[0].vnormal, controlIn[1].vnormal, controlIn[2].vnormal);
         fstessLevel = (ttessLevel[0] + ttessLevel[1] + ttessLevel[2]) / 3.0;
 
-        gl_Position = viewProjection * vec4(fsposition, 1.0);
+        gl_Position = viewProjection * vec4(evaluationOut.vposition, 1.0);
     }
 ]]
 
@@ -195,22 +208,27 @@ geometryShader = [[
     layout(triangles) in;
     layout(line_strip, max_vertices = 4) out;
 
-    in vec3 fsposition[];
-    in vec3 fsnormal[];
-    in vec2 fsuv[];
-    in float fstessLevel[];
+    in evaluationOut {
+        vec3 vposition;
+        vec3 vnormal;
+        vec2 vuv;
+    } evaluationIn[];
 
-    out vec3 gposition;
-    out vec3 gnormal;
-    out vec2 guv;
+    out geometryOut {
+        vec3 vposition;
+        vec3 vnormal;
+        vec2 vuv;
+    } geometryOut;
+
+    in float fstessLevel[];
     out float gtessLevel;
 
     void main() {
         for(int i = 0; i < 4; i++) {
             gl_Position = gl_in[i % 3].gl_Position;
-            gposition = vec3(gl_Position);
-            gnormal = fsnormal[i % 3];
-            guv = fsuv[i % 3];
+            geometryOut.vposition = vec3(gl_Position);
+            geometryOut.vnormal = evaluationIn[i % 3].vnormal;
+            geometryOut.vuv = evaluationIn[i % 3].vuv;
             gtessLevel = fstessLevel[i % 3];
             EmitVertex();
         }
@@ -229,9 +247,12 @@ fragmentShader = [[
         bool directional;
     };
 
-    in vec3 gposition;
-    in vec3 gnormal;
-    in vec2 guv;
+    in geometryOut {
+        vec3 vposition;
+        vec3 vnormal;
+        vec2 vuv;
+    } geometryIn;
+
     in float gtessLevel;
 
     float lightConstant = 1.0f;
@@ -244,8 +265,8 @@ fragmentShader = [[
 
     void main()
     {          
-        vec3 norm = normalize(gnormal);
-        float distance = length(sceneLight.position - gposition);
+        vec3 norm = normalize(geometryIn.vnormal);
+        float distance = length(sceneLight.position - geometryIn.vposition);
 
         float attenuationIntensity = sceneLight.intensity / maximumIntensity;
         lightConstant = 1.0f    / attenuationIntensity;
@@ -303,6 +324,10 @@ fragmentShader_withoutGeometryShader = [[
 
 models = {}
 models[1] = {file = "../3DModels/nonormalmonkey.obj", pos = { 0.0, 0.0, 3.0}, sca = {1.0, 1.0, 1.0}, rot = {0.0, 0.0, 0.0}}
+
+minDistance = 1.0;
+maxDistance = 10.0;
+maxTessLevel = 32.0;
 
 lightIntensity = 100
 light = {
