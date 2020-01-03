@@ -1,6 +1,8 @@
 #pragma once
 
 #include <GL/glew.h>
+#include <algorithm>
+#include <iterator>
 #include <string>
 
 struct ATextureData {
@@ -8,10 +10,21 @@ struct ATextureData {
     const GLuint height;
     const float* data;
 
-    ATextureData(GLuint width, GLuint height, float* data) : width(width), height(height), data(data) { }
+    ATextureData(GLuint width, GLuint height, float* data) : width(width), height(height), data(ATextureData::copyRGBAData(width, height, data)) 
+    { }
 
     ~ATextureData() {
         delete[] data;
+    }
+
+    static float* copyRGBAData(GLuint width, GLuint height, float* data) {
+        unsigned int size = width * height * 4;
+        float* buffer = new float[width * height * 4];
+        for (unsigned int i = 0; i < size; i++)
+        {
+            buffer[i] = data[i];
+        }
+        return buffer;
     }
 };
 
