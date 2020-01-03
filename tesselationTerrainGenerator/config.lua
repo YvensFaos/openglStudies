@@ -90,9 +90,9 @@ evaluationTesselationShader = [[
     }
 ]]
 
-DETAILS = 0.10
-ELEVATN = 0.13
-TERRAIN = 0.65
+DETAILS = 0.05
+ELEVATN = 0.15
+TERRAIN = 1.45
 
 geometryShader = [[
     #version 410 core
@@ -319,26 +319,28 @@ wireFragmentShader = [[
 models = {}
 models[1] = {file = "../3DModels/plane10x10.obj", pos = { 0.0,  0.0, 3.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,  0.0, 0.0}}
 
-maxTessLevel = 1.0;
+maxTessLevel = 18.0;
 
 wireColor = {0.0, 0.0, 1.0, 1.0}
 
-terrainSize = 4
-elevationSize = 16
+terrainSize = 2
+elevationSize = 8
 detailsSize = 32
+
+seed = 6
 
 light = {pos = {0.0, 1.5, 3.0}, 
          dir = {0.0, -1.0, 0.0}, 
          up = {0.0, 1.0, 0.0}, 
          col = {127.0, 195.0, 235.0, 1.0}, 
-         intensity = 0.25, 
+         intensity = 0.3, 
          specularPower = 128.0, 
          directional = true }
 
 cameraPosition = {
-    pos   = {1.925, 1.126, 4.845},
-    dir   = {-0.691, -0.293, -0.660},
-    up    = {-0.212, 0.956, -0.202},
-    right = {0.691, 0.000, -0.723},
-    angle = {-136.312, -17.038}
+    pos   = {1.267, 0.883, 5.185},
+    dir   = {-0.545, -0.076, -0.835},
+    up    = {-0.042, 0.997, -0.064},
+    right = {0.837, 0.000, -0.547},
+    angle = {-123.153, -4.361}
 }

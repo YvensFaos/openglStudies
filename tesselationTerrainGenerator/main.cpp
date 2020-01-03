@@ -101,6 +101,7 @@ int main(void)
 	int ELEVATN = luaHandler.getGlobalInteger("elevationSize");
 	int DETAILS = luaHandler.getGlobalInteger("detailsSize");
 
+	srand(luaHandler.getGlobalInteger("seed"));
 	PerlinNoise::generatePerlinNoise(bwidth, bheight, DETAILS, DETAILS, buffer);
 	ATextureData atextureData1(bwidth, bheight, buffer);
 	ATextureHolder   atexture1(atextureData1, GL_LINEAR, GL_LINEAR, GL_MIRRORED_REPEAT, GL_MIRRORED_REPEAT);
