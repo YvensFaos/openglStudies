@@ -54,10 +54,8 @@ int main(void)
 	GLuint es = AShader::generateShader(luaHandler.getGlobalString("evaluationTesselationShader"), GL_TESS_EVALUATION_SHADER);
 	GLuint gs =  AShader::generateShader(luaHandler.getGlobalString("geometryShader"), GL_GEOMETRY_SHADER);
 	GLuint fs =  AShader::generateShader(luaHandler.getGlobalString("fragmentShader"), GL_FRAGMENT_SHADER);
-	//GLuint fs =  AShader::generateShader(luaHandler.getGlobalString("fragmentShader_withoutGeometryShader"), GL_FRAGMENT_SHADER);
 
   	GLuint shaderProgramme = AShader::generateProgram(std::vector<GLuint>({vs, cs, es, gs, fs}));
-	// GLuint shaderProgramme = AShader::generateProgram(std::vector<GLuint>({vs, cs, es, fs}));
 
 	ASkybox askybox(std::vector<std::string>{
         "../3DModels/desertsky_ft.tga",
