@@ -51,3 +51,16 @@ GLuint AShader::generateProgram(GLuint vertexShader, GLuint geometryShader, GLui
 
     return shaderProgramme;
 }
+
+GLuint AShader::generateProgram(std::vector<GLuint> shaders) 
+{
+    GLuint shaderProgramme = glCreateProgram();
+    for(GLuint shader : shaders) {
+        glAttachShader(shaderProgramme, shader);
+    }
+    glLinkProgram(shaderProgramme);
+
+    printf("Program generated:[%d] [From %lu shader programs].\n\n", shaderProgramme, shaders.size());
+
+    return shaderProgramme;
+}
