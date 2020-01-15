@@ -145,3 +145,13 @@ const GLuint AMesh::getVBO(void) const {
 const GLuint AMesh::getEBO(void) const {
     return this->EBO;
 }
+
+AVertex AMesh::generateVertex(glm::vec3 position, glm::vec3 normal, glm::vec3 tangent, glm::vec2 texCoords) {
+    AVertex generatedVertex;
+    generatedVertex.Position = position;
+    generatedVertex.Normal = normal;
+    generatedVertex.Tangent = tangent;
+    generatedVertex.TexCoords = texCoords;
+
+    return generatedVertex;
+}

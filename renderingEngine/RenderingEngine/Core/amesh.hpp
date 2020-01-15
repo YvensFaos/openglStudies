@@ -49,4 +49,7 @@ class AMesh {
     private:
         void setupMesh();
         void bindTextures(GLuint shader) const;
+
+    public:
+        static AVertex generateVertex(glm::vec3 position, glm::vec3 normal = glm::vec3(0,0,0), glm::vec3 tangent = glm::vec3(0,0,0), glm::vec2 texCoords = glm::vec2(0,0));
 };
