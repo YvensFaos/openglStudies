@@ -173,3 +173,16 @@ ALight& ALight::operator=(const ALight& anotherLight) {
 
     return *this;
 }
+
+void ALight::log(void) const {
+    printf("Light Info: \n");
+    printf("---------------\n");
+    printf("pos   = {%3.3f, %3.3f, %3.3f},\n", this->position.x, this->position.y, this->position.z);
+    printf("dir   = {%3.3f, %3.3f, %3.3f},\n", this->direction.x, this->direction.y, this->direction.z);
+    printf("up    = {%3.3f, %3.3f, %3.3f},\n", this->up.x, this->up.y, this->up.z);
+    printf("color = {%3.3f, %3.3f, %3.3f, %3.3f},\n", this->color.x, this->color.y, this->color.z, this->color.w);
+    printf("inten = {%3.3f}\n", this->getIntensity());
+    printf("specp = {%3.3f}\n", this->getSpecularPower());
+    printf("direc = {%s}\n", this->directional ? "yes" : "no");
+    printf("---------------\n\n");
+}

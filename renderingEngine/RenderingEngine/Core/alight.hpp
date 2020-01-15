@@ -53,6 +53,8 @@ class ALight {
         void setupUniforms(GLuint lightPositionUniform, GLuint lightDirectionUniform, GLuint lightColorUniform, GLuint lightIntensityUniform, GLuint lightDirectionalUniform, GLuint lightSpecularUniform = -1);
 
         ALight& operator=(const ALight& anotherLight);
+
+        void log(void) const;
 };
 
 struct ALightUniform {
