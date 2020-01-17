@@ -130,9 +130,9 @@ shadowEvaluationTesselationShader = [[
     }
 ]]
 
-DETAILS = 0.05
-ELEVATN = 0.15
-TERRAIN = 2.45
+DETAILS = 0.45
+ELEVATN = 1.35
+TERRAIN = 5.45
 
 geometryShader = [[
     #version 410 core
@@ -259,6 +259,7 @@ fragmentShader = [[
         vec4 color;
         float intensity;
         bool directional;
+        float specularPower;
     };
 
     in geometryOut {
@@ -288,6 +289,8 @@ fragmentShader = [[
     uniform int numberPointLights = 0;
     uniform int numberDirectionLights = 0;
 
+    uniform vec3 eyePosition;
+
     uniform Light pointLights[10];
     uniform Light directionalLights[10];
     uniform AmbientLight sceneAmbientLight;
@@ -314,7 +317,14 @@ fragmentShader = [[
         vec3 lightDir = normalize(directionV);
         float diff = max(dot(norm, lightDir), 0.0);
         vec3 diffuse =  attenuation * diff * pointLights[index].color.rgb;
-        return vec4(diffuse, 1.0);
+        vec3 viewDir = normalize(eyePosition - geometryIn.vposition);
+        vec3 reflectDir = reflect(-directionV, norm);
+        float inc = max(dot(viewDir, reflectDir), 0.0);
+        float spec = pow(inc, pointLights[index].specularPower);
+        vec4 specular = attenuation * vec4(vec3(spec), 1.0);
+        specular.a = 1.0;
+
+        return vec4(diffuse.rgb + specular.rgb, 1.0);
     }
 
     vec4 calculateDirectionalLight(int index, const vec3 norm) {
@@ -327,7 +337,14 @@ fragmentShader = [[
         float attenuation = 1.0 / (lightConstant + lightLinear * distance + lightQuadratic * (distance * distance));
         float diff = max(dot(-directionalLights[index].direction, norm), 0.0);
         vec3 diffuse =  attenuation * diff * directionalLights[index].color.rgb;
-        return vec4(diffuse, 1.0);
+        vec3 viewDir = normalize(eyePosition - geometryIn.vposition);
+        vec3 reflectDir = reflect(-directionV, norm);
+        float inc = max(dot(viewDir, reflectDir), 0.0);
+        float spec = pow(inc, directionalLights[index].specularPower);
+        vec4 specular = attenuation * vec4(vec3(spec), 1.0);
+        specular.a = 1.0;
+
+        return vec4(diffuse.rgb + specular.rgb, 1.0);
     }
 
     float calculateShadows(vec4 vlightSpace, vec3 normal, vec3 ldirection) {
@@ -338,8 +355,8 @@ fragmentShader = [[
         float shadow = 0.0;
         vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
         float pcfDepth = 0.0;
-        for(int x = -1; x <= 1; ++x) {
-            for(int y = -1; y <= 1; ++y) {
+        for(int x = -2; x <= 2; ++x) {
+            for(int y = -2; y <= 2; ++y) {
                 pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
                 shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
             }    
@@ -379,7 +396,7 @@ fragmentShader = [[
         vec4 ambient = sceneAmbientLight.intensity * sceneAmbientLight.color * texture(textureUniform0, geometryIn.vuv);
         ambient.a = 0.0;
 
-        vec4 resultantLight = ambient + (1.0 - shadow) * (directionalLightResultant + pointLightResultant + texture(textureUniform0, geometryIn.vuv));
+        vec4 resultantLight = ambient + (1.0 - shadow) * (directionalLightResultant * texture(textureUniform0, geometryIn.vuv));// + pointLightResultant * texture(textureUniform0, geometryIn.vuv));
         resultantLight.a = 1.0;
 
         if(gl_FrontFacing) {
@@ -509,170 +526,48 @@ combineQuadFragShader = [[
 ]]
 
 
--- ////////////////////////////////////////////////
-
-frustumVertexShader = [[
-    #version 410 core
-    layout (location = 0) in vec3 vertex;
-    
-    out vectorOut {
-        vec3 vposition;
-    } vectorOut;
-
-    uniform mat4 model;
-    
-    void main()
-    {
-        vectorOut.vposition = vec3(model * vec4(vertex, 1.0));
-        gl_Position = vec4(vectorOut.vposition, 1.0);
-    }
-    ]]
-    
-
-frustumGeometryShader = [[
-    #version 410 core
-    layout(points) in;
-    layout(line_strip, max_vertices = 16) out;
-    
-    in vectorOut {
-        vec3 vposition;
-    } vectorIn;
-    
-    uniform vec3 up;
-    uniform vec3 direction;
-    uniform float nearPlane;
-    uniform float farPlane;
-    uniform float fieldOfView;
-    uniform float aspectRatio;
-    uniform float projectionDimension;
-    uniform bool perspective;
-    uniform mat4 viewProjection;
-    
-    void main() {        
-        vec3 initialPoint = vec3(gl_in[0].gl_Position);
-
-        vec3 dVector = normalize(direction);
-        vec3 vVector = normalize(cross(dVector, up));
-        vec3 hVector = normalize(cross(dVector, vVector));
-        vec3 nearPoint = vec3(0.0f);
-        vec3 farPoint = vec3(0.0f);
-        float nearDistanceH = 0.0f;
-        float nearDistanceV = 0.0f;
-        float farDistanceH = 0.0f;
-        float farDistanceV = 0.0f;
-
-        if(perspective) {
-            nearPoint = initialPoint + dVector * nearPlane;
-            nearDistanceH = tan(radians(fieldOfView / 2.0)) * nearPlane;
-            nearDistanceV = nearDistanceH * aspectRatio;
-            
-            farPoint = initialPoint + dVector * farPlane;
-            farDistanceH  = tan(radians(fieldOfView / 2.0)) * farPlane;
-            farDistanceV = farDistanceH * aspectRatio;
-        } else {
-            nearPoint = initialPoint + dVector * nearPlane;
-            nearDistanceH = projectionDimension;
-            nearDistanceV = projectionDimension;
-            
-            farPoint = initialPoint + dVector * farPlane;
-            farDistanceH = projectionDimension;
-            farDistanceV = projectionDimension;
-        }
-
-        gl_Position = viewProjection * vec4(nearPoint + nearDistanceH * hVector + nearDistanceV * vVector, gl_in[0].gl_Position.w);
-        EmitVertex();
-        gl_Position = viewProjection * vec4(nearPoint + nearDistanceH * hVector - nearDistanceV * vVector, gl_in[0].gl_Position.w);
-        EmitVertex();
-        gl_Position = viewProjection * vec4(nearPoint - nearDistanceH * hVector - nearDistanceV * vVector, gl_in[0].gl_Position.w);
-        EmitVertex();
-        gl_Position = viewProjection * vec4(nearPoint - nearDistanceH * hVector + nearDistanceV * vVector, gl_in[0].gl_Position.w);
-        EmitVertex();
-        gl_Position = viewProjection * vec4(nearPoint + nearDistanceH * hVector + nearDistanceV * vVector, gl_in[0].gl_Position.w);
-        EmitVertex();
-
-        gl_Position = viewProjection * vec4(farPoint + farDistanceH * hVector + farDistanceV * vVector, gl_in[0].gl_Position.w);
-        EmitVertex();
-        gl_Position = viewProjection * vec4(farPoint + farDistanceH * hVector - farDistanceV * vVector, gl_in[0].gl_Position.w);
-        EmitVertex();
-        gl_Position = viewProjection * vec4(farPoint - farDistanceH * hVector - farDistanceV * vVector, gl_in[0].gl_Position.w);
-        EmitVertex();
-        gl_Position = viewProjection * vec4(farPoint - farDistanceH * hVector + farDistanceV * vVector, gl_in[0].gl_Position.w);
-        EmitVertex();
-        gl_Position = viewProjection * vec4(farPoint + farDistanceH * hVector + farDistanceV * vVector, gl_in[0].gl_Position.w);
-        EmitVertex();
-
-        gl_Position = viewProjection * vec4(farPoint - farDistanceH * hVector + farDistanceV * vVector, gl_in[0].gl_Position.w);
-        EmitVertex();
-        gl_Position = viewProjection * vec4(nearPoint - nearDistanceH * hVector + nearDistanceV * vVector, gl_in[0].gl_Position.w);
-        EmitVertex();
-
-        gl_Position = viewProjection * vec4(nearPoint - nearDistanceH * hVector - nearDistanceV * vVector, gl_in[0].gl_Position.w);
-        EmitVertex();
-        gl_Position = viewProjection * vec4(farPoint - farDistanceH * hVector - farDistanceV * vVector, gl_in[0].gl_Position.w);
-        EmitVertex();
-
-        gl_Position = viewProjection * vec4(farPoint + farDistanceH * hVector - farDistanceV * vVector, gl_in[0].gl_Position.w);
-        EmitVertex();
-        gl_Position = viewProjection * vec4(nearPoint + nearDistanceH * hVector - nearDistanceV * vVector, gl_in[0].gl_Position.w);
-        EmitVertex();
-        
-        EndPrimitive();
-    }
-]]
-
-frustumFragmentShader = [[
-    #version 410 core
-
-    uniform vec4 frustumColor;
-    
-    out vec4 frag_colour;
-
-    void main() {   
-        frag_colour = frustumColor;
-    }
-]]
-
-
 models = {}
-models[1] = {file = "../3DModels/plane10x10.obj", pos = {0.0,  0.0, 3.0}, sca = {1.0, 1.0, 1.0}, rot = {0.0,  0.0, 0.0}}
+models[1] = {file = "../3DModels/plane10x10b.obj", pos = {0.0,  0.0, 3.0}, sca = {1.0, 1.0, 1.0}, rot = {0.0,  0.0, 0.0}}
+
+terrainTexture = "wildtextures-stone_pebbles_seamless_texture_512.jpg"
 
 maxTessLevel = 6.0;
 maxTessLevelShadow = 6.0
 
 wireColor = {0.0, 0.0, 1.0, 1.0}
 
-terrainSize = 2
-elevationSize = 8
+terrainSize = 5
+elevationSize = 16
 detailsSize = 32
 
 nearPlane = 0.5
-farPlane = 7.25
-projectionDimension = 2.0
+farPlane = 19.5
+projectionDimension = 8.75
 
-shadowWidth = 512;
-shadowHeight = 512;
+shadowWidth =  1024;
+shadowHeight = 1024;
 
-bwidth = 2048;
-bheight = 2048;
+bwidth =  2000;
+bheight = 2000;
 
 adjustHeight = 1.75
 
 seed = 6
 
-ambient = {col = {255 / 255, 255 / 255, 255 / 255, 1.0}, intensity = 0.15}
+ambient = {col = {255 / 255, 255 / 255, 255 / 255, 1.0}, intensity = 0.20}
 
 light = {
-    pos   = {0.000, -0.895, 0.036},
-    dir   = {0.000, 0.227, 0.973},
+    pos   = {0.000, 9.568, 9.530},
+    dir   = {0.000, -0.815, -0.577},
     up    = {1.000, 0.000, 0.000},
-    col = {127.0, 195.0, 235.0, 1.0}, 
-    intensity = 0.3, 
-    specularPower = 128.0, 
+    col = {237.0, 230.0, 90.0, 1.0}, 
+    intensity = 10.0, 
+    specularPower = 0.5, 
     directional = true 
 }
 
 cameraPosition = {
-    pos   = {-2.883, 3.966, 2.800},
+    pos   = {-18.501, 20.739, 2.725},
     dir   = {0.679, -0.733, -0.047},
     up    = {0.731, 0.680, -0.051},
     right = {0.070, -0.000, 0.998},

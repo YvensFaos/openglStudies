@@ -71,6 +71,7 @@ int main(void)
 	GLuint maxTessLevelUniform = glGetUniformLocation(shaderProgramme, "maxTessLevel");
 	GLuint shadowMapUniform = glGetUniformLocation(shaderProgramme, "shadowMap");
 	GLuint adjustHeightUniform = glGetUniformLocation(shaderProgramme, "adjustHeight");
+	GLuint eyePositionUniform = glGetUniformLocation(shaderProgramme, "eyePosition");
 
 	GLuint     ambientColorUniform = glGetUniformLocation(shaderProgramme, "sceneAmbientLight.color");
 	GLuint ambientIntensityUniform = glGetUniformLocation(shaderProgramme, "sceneAmbientLight.intensity");
@@ -116,6 +117,7 @@ int main(void)
 	ALuaHelper::setupCameraPosition("cameraPosition", acamera, luaHandler);
 	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
+	glm::vec3 eyePosition = acamera.getPos();
 
 	AAmbientLight aambientLight = ALuaHelper::loadAmbientLightFromTable("ambient", luaHandler);
 	glm::vec4 ambientLightColor = aambientLight.getColor();
@@ -172,7 +174,7 @@ int main(void)
 
 	delete[] buffer;
 
-	ATextureHolder mountains("rocky_512.jpg", "../3DModels");
+	ATextureHolder mountains(luaHandler.getGlobalString("terrainTexture").c_str(), "../3DModels");
 
 	float maxTessLevel = luaHandler.getGlobalNumber("maxTessLevel");
 	float maxTessLevelShadow = luaHandler.getGlobalNumber("maxTessLevelShadow");
@@ -232,6 +234,20 @@ int main(void)
 			printf("Adjust Height = %2.2f.\n", adjustHeight);
 		}
 	));
+	arenderer.addKeybind(AKeyBind(GLFW_KEY_8, 
+		[&maxTessLevel, &maxTessLevelShadow, &nearPlane, &farPlane, &projectionDimension, &adjustHeight, &alight](int action, int mods) {
+			if(action & GLFW_PRESS) { 
+				printf("Max TesselationLevel = %2.2f.\n", maxTessLevel);
+				printf("Max TesselationLevel Shadow = %2.2f.\n", maxTessLevelShadow);
+				printf("Near Plane = %2.2f.\n", nearPlane);
+				printf("Far Plane = %2.2f.\n", farPlane);
+				printf("Projection Dimension = %2.2f.\n", projectionDimension);
+				printf("Adjust Height = %2.2f.\n", adjustHeight);
+				alight.log();
+				printf("===============================\n");
+			}
+		}
+	));
 	arenderer.addKeybind(APressKeyBind(GLFW_KEY_9, 
 		[&pauseUpdate](int action, int mods) {
 			pauseUpdate = !pauseUpdate;
@@ -247,13 +263,11 @@ int main(void)
 	arenderer.addKeybind(APressKeyBind(GLFW_KEY_I, 
 		[&alight](int action, int mods) {
 			alight.setPosition(alight.getPosition() + alight.getDirection() * 0.25f);
-			alight.log();
 		}
 	));
 	arenderer.addKeybind(APressKeyBind(GLFW_KEY_K, 
 		[&alight](int action, int mods) {
 			alight.setPosition(alight.getPosition() - alight.getDirection() * 0.25f);
-			alight.log();
 		}
 	));
 	//Move towards RIGHT
@@ -261,63 +275,34 @@ int main(void)
 		[&alight](int action, int mods) {
 			glm::vec3 r = glm::cross(alight.getUp(), alight.getDirection());
 			alight.setPosition(alight.getPosition() + r * 0.25f);
-			alight.log();
 		}
 	));
 	arenderer.addKeybind(APressKeyBind(GLFW_KEY_L, 
 		[&alight](int action, int mods) {
 			glm::vec3 r = glm::cross(alight.getUp(), alight.getDirection());
 			alight.setPosition(alight.getPosition() - r * 0.25f);
-			alight.log();
 		}
 	));
-
 	//Move towards Up
 	arenderer.addKeybind(APressKeyBind(GLFW_KEY_Y, 
 		[&alight](int action, int mods) {
 			alight.setPosition(alight.getPosition() + alight.getUp() * 0.25f);
-			alight.log();
 		}
 	));
 	arenderer.addKeybind(APressKeyBind(GLFW_KEY_H, 
 		[&alight](int action, int mods) {
 			alight.setPosition(alight.getPosition() - alight.getUp() * 0.25f);
-			alight.log();
 		}
 	));
-
-
-
 	//Rotate Direction around Up
 	arenderer.addKeybind(AKeyBind(GLFW_KEY_U, 
-		[&alight](int action, int mods) {
-			glm::vec3 d = glm::rotate(alight.getDirection(), glm::radians(2.0f), alight.getUp());
-			alight.setDirection(d);
-			alight.log();
+		[&luaHandler, &arenderer, &alight](int action, int mods) {
+			ALuaHelper::updateLight(luaHandler, alight, "updateLight", arenderer.getDeltaTime());
 		}
 	));
 	arenderer.addKeybind(AKeyBind(GLFW_KEY_O, 
-		[&alight](int action, int mods) {
-			glm::vec3 d = glm::rotate(alight.getDirection(),glm::radians(-2.0f), alight.getUp());
-			alight.setDirection(d);
-			alight.log();
-		}
-	));
-	//Rotation Direction around R
-	arenderer.addKeybind(AKeyBind(GLFW_KEY_T, 
-		[&alight](int action, int mods) {
-			glm::vec3 r = glm::cross(alight.getUp(), alight.getDirection());
-			glm::vec3 u = glm::rotate(alight.getDirection(), glm::radians(2.0f), r);
-			alight.setDirection(u);
-			alight.log();
-		}
-	));
-	arenderer.addKeybind(AKeyBind(GLFW_KEY_G, 
-		[&alight](int action, int mods) {
-			glm::vec3 r = glm::cross(alight.getUp(), alight.getDirection());
-			glm::vec3 u = glm::rotate(alight.getDirection(), glm::radians(-2.0f), r);
-			alight.setDirection(u);
-			alight.log();
+		[&luaHandler, &arenderer, &alight](int action, int mods) {
+			ALuaHelper::updateLight(luaHandler, alight, "updateLight", -arenderer.getDeltaTime());
 		}
 	));
 
@@ -328,6 +313,7 @@ int main(void)
 		projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 		view = acamera.getView();
 		viewProjectionMatrix = projection * view;
+		eyePosition = acamera.getPos();
 
 		alightPosition = alight.getPosition();
 		alightDirection = alight.getDirection();
@@ -373,7 +359,6 @@ int main(void)
 			atexture2.unbindTexture(2);
 			atexture1.unbindTexture(1);
 		adepthBuffer.unbindBuffer();
-		
 
 		glCullFace(GL_FRONT);
 		glViewport(0, 0, shadowWidth, shadowHeight);
@@ -435,6 +420,7 @@ int main(void)
 
 			glUniform4f(ambientColorUniform, ambientLightColor.x, ambientLightColor.y, ambientLightColor.z, ambientLightColor.w);
 			glUniform1f(ambientIntensityUniform, ambientLightIntensity);
+			glUniform3f(eyePositionUniform,  eyePosition.x, eyePosition.y, eyePosition.z);
 			
 			mountains.bindTexture(0);
 			glUniform1i(textureUniform0, 0);
