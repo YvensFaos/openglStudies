@@ -81,6 +81,7 @@ void ARenderQuad::renderCubemap(GLuint cubemapTexture) const
     glBindVertexArray(0);
 }
 
+//TODO change to const ref
 void ARenderQuad::render(std::vector<GLuint> textures) const
 {
     for(size_t i = 0; i < textures.size(); i++)

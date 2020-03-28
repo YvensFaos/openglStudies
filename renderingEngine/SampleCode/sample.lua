@@ -185,7 +185,7 @@ debugQuadFragShader = [[
 ]]
 
 models = {}
-models[1] = {file = "RenderingEngine/Resources/monkey.fbx", pos = { 0.0,  0.0, 1.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,  0.0, 0.0}}
+models[1] = {file = "../3DModels/cube.obj", pos = { 0.0,  0.0, 1.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,  0.0, 0.0}}
 lightIntensity = 80
 light = {pos = { 0.0, 2.0, 0.0}, dir = {0.0, 0.0, -1.0}, up = {0.0, 1.0, 0.0}, col = {247 / 255, 208 / 255, 54 / 255, 1.0}, intensity = lightIntensity, directional = true}
 nearPlane = -4.0
