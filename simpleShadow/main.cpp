@@ -40,6 +40,7 @@ int main(void)
 	int height = 600;
 	ARenderer arenderer(width, height, "Simple Shadow Scene");	
 	arenderer.changeClearColor(glm::vec4(0.02f, 0.02f, 0.02f, 0.0f));
+	arenderer.setCullFaces(false);
 
 	LuaHandler luaHandler;
 	luaHandler.openFile("config.lua");
@@ -77,20 +78,27 @@ int main(void)
 	int shadowHeight = luaHandler.getGlobalInteger("shadowHeight");
 	ADepthbuffer adepthBuffer(shadowWidth, shadowHeight);
 
+	ARenderQuad quad(luaHandler.getGlobalString("depthFragmentShader"));
+
 	ACamera& acamera = arenderer.getCamera();
 	ALuaHelper::setupCameraPosition("cameraPosition", acamera, luaHandler);
 	glm::mat4 projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 	glm::mat4 modelMatrix = glm::mat4(1.0f);
 
-	float near_plane = luaHandler.getGlobalNumber("nearPlane");
-	float far_plane = luaHandler.getGlobalNumber("farPlane");
+	float nearPlane = luaHandler.getGlobalNumber("nearPlane");
+	float farPlane = luaHandler.getGlobalNumber("farPlane");
 	float projectionDimension = luaHandler.getGlobalNumber("projectionDimension");
-	glm::mat4 lightProjection = glm::ortho(-projectionDimension, projectionDimension, -projectionDimension, projectionDimension, near_plane, far_plane);
+	glm::mat4 lightProjection = glm::ortho(-projectionDimension, projectionDimension, -projectionDimension, projectionDimension, nearPlane, farPlane);
 	glm::mat4 lightView = glm::lookAt(lightPosition, lightPosition + lightDirection, lightUp);
 	glm::mat4 lightMatrix = lightProjection * lightView;
 
 	glm::mat4 view = acamera.getView();
 	glm::mat4 viewProjectionMatrix = projection * view;
+
+	bool debugDepthMap = false;
+	arenderer.addKeybind(ABoolTogglerKeyBind(GLFW_KEY_1, debugDepthMap));
+	bool updateLight = true;
+	arenderer.addKeybind(ABoolTogglerKeyBind(GLFW_KEY_2, updateLight));
 
 	glActiveTexture(GL_TEXTURE0);
 	do
@@ -98,6 +106,13 @@ int main(void)
 		projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());
 		view = acamera.getView();
 		viewProjectionMatrix = projection * view;
+
+		lightPosition = 	alight.getPosition();
+		lightDirection = 	alight.getDirection();
+		lightUp = 		alight.getUp();
+		lightProjection = glm::ortho(-projectionDimension, projectionDimension, -projectionDimension, projectionDimension, nearPlane, farPlane);
+		lightView = glm::lookAt(lightPosition, lightPosition + lightDirection, lightUp);
+		lightMatrix = lightProjection * lightView;
 
 		arenderer.startFrame();
 
@@ -128,7 +143,15 @@ int main(void)
 
 		AModel::renderModelsInList(models, modelMatrixUniform, shaderProgramme, GL_TRIANGLES, false);
 
+		if(debugDepthMap) {
+			quad.render(adepthBuffer.getFramebufferTexture());
+		}
+
 		arenderer.finishFrame();
+
+		if(updateLight) {
+			ALuaHelper::updateLight(luaHandler, alight, "updateFunction", arenderer.getDeltaTime());
+		}
 	}
 	while(arenderer.isRunning());
 

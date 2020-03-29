@@ -92,7 +92,6 @@ fragmentShader = [[
 
         float attenuation = 1.0 / (lightConstant + lightLinear * distance + lightQuadratic * (distance * distance));
         float diff = max(dot(-sceneLight.direction, norm), 0.0);
-        //vec3 diffuse =  attenuation * diff * sceneLight.color.xyz;
         float shadow = calculateShadows(vectorIn.vpositionInLightSpace);
         vec3 diffuse =  (1.0 - shadow) * attenuation * diff * sceneLight.color.xyz;
         frag_colour = vec4(diffuse, sceneLight.color.w);
@@ -123,20 +122,37 @@ shadowFragmentShader = [[
     }  
 ]]
 
+depthFragmentShader = [[
+    #version 400
+
+    in vec2 vuv;
+
+    uniform sampler2D textureUniform;
+
+    out vec4 frag_colour;
+
+    void main()
+    {
+        float depthValue = texture(textureUniform, vuv).r;
+        frag_colour = vec4(vec3(depthValue), 1.0);
+    }  
+]]
+
 models = {}
-models[1] = {file = "../3DModels/nonormalmonkey.obj", pos = { 0.0,  0.0, 3.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,  0.0, 0.0}}
-models[2] = {file = "../3DModels/nonormalmonkey.obj", pos = { 0.0,  0.0, 0.0}, sca = {1.3, 1.3, 1.3}, rot = { 0.0,  0.0, 0.0}}
-models[3] = {file = "../3DModels/plane1x1.obj", pos = { 0.0,  0.0, -3.0}, sca = {5.0, 1.0, 5.0}, rot = {70.0,  0.0, 0.0}}
+models[1] = {file = "../3DModels/cube.obj", pos = { 0.0,  0.0, 5.0}, sca = {0.5, 0.5, 0.5}, rot = { 0.0, 0.0, 0.0}}
+models[2] = {file = "../3DModels/nonormalmonkey.obj", pos = { 0.0,  0.0, 3.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,  0.0, 0.0}}
+models[3] = {file = "../3DModels/nonormalmonkey.obj", pos = { 0.0,  0.0, 0.0}, sca = {1.3, 1.3, 1.3}, rot = { 0.0,  0.0, 0.0}}
+models[4] = {file = "../3DModels/plane1x1.obj", pos = { 0.0,  0.0, -3.0}, sca = {5.0, 1.0, 5.0}, rot = {70.0,  0.0, 0.0}}
 
 shadowWidth = 1024
 shadowHeight = 1024
 nearPlane = -4.0
-farPlane = 12.0
+farPlane = 16.0
 projectionDimension = 8.0
 
 lightIntensity = 120
 light = {
-    pos = { 0.0, 1.0, 7.0}, 
+    pos = { 0.0, 0.0, 7.0}, 
     dir = {0.0, 0.0, -1.0}, 
     up = {0.0, 1.0, 0.0}, 
     col = {50 / 255, 219 / 255, 59 / 255, 1.0}, 
@@ -151,3 +167,27 @@ cameraPosition = {
     right = {0.731, 0.000, -0.682},
     angle = {-133.014, -2.540}
 }
+
+idir = light["dir"]
+ipos = light["pos"]
+mpos = { 0.0, 0.0, 0.0}
+rotationFactor = -50.0
+accumulator = 0
+function updateFunction(deltaTime, posx, posy, posz, dirx, diry, dirz, upx, upy, upz, colr, colg, colb, cola, intensity)
+    accumulator = accumulator + rotationFactor * deltaTime
+    if accumulator > 360 then
+        accumulator = 0
+    end
+    angle = math.rad(accumulator)
+    cos = math.cos(angle)
+    sin = math.sin(angle)
+    sposy = ipos[2] - mpos[2]
+    sposz = ipos[3] - mpos[3]
+    ssposy = cos * sposy + sin * sposz
+    ssposz =-sin * sposy + cos * sposz
+    posy = ssposy + mpos[2]
+    posz = ssposz + mpos[3]
+    diry =  cos * idir[2] + sin * idir[3]
+    dirz = -sin * idir[2] + cos * idir[3]
+    return intensity, cola, colb, colg, colr, upz, upy, upx, dirz, diry, dirx, posz, posy, posx
+end
