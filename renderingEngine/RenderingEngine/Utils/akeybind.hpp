@@ -32,3 +32,10 @@ class AFlagTogglerKeyBind : public AKeyBind {
         AFlagTogglerKeyBind(const AFlagTogglerKeyBind& anotherKeyBind);
         ~AFlagTogglerKeyBind() = default;
 };
+
+class ABoolTogglerKeyBind : public AKeyBind {
+ public:
+        ABoolTogglerKeyBind(int key, bool& boolean);
+        ABoolTogglerKeyBind(const ABoolTogglerKeyBind& anotherKeyBind);
+        ~ABoolTogglerKeyBind() = default;
+};

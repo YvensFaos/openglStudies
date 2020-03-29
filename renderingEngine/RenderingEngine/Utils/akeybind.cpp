@@ -20,7 +20,7 @@ void AKeyBind::execute(int action, int mods) const {
     this->keyAction(action, mods);
 }
 
-///////////
+/////////////
 
 APressKeyBind::APressKeyBind(int key, std::function<void(int action, int mods)> keyAction, GLuint pressFlag) : 
     AKeyBind(key, [&keyAction, pressFlag](int action, int mods) { 
@@ -42,4 +42,16 @@ AFlagTogglerKeyBind::AFlagTogglerKeyBind(int key, GLuint& flag, GLuint flagValue
 
 AFlagTogglerKeyBind::AFlagTogglerKeyBind(const AFlagTogglerKeyBind& anotherKeyBind) : 
     AKeyBind(anotherKeyBind.getKey(), anotherKeyBind.getKeyAction()) 
+{ }
+
+/////////////
+
+ABoolTogglerKeyBind::ABoolTogglerKeyBind(int key, bool& boolean) : 
+    AKeyBind(key, [&boolean, key](int action, int mods) {
+        if(action == GLFW_PRESS) { boolean = !boolean; }
+    })
+{ }
+
+ABoolTogglerKeyBind::ABoolTogglerKeyBind(const ABoolTogglerKeyBind& anotherKeyBind) : 
+    AKeyBind(anotherKeyBind.getKey(), anotherKeyBind.getKeyAction())
 { }
