@@ -224,7 +224,7 @@ thresholdShader = [[
     }
 ]]
 
-gaussianWeight = 10
+gaussianWeight = 16
 
 gaussianHeader = [[
     #version 400
@@ -287,17 +287,17 @@ combineShader = [[
 bloomFactor = 0.9
 
 initialMask = 255
-gaussianBlurPasses = 6
+gaussianBlurPasses = 4
 
-downsample = 4.0
+downsample = 0.5
 
-normalGamma = 0.8
+normalGamma = 0.7
 normalExposure = -0.65
 
-highGamma = 1.3
-highExposure = -0.55
+highGamma = 0.2
+highExposure = -0.65
 
-sigma = 2.0
+sigma = 16.0
 
 models = {}
 models[1] = {file = "../3DModels/nonormalmonkey.obj", pos = { 0.0,  0.0, 3.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,   0.0, 0.0}}
@@ -349,11 +349,16 @@ lights = {
 } 
 
 cameraPosition = {
-    pos   = {2.481, 1.915, 10.361},
-    dir   = {-0.348, -0.207, -0.915},
-    up    = {-0.073, 0.978, -0.193},
-    right = {0.935, 0.000, -0.355},
-    angle = {-110.806, -11.928}
+    pos   = {4.575, -0.512, 12.081},
+    dir   = {-0.395, 0.098, -0.914},
+    up    = {0.039, 0.995, 0.090},
+    right = {0.918, 0.000, -0.396},
+    angle = {-113.354, 5.633}
+    -- pos   = {2.481, 1.915, 10.361},
+    -- dir   = {-0.348, -0.207, -0.915},
+    -- up    = {-0.073, 0.978, -0.193},
+    -- right = {0.935, 0.000, -0.355},
+    -- angle = {-110.806, -11.928}
     -- pos   = {-10.590, 3.997, 21.858},
     -- dir   = {0.636, 0.065, -0.769},
     -- up    = {-0.041, 0.998, 0.050},

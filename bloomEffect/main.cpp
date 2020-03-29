@@ -228,6 +228,8 @@ int main(void)
 	
 	unsigned int gaussianBlurPasses = luaHandler.getGlobalInteger("gaussianBlurPasses");
 
+	float averageFPS = 0.0f;
+	int frameCount = 0;
 	glActiveTexture(GL_TEXTURE0);
 	glActiveTexture(GL_TEXTURE1);
 	do
@@ -345,6 +347,8 @@ int main(void)
 			glBindSampler(1, nearestSampler);
 		}
 		arenderer.finishFrame();
+		averageFPS += arenderer.getDeltaTime();
+		++frameCount;
 	}
 	while(arenderer.isRunning());
 
@@ -353,5 +357,10 @@ int main(void)
 	delete[] bufferStrings;
 	delete[] weightUniforms1;
 	delete[] weightUniforms2;
+
+	printf("Average Time Spent: %4.6f.\r\n", averageFPS / static_cast<float>(frameCount));
+	printf("Average FPS:        %4.6f.\r\n", 1.0f / (averageFPS / static_cast<float>(frameCount)));
+
+
 	return 0;
 }
