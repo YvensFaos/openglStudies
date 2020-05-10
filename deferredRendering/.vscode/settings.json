@@ -85,9 +85,6 @@
         "*.tcc": "cpp",
         "memory_resource": "cpp",
         "cfenv": "cpp",
-        "cinttypes": "cpp",
-        "*.ipp": "cpp",
-        "__functional_03": "cpp",
-        "filesystem": "cpp"
+        "cinttypes": "cpp"
     }
 }

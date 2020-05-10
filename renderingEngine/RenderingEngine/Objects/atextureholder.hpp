@@ -43,5 +43,6 @@ class ATextureHolder {
         GLuint getTextureID(void) const;
 
     private:
+        GLuint generateTextId(void);
         GLuint initializeFromTextureData(const ATextureData& textureData, const GLint minFilter, const GLint magFilter, const GLint textureWrapS, const GLint textureWrapT);
 };

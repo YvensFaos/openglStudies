@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GL/glew.h>
+#include "../Objects/atextureholder.hpp"
 
 class AFramebuffer {
     protected:
@@ -38,4 +39,33 @@ class ADepthbuffer : public AFramebuffer{
     public:
         ADepthbuffer(GLfloat width, GLfloat height);
         ~ADepthbuffer(void);
+};
+
+class AGBuffer {
+    protected:
+        const GLfloat width;
+        const GLfloat height;
+
+        GLuint FBO;
+        GLuint DBO;
+        GLuint RBO;
+        GLuint framebufferTexture;
+
+        GLuint posTex;
+        GLuint norTex;
+        GLuint colTex;
+
+        GLuint* gtextures;
+    public:
+        AGBuffer(GLfloat width, GLfloat height);
+        ~AGBuffer(void);
+
+        GLuint getFBO(void) const;
+        GLfloat getWidth(void) const;
+        GLfloat getHeight(void) const;
+        const GLuint* getTextures(void) const;
+
+        void bindBuffer(void) const;
+        void setViewport(void) const;
+        void unbindBuffer(void) const;
 };

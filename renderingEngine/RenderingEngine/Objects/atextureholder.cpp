@@ -35,12 +35,17 @@ GLuint ATextureHolder::getTextureID(void) const
     return this->texture;
 }
 
-GLuint ATextureHolder::initializeFromTextureData(const ATextureData& textureData, const GLint minFilter, const GLint magFilter, const GLint textureWrapS, const GLint textureWrapT) 
-{
+GLuint ATextureHolder::generateTextId(void) {
     GLuint newTexture;
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glGenTextures(1, &newTexture);
     printf("Texture generated [%d].\n\n", newTexture);
+    return newTexture;
+}
+
+GLuint ATextureHolder::initializeFromTextureData(const ATextureData& textureData, const GLint minFilter, const GLint magFilter, const GLint textureWrapS, const GLint textureWrapT) 
+{
+    GLuint newTexture = generateTextId();
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
     glBindTexture(GL_TEXTURE_2D, newTexture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureData.width, textureData.height, 0, GL_RGBA, GL_FLOAT, textureData.data);
