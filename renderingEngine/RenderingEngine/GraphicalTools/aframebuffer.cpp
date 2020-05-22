@@ -131,61 +131,19 @@ ADepthbuffer::~ADepthbuffer(void)
 
 //////////
 
-AGBuffer::AGBuffer(GLfloat width, GLfloat height) : width(width), height(height)
+AGBuffer::AGBuffer(GLfloat width, GLfloat height) : width(width), height(height),
+    positionTexture(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT, GL_NEAREST, GL_NEAREST),
+    normalTexture(width, height, GL_RGBA16F, GL_RGBA, GL_FLOAT, GL_NEAREST, GL_NEAREST),
+    colorTexture(width, height, GL_RGBA, GL_RGBA, GL_UNSIGNED_BYTE, GL_NEAREST, GL_NEAREST)
 {
-    GLenum err;
-    if((err = glGetError()) != GL_NO_ERROR) {
-        printf("!0 GLSTATUS! > Error: %d]\n", err);
-    }
-
     FBO = 0;
     glGenFramebuffers(1, &FBO);
-    if((err = glGetError()) != GL_NO_ERROR) {
-        printf("!1 GLSTATUS! > Error: %d]\n", err);
-    }
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-    if((err = glGetError()) != GL_NO_ERROR) {
-        printf("!2 GLSTATUS! > Error: %d]\n", err);
-    }
 
-    glGenTextures(1, &posTex);
-    glBindTexture(GL_TEXTURE_2D, posTex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, posTex, 0);
-    if((err = glGetError()) != GL_NO_ERROR) {
-        printf("!2 GLSTATUS! > Error: %d]\n", err);
-    } else {
-        printf("Generated texture [%d]\n", posTex);
-    }
-
-    glGenTextures(1, &norTex);
-    glBindTexture(GL_TEXTURE_2D, norTex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, norTex, 0);
-    if((err = glGetError()) != GL_NO_ERROR) {
-        printf("!2 GLSTATUS! > Error: %d]\n", err);
-    } else {
-        printf("Generated texture [%d]\n", norTex);
-    }
-
-    glGenTextures(1, &colTex);
-    glBindTexture(GL_TEXTURE_2D, colTex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, colTex, 0);
-    if((err = glGetError()) != GL_NO_ERROR) {
-        printf("!2 GLSTATUS! > Error: %d]\n", err);
-    } else {
-        printf("Generated texture [%d]\n", colTex);
-    }
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, this->getPositionTextureID(), 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, this->getNormalTextureID(), 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, this->getColorTextureID(), 0);
     
-    gtextures = new GLuint[3] {posTex, norTex, colTex};
-
     unsigned int attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
     glDrawBuffers(3, attachments);
 
@@ -193,35 +151,12 @@ AGBuffer::AGBuffer(GLfloat width, GLfloat height) : width(width), height(height)
     glBindRenderbuffer(GL_RENDERBUFFER, DBO);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, DBO);
-
-    auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
-        auto glstatus = glGetError();
-        printf("Error in GBuffer - Framebuffer not complete! - [%d] [Error: %d]\n", fboStatus, glstatus);
-    } else {
-        printf("GBuffer created with success %d %d %d!\n", gtextures[0], gtextures[1], gtextures[2]);
-    }
     
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 AGBuffer::~AGBuffer(void) {
     //TODO
-}
-
-GLuint AGBuffer::getFBO(void) const
-{
-    return FBO;
-}
-
-GLfloat AGBuffer::getWidth(void) const 
-{
-    return width;
-}
-
-GLfloat AGBuffer::getHeight(void) const 
-{
-    return height;
 }
 
 void AGBuffer::bindBuffer(void) const 
@@ -237,9 +172,4 @@ void AGBuffer::setViewport(void) const
 void AGBuffer::unbindBuffer(void) const 
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-const GLuint* AGBuffer::getTextures(void) const 
-{
-    return gtextures;
 }

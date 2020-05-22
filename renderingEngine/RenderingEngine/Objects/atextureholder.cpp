@@ -2,6 +2,15 @@
 
 #include "../Core/amodel.hpp"
 
+ATextureHolder::ATextureHolder(const GLfloat width, const GLfloat height, const GLint internalformat, const GLenum format, const GLenum type, const GLint minFilter, const GLint magFilter) 
+ : texture(this->generateTextId())
+{
+    glBindTexture(GL_TEXTURE_2D, this->texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, type, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+}
+
 ATextureHolder::ATextureHolder(const char *path, const std::string &directory, bool gamma, const GLint minFilter, const GLint magFilter, const GLint textureWrapS, const GLint textureWrapT) : 
     texture(AModel::TextureFromFile(path, directory, gamma, minFilter, magFilter, textureWrapS, textureWrapT))
 { }
@@ -28,11 +37,6 @@ void ATextureHolder::unbindTexture(GLint textureUnit) const
 {
     glActiveTexture(GL_TEXTURE0 + textureUnit);
     glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-GLuint ATextureHolder::getTextureID(void) const 
-{
-    return this->texture;
 }
 
 GLuint ATextureHolder::generateTextId(void) {

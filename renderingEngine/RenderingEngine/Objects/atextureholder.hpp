@@ -33,6 +33,7 @@ class ATextureHolder {
         const GLuint texture;
 
     public:
+        ATextureHolder(const GLfloat width, const GLfloat height, const GLint internalformat, const GLenum format, const GLenum type, const GLint minFilter = GL_LINEAR, const GLint magFilter = GL_LINEAR);
         ATextureHolder(const char *path, const std::string &directory, bool gamma = false, const GLint minFilter = GL_LINEAR, const GLint magFilter = GL_LINEAR, const GLint textureWrapS = GL_CLAMP_TO_BORDER, const GLint textureWrapT = GL_CLAMP_TO_BORDER);
         ATextureHolder(const ATextureData& textureData, const GLint minFilter = GL_LINEAR, const GLint magFilter = GL_LINEAR, const GLint textureWrapS = GL_CLAMP_TO_BORDER, const GLint textureWrapT = GL_CLAMP_TO_BORDER);
         ATextureHolder(const GLint texture);
@@ -40,7 +41,7 @@ class ATextureHolder {
 
         void bindTexture(GLint textureUnit = 0) const;
         void unbindTexture(GLint textureUnit = 0) const;
-        GLuint getTextureID(void) const;
+        GLuint getTextureID(void) const { return this->texture; };
 
     private:
         GLuint generateTextId(void);

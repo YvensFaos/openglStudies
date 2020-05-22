@@ -65,18 +65,13 @@ int main(void)
 	glm::mat4 viewProjectionMatrix = projection * view;
 	glm::mat4 skyViewProjectionMatrix = projection * glm::mat4(glm::mat3(view));
 
-   	GLenum err;
-    if((err = glGetError()) != GL_NO_ERROR) {
-        printf("GLSTATUS! > Error: %d]\n", err);
-    }
-
 	AGBuffer gbuffer(width * 2, height * 2);
 	ARenderQuad renderQuad(luaHandler.getGlobalString("gFragmentShader"));
-	const GLuint* gtextures = gbuffer.getTextures();
+	
 	std::vector<GLuint> gtexturesVector;
-	gtexturesVector.push_back(gtextures[0]);
-	gtexturesVector.push_back(gtextures[1]);
-	gtexturesVector.push_back(gtextures[2]);
+	gtexturesVector.push_back(gbuffer.getPositionTextureID());
+	gtexturesVector.push_back(gbuffer.getNormalTextureID());
+	gtexturesVector.push_back(gbuffer.getColorTextureID());
 
 	GLuint gbufferProgramme = renderQuad.getProgramme();
 	GLuint    lightPositionUniform = glGetUniformLocation(gbufferProgramme, "sceneLight.position");

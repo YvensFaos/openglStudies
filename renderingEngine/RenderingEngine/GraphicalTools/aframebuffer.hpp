@@ -41,29 +41,30 @@ class ADepthbuffer : public AFramebuffer{
         ~ADepthbuffer(void);
 };
 
+
+
 class AGBuffer {
-    protected:
+    private:
         const GLfloat width;
         const GLfloat height;
 
         GLuint FBO;
         GLuint DBO;
-        GLuint RBO;
-        GLuint framebufferTexture;
 
-        GLuint posTex;
-        GLuint norTex;
-        GLuint colTex;
-
-        GLuint* gtextures;
+        const ATextureHolder positionTexture;
+        const ATextureHolder normalTexture;
+        const ATextureHolder colorTexture;
     public:
         AGBuffer(GLfloat width, GLfloat height);
         ~AGBuffer(void);
 
-        GLuint getFBO(void) const;
-        GLfloat getWidth(void) const;
-        GLfloat getHeight(void) const;
-        const GLuint* getTextures(void) const;
+        const GLuint getFBO(void) const { return FBO; }
+        const GLfloat getWidth(void) const { return width; }
+        const GLfloat getHeight(void) const { return height; }
+        
+        const GLuint getPositionTextureID(void) const { return positionTexture.getTextureID(); }
+        const GLuint getNormalTextureID(void) const { return normalTexture.getTextureID(); }
+        const GLuint getColorTextureID(void) const { return colorTexture.getTextureID(); }
 
         void bindBuffer(void) const;
         void setViewport(void) const;
