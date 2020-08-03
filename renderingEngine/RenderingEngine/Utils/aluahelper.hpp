@@ -6,6 +6,7 @@
 
 class LuaHandler;
 class AModel;
+class AInstanceMesh;
 class ALight;
 class AAmbientLight;
 class ACamera;
@@ -19,6 +20,8 @@ class ALuaHelper {
         static AModel loadModelFromTable(std::string identifier, LuaHandler& luaHandler);
         ///Load a AModel from a table on top of the stack. Optionally pop the table at the end. 
         static AModel loadModel(LuaHandler& luaHandler, bool popTable = false);
+        //Load a AInstanceMesh from a table. Optionally pop the table at the end.
+        static AInstanceMesh loadInstanceMeshFromTable(std::string identifier, LuaHandler& luaHandler, bool popTable = false);
 
         ///Load a list of pointers of ALight from a table, popping it out of the stack after it finishes reading it.
         static std::vector<ALight> loadLightsFromTable(std::string identifier, LuaHandler& luaHandler);
@@ -42,6 +45,8 @@ class ALuaHelper {
 
         ///Load a glm::vec4 from 4 consecutive values in a table by the identifier name.
         static glm::vec4 readVec4FromTable(std::string identifier, LuaHandler& luaHandler);
-        ///Load a glm::vec3 from 3 consecutive values in a table by the identifier name.
+        ///Load a glm::vec3 from 3 consecutive values in a table by the identifier name, when the table is in global scope.
         static glm::vec3 readVec3FromTable(std::string identifier, LuaHandler& luaHandler);
+        ///Load a glm::vec3 from 3 consecutive values in a table by the identifier name, when inside a table.
+        static glm::vec3 readVec3FromTableInTable(std::string identifier, LuaHandler& luaHandler);
 };

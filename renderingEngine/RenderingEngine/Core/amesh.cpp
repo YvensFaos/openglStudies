@@ -1,6 +1,9 @@
 #include "amesh.hpp"
 
 #include <GL/glew.h>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include "../Utils/amacrohelper.hpp"
 
 AMesh::AMesh(std::vector<AVertex> vertices, std::vector<unsigned int> indices, std::vector<ATexture> textures) 
     : vertices(vertices), indices(indices), textures(textures)
@@ -11,6 +14,12 @@ AMesh::AMesh(std::vector<AVertex> vertices, std::vector<unsigned int> indices, s
 AMesh::AMesh(const AMesh& anotherMesh) : VAO(anotherMesh.getVAO()), VBO(anotherMesh.getVBO()), EBO(anotherMesh.getEBO()),
     vertices(anotherMesh.getVertices()), indices(anotherMesh.getIndices()), textures(anotherMesh.getTextures())
 { }
+
+AMesh::AMesh(const AMesh& anotherMesh, bool generateOwnObjects) 
+    : vertices(anotherMesh.vertices), indices(anotherMesh.indices), textures(anotherMesh.textures) 
+{
+    this->setupMesh();
+}
 
 AMesh& AMesh::operator=(const AMesh& anotherMesh) 
 {
@@ -29,6 +38,7 @@ AMesh& AMesh::operator=(const AMesh& anotherMesh)
 void AMesh::setupMesh()
 {
     glGenVertexArrays(1, &VAO);
+    printf("VAO Generated = %d\n", VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
   
@@ -83,6 +93,18 @@ void AMesh::bindTextures(GLuint shader) const
         std::string textIdentifier(name + std::to_string(number));
         glUniform1i(glGetUniformLocation(shader, textIdentifier.c_str()), i); 
     }
+}
+
+void AMesh::setVAO(GLuint VAO) {
+    this->VAO = VAO;
+}
+
+void AMesh::setVBO(GLuint VBO) {
+    this->VBO = VBO;
+} 
+
+void AMesh::setEBO(GLuint EBO) {
+    this->EBO = EBO;
 }
 
 void AMesh::draw(GLuint shader, GLenum mode, bool renderWithTextures) const 
@@ -154,4 +176,94 @@ AVertex AMesh::generateVertex(glm::vec3 position, glm::vec3 normal, glm::vec3 ta
     generatedVertex.TexCoords = texCoords;
 
     return generatedVertex;
+}
+
+///AInstanceMesh
+
+AInstanceMesh::AInstanceMesh(std::vector<AVertex> vertices, std::vector<GLuint> indices, std::vector<ATexture> textures, std::vector<glm::mat4> instanceData) :
+ AMesh(vertices, indices, textures), instanceData(instanceData) {
+    this->setupInstanceBO();
+}
+
+AInstanceMesh::AInstanceMesh(const AInstanceMesh& anotherInstanceMesh) : 
+ AMesh(anotherInstanceMesh), instanceData(anotherInstanceMesh.getInstanceData()), IBO(anotherInstanceMesh.getIBO()) 
+{ }
+
+AInstanceMesh::AInstanceMesh(const AMesh& meshToCopyFrom, std::vector<glm::mat4> instanceData) : 
+ AMesh(meshToCopyFrom, true), instanceData(instanceData) {
+    this->setupInstanceBO();
+ }
+
+void AInstanceMesh::draw(GLuint shader, GLenum mode, bool renderWithTextures) const {
+    if(renderWithTextures) {
+        this->bindTextures(shader);
+    }
+
+    glBindVertexArray(this->getVAO());
+    glDrawElementsInstanced(mode, indices.size(), GL_UNSIGNED_INT, 0, this->getInstanceCount());
+}
+
+const std::vector<glm::mat4>& AInstanceMesh::getInstanceData(void) const {
+    return this->instanceData;
+}
+
+const GLuint AInstanceMesh::getInstanceCount(void) const {
+    return this->instanceData.size();
+}
+
+const GLuint AInstanceMesh::getIBO(void) const {
+    return this->IBO;
+}
+
+void AInstanceMesh::setupInstanceBO(void) {
+    const auto sizeOfMat4 = sizeof(glm::mat4);
+
+    glBindVertexArray(this->getVAO());
+
+    glGenBuffers(1, &this->IBO);
+    glBindBuffer(GL_ARRAY_BUFFER, this->IBO);
+    glBufferData(GL_ARRAY_BUFFER, this->getInstanceCount() * sizeof(glm::mat4), &instanceData[0], GL_STATIC_DRAW);
+    
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*) (0 * sizeof(glm::vec4)));
+    glEnableVertexAttribArray(5);
+    glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*) (1 * sizeof(glm::vec4)));
+    glEnableVertexAttribArray(6);
+    glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*) (2 * sizeof(glm::vec4)));
+    glEnableVertexAttribArray(7);
+    glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void*) (3 * sizeof(glm::vec4)));
+
+    glVertexAttribDivisor(4, 1);
+    glVertexAttribDivisor(5, 1);
+    glVertexAttribDivisor(6, 1);
+    glVertexAttribDivisor(7, 1);
+    
+    glBindVertexArray(0);
+}
+
+glm::mat4 AInstanceMesh::fromValuesToInstanceMatrix(glm::vec3 position, glm::vec3 rotation, glm::vec3 scale) {
+    glm::mat4 instanceMatrix = glm::mat4(1.0f);
+    instanceMatrix = glm::translate(instanceMatrix, position);
+    instanceMatrix = glm::scale(instanceMatrix, scale);
+    instanceMatrix = glm::rotate(instanceMatrix, rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+    instanceMatrix = glm::rotate(instanceMatrix, rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+    instanceMatrix = glm::rotate(instanceMatrix, rotation.z, glm::vec3(0.0f, 0.0f, 1.0f));
+
+    return instanceMatrix;
+}
+
+AInstanceMesh& AInstanceMesh::operator=(const AInstanceMesh& anotherMesh) 
+{
+    if(this != &anotherMesh) {
+        this->setVAO(anotherMesh.getVAO());
+        this->setVBO(anotherMesh.getVBO());
+        this->setEBO(anotherMesh.getEBO());
+        this->IBO = anotherMesh.getIBO();
+        this->vertices = anotherMesh.getVertices();
+        this->indices = anotherMesh.getIndices();
+        this->textures = anotherMesh.getTextures();
+        this->instanceData = anotherMesh.getInstanceData();
+    }
+
+    return *this;
 }

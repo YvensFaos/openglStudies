@@ -64,6 +64,40 @@ AModel ALuaHelper::loadModel(LuaHandler& luaHandler, bool popTable)
     return model;
 }
 
+AInstanceMesh ALuaHelper::loadInstanceMeshFromTable(std::string identifier, LuaHandler& luaHandler, bool popTable) {
+    luaHandler.loadTable(identifier);
+
+    AModel model(luaHandler.getStringFromTable("file"));
+    AMesh singleMesh = model.getMeshAt(0);
+
+    luaHandler.getTableFromTable("instanceData");
+    GLuint tableSize = luaHandler.getLength();
+
+    std::vector<glm::mat4> instanceData;
+
+    for(int i = 1; i <= tableSize; i++)
+	{
+        luaHandler.getTableFromTable(i);
+
+        glm::vec3 pos = ALuaHelper::readVec3FromTableInTable("pos", luaHandler);
+        glm::vec3 rot = ALuaHelper::readVec3FromTableInTable("rot", luaHandler);
+        glm::vec3 sca = ALuaHelper::readVec3FromTableInTable("sca", luaHandler);
+
+        glm::mat4 mat4 = AInstanceMesh::fromValuesToInstanceMatrix(pos, rot, sca);
+        instanceData.push_back(mat4);
+
+        luaHandler.popTable();
+    }
+    luaHandler.popTable();
+
+    if(popTable) 
+    {
+        luaHandler.popTable();
+    }
+
+    return AInstanceMesh(singleMesh, instanceData);
+}
+
 std::vector<ALight> ALuaHelper::loadLightsFromTable(std::string identifier, LuaHandler& luaHandler)
 {
     luaHandler.loadTable(identifier);
@@ -306,4 +340,14 @@ glm::vec3 ALuaHelper::readVec3FromTable(std::string identifier, LuaHandler& luaH
 	value.z = luaHandler.getNumberFromTable(3);
     luaHandler.popTable();
     return value;
+}
+
+glm::vec3 ALuaHelper::readVec3FromTableInTable(std::string identifier, LuaHandler& luaHandler) {
+    luaHandler.getTableFromTable(identifier.c_str());
+    glm::vec3 vec3Value;
+    vec3Value.x = luaHandler.getNumberFromTable(1);
+    vec3Value.y = luaHandler.getNumberFromTable(2);
+    vec3Value.z = luaHandler.getNumberFromTable(3);
+    luaHandler.popTable();
+    return vec3Value;
 }

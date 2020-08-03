@@ -5,7 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "${vcpkgRoot}/x64-osx/include",
-                "/usr/local/Cellar/assimp/4.1.0/include",
+                "/usr/local/Cellar/assimp/5.0.1/include",
                 "/usr/local/Cellar/lua/5.3.5_1/include/lua",
                 "../PerlinNoise/perlinNoiseHeader/**",
                 "../LuaHandler/**",
