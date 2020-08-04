@@ -39,7 +39,11 @@ void AAmbientLight::setupUniforms(const GLuint ambientLightColorUniform, const G
 
 //##### A LIGHT UNIFORM
 
-ALightUniform ALightUniform::loadALightUniformFromProgramme(GLuint shaderProgramme, GLuint lightIndex, ALight& alight) {
+ALightUniform ALightUniform::loadALightUniformFromProgramme(GLuint shaderProgramme, GLuint lightIndex, const ALight& alight) {
+    return ALightUniform::loadALightUniformFromProgrammeWithName(shaderProgramme, lightIndex, alight, alight.getDirectional() ? "directionalLights" : "pointLights");
+}
+
+ALightUniform ALightUniform::loadALightUniformFromProgrammeWithName(GLuint shaderProgramme, GLuint lightIndex, const ALight& alight, std::string name) {
     GLuint    lightPositionUniform = -1;
 	GLuint   lightDirectionUniform = -1;
 	GLuint       lightColorUniform = -1;
@@ -48,8 +52,7 @@ ALightUniform ALightUniform::loadALightUniformFromProgramme(GLuint shaderProgram
     GLuint    lightSpecularUniform = -1;
 
 	char uniformName[64];
-	bool isDirectional = alight.getDirectional();
-    sprintf(uniformName, "%s[%d].", isDirectional ? "directionalLights" : "pointLights", lightIndex);
+    sprintf(uniformName, "%s[%d].", name.c_str(), lightIndex);
 	std::string buffer;
 
     READ_UNIFORM(buffer, uniformName, lightPositionUniform, shaderProgramme, "position");
@@ -82,6 +85,15 @@ void ALight::setupUniforms(GLuint lightPositionUniform, GLuint lightDirectionUni
     glUniform1f(lightIntensityUniform, intensity);
     glUniform1i(lightDirectionalUniform, directional);
     glUniform1f(lightSpecularUniform, specularPower);
+}
+
+void ALight::setupUniforms(ALightUniform alightUniform) {
+    glUniform3f(alightUniform.lightPositionUniform, position.x, position.y, position.z);
+    glUniform3f(alightUniform.lightDirectionUniform, direction.x, direction.y, direction.z);
+    glUniform4f(alightUniform.lightColorUniform, color.x, color.y, color.z, color.w);
+    glUniform1f(alightUniform.lightIntensityUniform, intensity);
+    glUniform1i(alightUniform.lightDirectionalUniform, directional);
+    glUniform1f(alightUniform.lightSpecularUniform, specularPower);
 }
 
 glm::vec3 ALight::getPosition(void) const {

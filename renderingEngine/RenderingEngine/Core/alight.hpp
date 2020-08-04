@@ -2,6 +2,7 @@
 
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include <string>
 
 class AAmbientLight {
     private:
@@ -19,6 +20,8 @@ class AAmbientLight {
 
         void setupUniforms(const GLuint ambientLightColorUniform, const GLuint ambientLightIntensityUniform) const;
 };
+
+struct ALightUniform;
 
 class ALight {
     private:
@@ -51,6 +54,7 @@ class ALight {
         void setSpecularPower(const float specularPower);
 
         void setupUniforms(GLuint lightPositionUniform, GLuint lightDirectionUniform, GLuint lightColorUniform, GLuint lightIntensityUniform, GLuint lightDirectionalUniform, GLuint lightSpecularUniform = -1);
+        void setupUniforms(ALightUniform alightUniform);
 
         ALight& operator=(const ALight& anotherLight);
 
@@ -94,5 +98,6 @@ struct ALightUniform {
         }
 
     public:
-        static ALightUniform loadALightUniformFromProgramme(GLuint shaderProgramme, GLuint lightIndex, ALight& alight);
+        static ALightUniform loadALightUniformFromProgramme(GLuint shaderProgramme, GLuint lightIndex, const ALight& alight);
+        static ALightUniform loadALightUniformFromProgrammeWithName(GLuint shaderProgramme, GLuint lightIndex, const ALight& alight, std::string name);
 };
