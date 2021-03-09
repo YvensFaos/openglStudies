@@ -27,14 +27,14 @@
                 "-I/Users/yre03/Dev/Repositories/openglStudies/renderingEngine",
                 "-I/usr/local/Cellar/lua/5.3.5_1/include/lua",
                 "/usr/local/Cellar/lua/5.3.5_1/lib/liblua.5.3.dylib",
-                "/usr/local/Cellar/assimp/4.1.0/lib/libassimp.4.1.0.dylib",
-                "/usr/local/Cellar/assimp/4.1.0/lib/libIrrXML.a",
+                "/usr/local/Cellar/assimp/5.0.1/lib/libassimp.5.0.0.dylib",
+                "/usr/local/Cellar/assimp/5.0.1/lib/libIrrXML.dylib",
                 "/Users/yre03/Dev/Repositories/vcpkg/installed/x64-osx/lib/libglfw3.a",
                 "/Users/yre03/Dev/Repositories/vcpkg/installed/x64-osx/lib/libGLEW.a",
-                "/System/Library/Frameworks/OpenGL.framework/Versions/Current/OpenGL",
-                "/System/Library/Frameworks/Cocoa.framework/Versions/Current/Cocoa",
-                "/System/Library/Frameworks/IOKit.framework/Versions/Current/IOKit",
-                "/System/Library/Frameworks/CoreVideo.framework/Versions/Current/CoreVideo"
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/OpenGL.framework/Versions/Current/OpenGL.tbd",
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/Cocoa.framework/Versions/Current/Cocoa.tbd",
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/IOKit.framework/Versions/Current/IOKit.tbd",
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/CoreVideo.framework/Versions/Current/CoreVideo.tbd"
             ],
             "group": {
                 "kind": "build",
