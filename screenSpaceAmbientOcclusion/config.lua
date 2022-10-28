@@ -114,6 +114,9 @@ gFragmentShader = [[
     }
 ]]
 
+kernelsSize = 64
+noisesSize = 16
+
 models = {}
 models[1] = {file = "../3DModels/scene01.obj", pos = { 0.0,  0.0, 3.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,  0.0, 0.0}}
 

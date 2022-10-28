@@ -287,7 +287,7 @@ combineShader = [[
 bloomFactor = 0.9
 
 initialMask = 255
-gaussianBlurPasses = 4
+gaussianBlurPasses = 2
 
 downsample = 0.5
 

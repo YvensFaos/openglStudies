@@ -169,7 +169,7 @@ hdrShader = [[
     }
 ]]
 
-exposure = 0.32
+exposure = 0.33
 
 models = {}
 models[1] = {file = "../3DModels/nonormalmonkey.obj", pos = { 0.0,  0.0, 3.0}, sca = {1.0, 1.0, 1.0}, rot = { 0.0,   0.0, 0.0}}

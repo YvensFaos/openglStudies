@@ -31,6 +31,9 @@ class AFramebuffer {
 
         void setBufferShowFlag(GLuint bufferShowFlag);
 
+//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        void changeTextureParameter(GLint textureParameter, GLint textureParameterValue);
+
     protected:
         void generateRenderbuffer(void);
 };
@@ -40,8 +43,6 @@ class ADepthbuffer : public AFramebuffer{
         ADepthbuffer(GLfloat width, GLfloat height);
         ~ADepthbuffer(void);
 };
-
-
 
 class AGBuffer {
     private:

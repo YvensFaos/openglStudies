@@ -24,8 +24,8 @@
                 "../../LuaHandler/*.cpp",
                 "-I/Users/yre03/Dev/Repositories/vcpkg/installed/x64-osx/include",
                 "-I/Users/yre03/Dev/Repositories/openglStudies/LuaHandler",
-                "-I/usr/local/Cellar/lua/5.3.5_1/include/lua",
-                "/usr/local/Cellar/lua/5.3.5_1/lib/liblua.5.3.dylib",
+                "-I/usr/local/Cellar/lua/5.4.4_1/include/lua",
+                "/usr/local/Cellar/lua/5.4.4_1/lib/liblua.5.4.dylib",
             ],
             "group": {
                 "kind": "build",
@@ -34,3 +34,5 @@
         }
     ]
 }
+
+//-g -o luahandlerUnit.exe -std=c++17 luahandlerUnit.cpp ../../LuaHandler/*.cpp -I/Users/yre03/Dev/Repositories/vcpkg/installed/x64-osx/include -I/Users/yre03/Dev/Repositories/openglStudies/LuaHandler -I/usr/local/Cellar/lua/5.3.5_1/include/lua /usr/local/Cellar/lua/5.3.5_1/lib/liblua.5.3.5.dylib

@@ -99,6 +99,12 @@ void AFramebuffer::setBufferShowFlag(GLuint bufferShowFlag)
     this->bufferShowFlag = bufferShowFlag;
 }
 
+void AFramebuffer::changeTextureParameter(GLint textureParameter, GLint textureParameterValue)
+{
+    glBindTexture(GL_TEXTURE_2D, framebufferTexture);
+    glTexParameteri(GL_TEXTURE_2D, textureParameter, textureParameterValue);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
 
 //////////
 

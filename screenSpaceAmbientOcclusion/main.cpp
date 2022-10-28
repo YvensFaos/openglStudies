@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <vector>
 #include <luahandler.hpp>
+#include <random>
 
 #include <RenderingEngine/Core/arenderer.hpp>
 #include <RenderingEngine/Core/amodel.hpp>
@@ -82,6 +83,54 @@ int main(void)
 		lightUniforms.push_back(ALightUniform::loadALightUniformFromProgrammeWithName(gbufferProgramme, i, alights[i], "lights"));
 	}
 
+	AFramebuffer ssaoFrameBuffer(width * 2, height * 2, GL_RED, GL_RED, GL_FLOAT);
+	ssaoFrameBuffer.changeTextureParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	ssaoFrameBuffer.changeTextureParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	AFramebuffer ssaoBlurFrameBuffer(width * 2, height * 2, GL_RED, GL_RED, GL_FLOAT);
+	ssaoBlurFrameBuffer.changeTextureParameter(GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	ssaoBlurFrameBuffer.changeTextureParameter(GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	
+	std::uniform_real_distribution<GLfloat> randomFloats(0.0f, 1.0f);
+	std::default_random_engine randomEngine;
+	std::vector<glm::vec3> ssaoKernels;
+
+	auto lerp = [](float a, float b, float f) {
+		return a + f * (b - a);
+	};
+
+	unsigned int kernelsSize = luaHandler.getGlobalInteger("kernelsSize");
+	ssaoKernels.reserve(kernelsSize);
+
+	for (size_t i = 0; i < 64; i++)
+	{
+		glm::vec3 sample(randomFloats(randomEngine) * 2.0f - 1.0f, randomFloats(randomEngine) * 2.0f - 1.0f, randomFloats(randomEngine));
+		sample = glm::normalize(sample);
+		sample *= randomFloats(randomEngine);
+
+		float scale = (static_cast<float>(i)) / 64.0f;
+		scale = lerp(0.1f, 1.0f, scale * scale);
+		sample *= scale;
+		ssaoKernels.push_back(sample);
+	}
+	
+	unsigned int noisesSize = luaHandler.getGlobalInteger("noisesSize");
+	float* noiseData = new float[noisesSize * 3];
+
+	unsigned int noiseDataIndex = 0;
+	for (size_t i = 0; i < noisesSize; i++)
+	{
+		glm::vec3 noise(randomFloats(randomEngine) * 2.0f - 1.0f, randomFloats(randomEngine) * 2.0f - 1.0f, 0.0);
+		noiseData[noiseDataIndex++] = noise.x;
+		noiseData[noiseDataIndex++] = noise.y;
+		noiseData[noiseDataIndex++] = noise.z;
+	}
+	
+	ATextureData noiseTextureData(4, 4, noiseData);
+	ATextureHolder noiseTextureHolder(noiseTextureData, GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT, GL_RGBA32F, GL_RGB);
+	
+
+	//Render part
 	do
 	{
 		projection = glm::perspective(glm::radians(acamera.getZoom()), (float) width / (float) height, acamera.getNear(), acamera.getFar());

@@ -33,9 +33,10 @@ class ATextureHolder {
         const GLuint texture;
 
     public:
-        ATextureHolder(const GLfloat width, const GLfloat height, const GLint internalformat, const GLenum format, const GLenum type, const GLint minFilter = GL_LINEAR, const GLint magFilter = GL_LINEAR);
-        ATextureHolder(const char *path, const std::string &directory, bool gamma = false, const GLint minFilter = GL_LINEAR, const GLint magFilter = GL_LINEAR, const GLint textureWrapS = GL_CLAMP_TO_BORDER, const GLint textureWrapT = GL_CLAMP_TO_BORDER);
-        ATextureHolder(const ATextureData& textureData, const GLint minFilter = GL_LINEAR, const GLint magFilter = GL_LINEAR, const GLint textureWrapS = GL_CLAMP_TO_BORDER, const GLint textureWrapT = GL_CLAMP_TO_BORDER);
+    ////glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureData.width, textureData.height, 0, GL_RGBA, GL_FLOAT, textureData.data);
+        ATextureHolder(const GLfloat width, const GLfloat height, const GLint internalFormat, const GLenum format, const GLenum type, const GLint minFilter = GL_LINEAR, const GLint magFilter = GL_LINEAR);
+        ATextureHolder(const char *path, const std::string &directory, bool gamma = false, const GLint minFilter = GL_LINEAR, const GLint magFilter = GL_LINEAR, const GLint textureWrapS = GL_CLAMP_TO_BORDER, const GLint textureWrapT = GL_CLAMP_TO_BORDER, const GLint internalFormat = GL_RGBA, const GLenum format = GL_RGBA);
+        ATextureHolder(const ATextureData& textureData, const GLint minFilter = GL_LINEAR, const GLint magFilter = GL_LINEAR, const GLint textureWrapS = GL_CLAMP_TO_BORDER, const GLint textureWrapT = GL_CLAMP_TO_BORDER, const GLint internalFormat = GL_RGBA, const GLenum format = GL_RGBA);
         ATextureHolder(const GLint texture);
         ~ATextureHolder(void);
 
@@ -45,5 +46,6 @@ class ATextureHolder {
 
     private:
         GLuint generateTextId(void);
-        GLuint initializeFromTextureData(const ATextureData& textureData, const GLint minFilter, const GLint magFilter, const GLint textureWrapS, const GLint textureWrapT);
+        //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureData.width, textureData.height, 0, GL_RGBA, GL_FLOAT, textureData.data);
+        GLuint initializeFromTextureData(const ATextureData& textureData, const GLint minFilter, const GLint magFilter, const GLint textureWrapS, const GLint textureWrapT, const GLint internalFormat, const GLenum format);
 };
