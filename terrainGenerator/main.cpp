@@ -58,10 +58,27 @@ int main(void)
 	GLuint textureUniform2 = glGetUniformLocation(shaderProgramme, "textureUniform2");
 	GLuint textureUniform3 = glGetUniformLocation(shaderProgramme, "textureUniform3");
 
+	GLuint showOnlyNormalsUniform = glGetUniformLocation(shaderProgramme, "showOnlyNormals");
 	GLuint objectsNumberPointLightsUniform = glGetUniformLocation(shaderProgramme, "numberPointLights");
 	GLuint objectsNumberDirectionLightsUniform = glGetUniformLocation(shaderProgramme, "numberDirectionLights");
 
 	std::vector<AModel> models = ALuaHelper::loadModelsFromTable("models", luaHandler);
+
+	int showOnlyNormals = 1;
+
+	arenderer.addKeybind(AKeyBind(GLFW_KEY_U, 
+		[&models](int action, int mods) {
+			models[0].rotate(glm::vec3(0,5,0));
+		}
+	));
+
+	arenderer.addKeybind(AKeyBind(GLFW_KEY_I, 
+		[&showOnlyNormals](int action, int mods) {
+			if(action == GLFW_PRESS) {
+				showOnlyNormals = (showOnlyNormals == 1) ? 0 : 1;
+			}
+		}
+	));
 
 	ACamera& acamera = arenderer.getCamera();
 	ALuaHelper::setupCameraPosition("cameraPosition", acamera, luaHandler);
@@ -77,6 +94,7 @@ int main(void)
 	uint bwidth = 600;
 	uint bheight = 600;
 	float* buffer = new float[bwidth * bheight * 4];
+	srand(6);
 
 	PerlinNoise::generatePerlinNoise(bwidth, bheight, 16, 16, buffer);
 	ATextureData atextureData1(bwidth, bheight, buffer);
@@ -111,6 +129,8 @@ int main(void)
 		glUseProgram(shaderProgramme);
 
 		glUniformMatrix4fv(vpMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewProjectionMatrix));
+
+		glUniform1i(showOnlyNormalsUniform, showOnlyNormals);
 		glUniform1i(objectsNumberPointLightsUniform, 0);
 		glUniform1i(objectsNumberDirectionLightsUniform, 1);
 		
