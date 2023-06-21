@@ -21,20 +21,19 @@
 #include <vector>
 #include <luahandler.hpp>
 
-#include <RenderingEngine/Core/arenderer.hpp>
-#include <RenderingEngine/Core/amodel.hpp>
-#include <RenderingEngine/Core/acamera.hpp>
-#include <RenderingEngine/Core/alight.hpp>
-#include <RenderingEngine/Core/ashader.hpp>
-#include <RenderingEngine/GraphicalTools/aframebuffer.hpp>
-#include <RenderingEngine/GraphicalTools/askybox.hpp>
-#include <RenderingEngine/Utils/amacrohelper.hpp>
-#include <RenderingEngine/Utils/arenderquad.hpp>
-#include <RenderingEngine/Utils/aluahelper.hpp>
-#include <RenderingEngine/Utils/agaussianquad.hpp>
-
-#include <RenderingEngine/Objects/alightobject.hpp>
-#include <RenderingEngine/GraphicalTools/acubemap.hpp>
+#include "../renderingEngine/RenderingEngine/Core/arenderer.hpp"
+#include "../renderingEngine/RenderingEngine/Core/amodel.hpp"
+#include "../renderingEngine/RenderingEngine/Core/acamera.hpp"
+#include "../renderingEngine/RenderingEngine/Core/alight.hpp"
+#include "../renderingEngine/RenderingEngine/Core/ashader.hpp"
+#include "../renderingEngine/RenderingEngine/GraphicalTools/aframebuffer.hpp"
+#include "../renderingEngine/RenderingEngine/GraphicalTools/askybox.hpp"
+#include "../renderingEngine/RenderingEngine/Utils/amacrohelper.hpp"
+#include "../renderingEngine/RenderingEngine/Utils/arenderquad.hpp"
+#include "../renderingEngine/RenderingEngine/Utils/aluahelper.hpp"
+#include "../renderingEngine/RenderingEngine/Utils/agaussianquad.hpp"
+#include "../renderingEngine/RenderingEngine/Objects/alightobject.hpp"
+#include "../renderingEngine/RenderingEngine/GraphicalTools/acubemap.hpp"
 
 #include <stb_image.h>
 

@@ -4,9 +4,9 @@
             "name": "Mac",
             "includePath": [
                 "${workspaceFolder}/**",
-                "${vcpkgRoot}/x64-osx/include",
-                "/usr/local/Cellar/assimp/5.2.0/include",
-                "/usr/local/Cellar/lua/5.3.5_1/include/lua",
+                "${vcpkg}/arm64-osx/include",
+                "opt/homebrew/Cellar/assimp/5.2.5/include",
+                "opt/homebrew/Cellar/lua/5.4.6/include/lua",
                 "../LuaHandler/**",
                 "../renderingEngine/**"
             ],
@@ -16,10 +16,11 @@
             },
             "macFrameworkPath": [
                 "/System/Library/Frameworks",
-                "/Library/Frameworks"
+                "/Library/Frameworks",
+                "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
             ],
-            "intelliSenseMode": "clang-x64",
-            "compilerPath": "/usr/bin/clang",
+            "intelliSenseMode": "gcc-arm64",
+            "compilerPath": "/usr/bin/g++",
             "cStandard": "c11",
             "cppStandard": "c++17"
         }
